@@ -3,5 +3,12 @@
 
     <string name="hello">Hello World, HAPdroidActivity!</string>
     <string name="app_name">HAPdroid</string>
+    <string name="getroot">Get Root</string>
+    <string name="exit">Exit</string>
+    <string name="rootreq">Root access, in particular the su package, 
+        is required for this application to work properly. 
+        Please Root your phone, if not already done so, 
+        and install the su package.</string>
+    <string name="capture">Capture</string>
 
 </resources>
