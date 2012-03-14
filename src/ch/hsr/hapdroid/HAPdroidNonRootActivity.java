@@ -18,6 +18,7 @@ public class HAPdroidNonRootActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nonroot);
+        final Activity thisActivity = this;
         
         exitButton = (Button) findViewById(id.exit_btn);
         getrootButton = (Button) findViewById(id.getroot_btn);
@@ -26,7 +27,7 @@ public class HAPdroidNonRootActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				RootTools.offerSuperUser(getParent());
+				RootTools.offerSuperUser(thisActivity);
 			}
 		});
         

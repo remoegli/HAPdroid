@@ -9,6 +9,8 @@
         is required for this application to work properly. 
         Please Root your phone, if not already done so, 
         and install the su package.</string>
-    <string name="capture">Capture</string>
+    <string name="capture_tcpdump_wlan">Capture wlan</string>
+    <string name="capture_tcpdump_mobile">Capture mobile</string>
+    <string name="capture_toast">Capturing tcpdump, please wait.</string>
 
 </resources>

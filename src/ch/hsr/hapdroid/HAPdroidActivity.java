@@ -1,7 +1,5 @@
 package ch.hsr.hapdroid;
 
-import java.io.IOException;
-
 import com.stericson.RootTools.RootTools;
 
 import android.app.Activity;
@@ -15,21 +13,11 @@ public class HAPdroidActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		if (RootTools.isRootAvailable()) {
-			prepareRootLibrary();
 			startActivity(new Intent(this, HAPdroidRootActivity.class));
 		} else {
-			RootTools.offerSuperUser(this);
+			startActivity(new Intent(this, HAPdroidNonRootActivity.class));
 		}
 
 		finish();
-	}
-
-	private void prepareRootLibrary() {
-		try {
-			Runtime.getRuntime().exec("su");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }
