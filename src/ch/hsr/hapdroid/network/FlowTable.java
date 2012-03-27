@@ -22,18 +22,27 @@ public class FlowTable {
 	}
 
 	private Flow getFlowFor(Packet packet) {
-		// TODO Auto-generated method stub
+		for (Flow f : mFlowList){
+			if (f.describes(packet))
+				return f;
+		}
 		return null;
 	}
 
 	private void addPacketToFlow(Packet packet, Flow flow) {
-		// TODO Auto-generated method stub
-		
+		flow.add(packet);
 	}
 
 	private void createFlowFrom(Packet packet) {
-		// TODO Auto-generated method stub
-		
+		mFlowList.add(new Flow(packet));
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (Flow f : mFlowList)
+			result.append(f.toString());
+		return result.toString();
 	}
 
 }

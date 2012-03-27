@@ -26,9 +26,12 @@ public class HAPdroidRootActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case RECEIVE_NETWORK_FLOW:
-				String packet = msg.obj.toString();
-				mResultView.append(Packet.parsePacket(packet).toString());
+				Packet p = (Packet) msg.obj;
+				mResultView.append(p.toString());
 				break;
+			case RECEIVE_FLOW_TABLE:
+				FlowTable f = (FlowTable) msg.obj;
+				mResultView.setText(f.toString());
 			}
 	
 		}
@@ -56,18 +59,16 @@ public class HAPdroidRootActivity extends Activity {
 	private Button mStopCaptureBtn;
 	private boolean mBound;
 	private HAPdroidService mService;
-	private FlowTable mFlowTable;
 
 	public static final StringBuilder mResult = new StringBuilder();
 	public static final int RECEIVE_NETWORK_FLOW = 0;
+	public static final int RECEIVE_FLOW_TABLE = 1;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
-		mFlowTable = new FlowTable();
 
 		mResultView = (TextView) findViewById(id.resultView);
 		mResultView.setMovementMethod(new ScrollingMovementMethod());
@@ -75,10 +76,6 @@ public class HAPdroidRootActivity extends Activity {
 		mCaptureWlanBtn = (Button) findViewById(id.capturewlan_btn);
 		mCaptureMobileBtn = (Button) findViewById(id.capturemobile_btn);
 		mStopCaptureBtn = (Button) findViewById(id.stop_capture);
-	}
-
-	protected void addToFlow(String packet) {
-		mFlowTable.add(Packet.parsePacket(packet));
 	}
 
 	private void setOnClickListeners() {

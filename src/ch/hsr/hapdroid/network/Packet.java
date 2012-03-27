@@ -10,6 +10,7 @@ public class Packet {
 	public static final short IPPROTO_ICMP = 1;
 	public static final short IPPROTO_TCP = 6;
 	public static final short IPPROTO_UDP = 17;
+	
 	private static final String LOG_TAG = "Packet";
 	
 	public InetAddress src_addr;
@@ -25,7 +26,7 @@ public class Packet {
 	public String toString() {
 		return timestamp.toString() + 
 				src_addr.toString() +":"+src_port + " TO "+
-				dst_addr.toString() +":"+dst_port + " PROTO "+proto+" SIZE "+payload_size;
+				dst_addr.toString() +":"+dst_port + " PROTO "+proto+" SIZE "+payload_size+"\n";
 	}
 	
 	public static final Packet parsePacket(String packet){
