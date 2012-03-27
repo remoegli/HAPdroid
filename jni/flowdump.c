@@ -144,7 +144,7 @@ got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 	 */
 	
 	if (size_payload > 0) {
-		fdprintf(fd, 	"%s:%d:%s:%d-->%s:%d:%d:%d:%ld.%06ld\n",
+		fdprintf(fd, 	"%s:%d:%s:%d-->%s:%d:%d:%d:%ld,%06ld\n",
 			dev,ip_p,ip_src,sport,ip_dst,dport,ip_tos,size_payload,ts.tv_sec,ts.tv_usec);
 	}
 

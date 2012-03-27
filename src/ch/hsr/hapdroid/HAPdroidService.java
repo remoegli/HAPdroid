@@ -194,7 +194,7 @@ public class HAPdroidService extends Service {
 		protected void onProgressUpdate(String... values) {
 			mMessage = new Message();
 			mMessage.what = HAPdroidRootActivity.RECEIVE_NETWORK_FLOW;
-			mMessage.obj = values[0] + '\n';
+			mMessage.obj = values[0];
 			if (mHandler != null)
 				mHandler.sendMessage(mMessage);
 		}

@@ -16,54 +16,58 @@ import android.widget.Button;
 import android.widget.TextView;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
+import ch.hsr.hapdroid.network.FlowTable;
+import ch.hsr.hapdroid.network.Packet;
 
 public class HAPdroidRootActivity extends Activity {
+	private Handler mHandler = new Handler() {
+	
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case RECEIVE_NETWORK_FLOW:
+				String packet = msg.obj.toString();
+				mResultView.append(Packet.parsePacket(packet).toString());
+				break;
+			}
+	
+		}
+	};
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
+	
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			HAPdroidBinder binder = (HAPdroidBinder) service;
+			mService = binder.getService();
+			mBound = true;
+	
+			mService.setCallbackHandler(mHandler);
+			setOnClickListeners();
+		}
+	
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			mBound = false;
+		}
+	};
 	private TextView mResultView;
 	private Button mCaptureWlanBtn;
 	private Button mCaptureMobileBtn;
 	private Button mStopCaptureBtn;
 	private boolean mBound;
 	private HAPdroidService mService;
+	private FlowTable mFlowTable;
 
 	public static final StringBuilder mResult = new StringBuilder();
 	public static final int RECEIVE_NETWORK_FLOW = 0;
-
-	private Handler mHandler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case RECEIVE_NETWORK_FLOW:
-				mResultView.append(msg.obj.toString());
-				break;
-			}
-
-		}
-	};
-
-	private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			HAPdroidBinder binder = (HAPdroidBinder) service;
-			mService = binder.getService();
-			mBound = true;
-
-			mService.setCallbackHandler(mHandler);
-			setOnClickListeners();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
-		}
-	};
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		mFlowTable = new FlowTable();
 
 		mResultView = (TextView) findViewById(id.resultView);
 		mResultView.setMovementMethod(new ScrollingMovementMethod());
@@ -71,6 +75,10 @@ public class HAPdroidRootActivity extends Activity {
 		mCaptureWlanBtn = (Button) findViewById(id.capturewlan_btn);
 		mCaptureMobileBtn = (Button) findViewById(id.capturemobile_btn);
 		mStopCaptureBtn = (Button) findViewById(id.stop_capture);
+	}
+
+	protected void addToFlow(String packet) {
+		mFlowTable.add(Packet.parsePacket(packet));
 	}
 
 	private void setOnClickListeners() {

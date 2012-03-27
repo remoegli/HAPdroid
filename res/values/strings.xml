@@ -12,5 +12,6 @@
     <string name="capture_tcpdump_wlan">Capture wlan</string>
     <string name="capture_tcpdump_mobile">Capture mobile</string>
     <string name="capture_toast">Capturing tcpdump, please wait.</string>
+    <string name="capture_stop">Stop Capture</string>
 
 </resources>
