@@ -103,10 +103,10 @@ public class HAPdroidService extends Service {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void stopWlanCapture() {
 		try {
-			if(RootTools.isProcessRunning(CAPTURE_WLAN_CMD))
+			if (RootTools.isProcessRunning(CAPTURE_WLAN_CMD))
 				RootTools.killProcess(CAPTURE_WLAN_CMD);
 		} catch (TimeoutException e) {
 			e.printStackTrace();
@@ -123,14 +123,20 @@ public class HAPdroidService extends Service {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void stopMobileCapture() {
 		try {
-			if(RootTools.isProcessRunning(CAPTURE_MOBILE_CMD))
+			if (RootTools.isProcessRunning(CAPTURE_MOBILE_CMD))
 				RootTools.killProcess(CAPTURE_MOBILE_CMD);
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void stopCapture(){
+		stopWlanCapture();
+		stopMobileCapture();
+		mNetworkCapture.stopServer();
 	}
 
 	private class NetworkCaptureTask extends AsyncTask<Void, String, Void> {
@@ -138,6 +144,7 @@ public class HAPdroidService extends Service {
 		private BufferedReader mReader;
 		private InputStream mInputStream;
 		private Message mMessage;
+		private boolean mServerShouldStop;
 
 		public static final String SERVER_NAME = "NetCaptureServ";
 		private static final String LOG_TAG = "NetworkCaptureTask";
@@ -145,27 +152,35 @@ public class HAPdroidService extends Service {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			mServerShouldStop = false;
 			Log.d(LOG_TAG, "NetworkCapture server started");
+		}
+		
+		public void stopServer(){
+			mServerShouldStop = true;
+			shutdown();
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
 				mServerSocket = new LocalServerSocket(SERVER_NAME);
-				LocalSocket sk = mServerSocket.accept();
-				mInputStream = sk.getInputStream();
-				mReader = new BufferedReader(
-						new InputStreamReader(mInputStream));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				Log.e(LOG_TAG, "Creation of server failed: " + e.getMessage());
 				e.printStackTrace();
 			}
 
 			String line;
 			Log.d(LOG_TAG, "Start reading lines");
 			try {
-				while ((line = mReader.readLine()) != null) {
-					publishProgress(line);
+				while (!mServerShouldStop) {
+					LocalSocket sk = mServerSocket.accept();
+					mInputStream = sk.getInputStream();
+					mReader = new BufferedReader(new InputStreamReader(
+							mInputStream));
+					while ((line = mReader.readLine()) != null) {
+						publishProgress(line);
+					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -177,11 +192,6 @@ public class HAPdroidService extends Service {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			StringBuilder result = new StringBuilder();
-			for (String s : values) {
-				result.append(s);
-				result.append('\n');
-			}
 			mMessage = new Message();
 			mMessage.what = HAPdroidRootActivity.RECEIVE_NETWORK_FLOW;
 			mMessage.obj = values[0] + '\n';
@@ -191,6 +201,10 @@ public class HAPdroidService extends Service {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			shutdown();
+		}
+
+		private void shutdown() {
 			try {
 				mInputStream.close();
 				mServerSocket.close();

@@ -78,10 +78,6 @@ public class HAPdroidRootActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HAPdroidRootActivity.this,
-						HAPdroidService.class);
-				startService(intent);
-
 				mService.startWlanCapture();
 			}
 		});
@@ -90,10 +86,6 @@ public class HAPdroidRootActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HAPdroidRootActivity.this,
-						HAPdroidService.class);
-				startService(intent);
-
 				mService.startMobileCapture();
 			}
 		});
@@ -103,8 +95,7 @@ public class HAPdroidRootActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if (mService != null) {
-					mService.stopMobileCapture();
-					mService.stopWlanCapture();
+					mService.stopCapture();
 				}
 			}
 		});
@@ -115,6 +106,7 @@ public class HAPdroidRootActivity extends Activity {
 		super.onStart();
 		Intent intent = new Intent(this, HAPdroidService.class);
 		bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+		startService(intent);
 	}
 
 	@Override

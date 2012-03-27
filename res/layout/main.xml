@@ -10,7 +10,7 @@
         android:layout_height="0dp"
         android:layout_weight="0.50"
         android:scrollbars="vertical"
-        android:text="@string/hello" />
+        android:text="@string/format" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     	android:layout_width="fill_parent"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, HAPdroidActivity!</string>
+    <string name="format">dev:type:src_ip:src_port—>dst_ip:dst_port:ToS:payload_size:timeval\n</string>
     <string name="app_name">HAPdroid</string>
     <string name="getroot">Get Root</string>
     <string name="exit">Exit</string>

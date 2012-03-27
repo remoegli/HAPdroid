@@ -13,6 +13,7 @@
 #include <sys/un.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 /* default snap length (maximum bytes per packet to capture) */
 #define SNAP_LEN 1518
@@ -75,6 +76,7 @@ struct sniff_tcp {
 };
 
 int fd = 1;
+char *dev = NULL;			/* capture device name */
 
 void
 print_usage(void){
@@ -92,20 +94,16 @@ return;
 void
 got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
-	static int count = 1;                   /* packet counter */
-	
 	/* declare pointers to packet headers */
 	const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
 	const struct sniff_ip *ip;              /* The IP header */
 	const struct sniff_tcp *tcp;            /* The TCP header */
-	const char *payload;                    /* Packet payload */
+	
+	const struct timeval ts = (struct timeval)(header->ts);
 
 	int size_ip;
 	int size_tcp;
 	int size_payload;
-	
-	fdprintf(fd, "\nPacket number %d:\n", count);
-	count++;
 	
 	/* define ethernet header */
 	ethernet = (struct sniff_ethernet*)(packet);
@@ -114,32 +112,15 @@ got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 	ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
 	size_ip = IP_HL(ip)*4;
 	if (size_ip < 20) {
-		fdprintf(fd, "   * Invalid IP header length: %u bytes\n", size_ip);
+		fprintf(stderr, "   * Invalid IP header length: %u bytes\n", size_ip);
 		return;
 	}
 
 	/* print source and destination IP addresses */
-	fdprintf(fd, "       From: %s\n", inet_ntoa(ip->ip_src));
-	fdprintf(fd, "         To: %s\n", inet_ntoa(ip->ip_dst));
-	
-	/* determine protocol */	
-	switch(ip->ip_p) {
-		case IPPROTO_TCP:
-			fdprintf(fd, "   Protocol: TCP\n");
-			break;
-		case IPPROTO_UDP:
-			fdprintf(fd, "   Protocol: UDP\n");
-			return;
-		case IPPROTO_ICMP:
-			fdprintf(fd, "   Protocol: ICMP\n");
-			return;
-		case IPPROTO_IP:
-			fdprintf(fd, "   Protocol: IP\n");
-			return;
-		default:
-			fdprintf(fd, "   Protocol: unknown\n");
-			return;
-	}
+	const char * ip_src = inet_ntoa(ip->ip_src);
+	const char * ip_dst = inet_ntoa(ip->ip_dst);
+	u_char ip_p = ip->ip_p;
+	u_char ip_tos = ip->ip_tos;
 	
 	/*
 	 *  OK, this packet is TCP.
@@ -149,25 +130,22 @@ got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 	tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
 	size_tcp = TH_OFF(tcp)*4;
 	if (size_tcp < 20) {
-		fdprintf(fd, "   * Invalid TCP header length: %u bytes\n", size_tcp);
+		fprintf(stderr, "   * Invalid TCP header length: %u bytes\n", size_tcp);
 		return;
 	}
 	
-	fdprintf(fd, "   Src port: %d\n", ntohs(tcp->th_sport));
-	fdprintf(fd, "   Dst port: %d\n", ntohs(tcp->th_dport));
+	u_short sport = ntohs(tcp->th_sport);
+	u_short dport = ntohs(tcp->th_dport); 
 	
-	/* define/compute tcp payload (segment) offset */
-	payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
-	
-	/* compute tcp payload (segment) size */
 	size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
 	
 	/*
-	 * Print payload data; it might be binary, so don't just
-	 * treat it as a string.
+	 * Print header data.
 	 */
+	
 	if (size_payload > 0) {
-		fdprintf(fd, "   Payload (%d bytes):\n", size_payload);
+		fdprintf(fd, 	"%s:%d:%s:%d-->%s:%d:%d:%d:%ld.%06ld\n",
+			dev,ip_p,ip_src,sport,ip_dst,dport,ip_tos,size_payload,ts.tv_sec,ts.tv_usec);
 	}
 
 return;
@@ -208,19 +186,40 @@ init_srv_conn(const char* srvname){
 return sk;
 }
 
+struct bpf_program fp;			/* compiled filter program (expression) */
+pcap_t *handle;				/* packet capture handle */
+
+void 
+cleanup(int sigtype){
+	pcap_freecode(&fp);
+	pcap_close(handle);
+
+	fdprintf(fd, "\nCapture complete.\n");
+	fprintf(stdout, "Device: %s capture process terminated", dev);
+}
+
 int main(int argc, char **argv)
 {
-	char *dev = NULL;			/* capture device name */
-	char *srvname = NULL;
+	char *srvname = NULL;			/* local network server name */
 	char errbuf[PCAP_ERRBUF_SIZE];		/* error buffer */
 	char buffer[256];
-	pcap_t *handle;				/* packet capture handle */
+
+	struct sigaction sa;
+	sigset_t sigmask;
+	
+	/* set signal handlers */
+	sigemptyset(&sigmask);
+	sa.sa_handler = cleanup;
+	sa.sa_mask = sigmask;
+	sa.sa_flags = 0;
+	sigaction(SIGPIPE, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
 
 	char filter_exp[] = "ip";		/* filter expression [3] */
-	struct bpf_program fp;			/* compiled filter program (expression) */
 	bpf_u_int32 mask;			/* subnet mask */
 	bpf_u_int32 net;			/* ip */
-	int num_packets = 10;			/* number of packets to capture */
+	int num_packets = -1;			/* number of packets to capture */
 
 	/* check for capture device name on command-line */
 	if (argc == 2) {
@@ -254,11 +253,11 @@ int main(int argc, char **argv)
 		mask = 0;
 	}
 
-	printf("using filedescriptor: %i\n", fd);
 	/* print capture info */
-	fdprintf(fd, "Device: %s\n", dev);
-	fdprintf(fd, "Number of packets: %d\n", num_packets);
-	fdprintf(fd, "Filter expression: %s\n", filter_exp);
+	fprintf(stdout, "Device: %s\n", dev);
+	fprintf(stdout, "using filedescriptor: %i\n", fd);
+	fprintf(stdout, "Number of packets: %d\n", num_packets);
+	fprintf(stdout, "Filter expression: %s\n", filter_exp);
 
 	/* open capture device */
 	handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
@@ -283,12 +282,6 @@ int main(int argc, char **argv)
 
 	/* now we can set our callback function */
 	pcap_loop(handle, num_packets, got_packet, NULL);
-
-	/* cleanup */
-	pcap_freecode(&fp);
-	pcap_close(handle);
-
-	fdprintf(fd, "\nCapture complete.\n");
 
 return 0;
 }
