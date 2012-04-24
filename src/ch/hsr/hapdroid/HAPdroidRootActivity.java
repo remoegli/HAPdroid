@@ -41,6 +41,9 @@ public class HAPdroidRootActivity extends Activity {
 			case RECEIVE_FLOW_TABLE:
 				FlowTable f = (FlowTable) msg.obj;
 				mResultView.setText(f.toString());
+			case RECEIVE_TRANSACTION:
+				String s = (String) msg.obj;
+				mResultView.append(s);
 			}
 
 		}
@@ -73,6 +76,7 @@ public class HAPdroidRootActivity extends Activity {
 	public static final StringBuilder mResult = new StringBuilder();
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
+	public static final int RECEIVE_TRANSACTION = 2;
 	private static final String LOG_TAG = "HAPdroidRootActivity";
 	private NetworkCaptureTask task;
 
@@ -204,11 +208,9 @@ public class HAPdroidRootActivity extends Activity {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			Packet p = Packet.parsePacket(values[0]);
-
 			mMessage = new Message();
-			mMessage.what = HAPdroidRootActivity.RECEIVE_NETWORK_FLOW;
-			mMessage.obj = p;
+			mMessage.what = HAPdroidRootActivity.RECEIVE_TRANSACTION;
+			mMessage.obj = values[0];
 			if (mHandler != null)
 				mHandler.sendMessage(mMessage);
 		}

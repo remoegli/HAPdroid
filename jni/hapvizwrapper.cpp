@@ -5,6 +5,8 @@
 #include <android/log.h>
 #include <iostream>
 #include <streambuf>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 #include "ch_hsr_hapdroid_HAPvizLibrary.h"
 
 #include <sys/socket.h>
@@ -69,6 +71,44 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
 	env->ReleaseStringUTFChars(in_file, inf_char);
 }
 
+/**
+ * ostream for file descriptors
+ */
+class fdoutbuf : public std::streambuf {
+  protected:
+    int fd;    // file descriptor
+  public:
+    // constructor
+    fdoutbuf (int _fd) : fd(_fd) {
+    }
+  protected:
+    // write one character
+    virtual int_type overflow (int_type c) {
+        if (c != EOF) {
+            char z = c;
+            if (write (fd, &z, 1) != 1) {
+                return EOF;
+            }
+        }
+        return c;
+    }
+    // write multiple characters
+    virtual
+    std::streamsize xsputn (const char* s,
+                            std::streamsize num) {
+        return write(fd,s,num);
+    }
+};
+
+class fdostream : public std::ostream {
+  protected:
+    fdoutbuf buf;
+  public:
+    fdostream (int fd) : std::ostream(0), buf(fd) {
+        rdbuf(&buf);
+    }
+};
+
 using namespace std;
 namespace io = boost::iostreams;
 
@@ -111,25 +151,25 @@ int init_srv_conn(const char* srvname) {
 	len = offsetof(struct sockaddr_un, sun_path) + 1
 			+ strlen(&addr.sun_path[1]);
 
-	printf("flowdump : Before creating socket\n");
+	LOGD("Before creating socket\n");
 	sk = socket(PF_LOCAL, SOCK_STREAM, 0);
 	if (sk < 0) {
 		err = errno;
-		fprintf(stderr, "Cannot open socket: %s (%s)\n", strerror(err), err);
+		LOGE("Cannot open socket: %s (%s)", strerror(err), err);
 		errno = err;
 		return -1;
 	}
 
-	printf("flowdump : Before connecting to Java LocalSocketServer\n");
+	LOGD("Before connecting to Java LocalSocketServer");
 	if (connect(sk, (struct sockaddr *) &addr, len) < 0) {
 		err = errno;
-		fprintf(stderr, "connect() failed: %s (%s)\n", strerror(err), err);
+		LOGE("connect() failed: %s (%s)", strerror(err), err);
 		close(sk);
 		errno = err;
 		return -1;
 	}
 
-	printf("flowdump : Connecting to Java LocalSocketServer succeed\n");
+	LOGD("Connecting to Java LocalSocketServer succeed");
 
 	return sk;
 }
@@ -179,15 +219,16 @@ void read_file(const string & in_filename, const string & srvname,
 	infs.close();
 
 	LOGD("creating local server connection");
-	int sk = init_srv_conn(srvname.c_str());
+	int sock_fd = init_srv_conn(srvname.c_str());
+	fdostream out (sock_fd);
 
 	CRoleMembership roleMembership; // Manages groups of hosts having same role membership set
-	CGraphlet * graphlet = new CGraphlet(cout, roleMembership);
+	CGraphlet * graphlet = new CGraphlet(out, roleMembership);
 	import.prepare_graphlet(graphlet, roleMembership);
 	LOGD("write transactions");
-	graphlet->write_transactions(cout);
+	graphlet->write_transactions(out);
 	cout.flush();
 
 	delete graphlet;
-	close(sk);
+	close(sock_fd);
 }
