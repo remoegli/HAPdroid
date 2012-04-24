@@ -16,8 +16,43 @@ import android.widget.Button;
 import android.widget.TextView;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
+import ch.hsr.hapdroid.network.FlowTable;
+import ch.hsr.hapdroid.network.Packet;
 
 public class HAPdroidRootActivity extends Activity {
+	private Handler mHandler = new Handler() {
+	
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case RECEIVE_NETWORK_FLOW:
+				Packet p = (Packet) msg.obj;
+				mResultView.append(p.toString());
+				break;
+			case RECEIVE_FLOW_TABLE:
+				FlowTable f = (FlowTable) msg.obj;
+				mResultView.setText(f.toString());
+			}
+	
+		}
+	};
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
+	
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			HAPdroidBinder binder = (HAPdroidBinder) service;
+			mService = binder.getService();
+			mBound = true;
+	
+			mService.setCallbackHandler(mHandler);
+			setOnClickListeners();
+		}
+	
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			mBound = false;
+		}
+	};
 	private TextView mResultView;
 	private Button mCaptureWlanBtn;
 	private Button mCaptureMobileBtn;
@@ -27,37 +62,7 @@ public class HAPdroidRootActivity extends Activity {
 
 	public static final StringBuilder mResult = new StringBuilder();
 	public static final int RECEIVE_NETWORK_FLOW = 0;
-
-	private Handler mHandler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case RECEIVE_NETWORK_FLOW:
-				mResultView.append(msg.obj.toString());
-				break;
-			}
-
-		}
-	};
-
-	private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			HAPdroidBinder binder = (HAPdroidBinder) service;
-			mService = binder.getService();
-			mBound = true;
-
-			mService.setCallbackHandler(mHandler);
-			setOnClickListeners();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
-		}
-	};
+	public static final int RECEIVE_FLOW_TABLE = 1;
 
 	/** Called when the activity is first created. */
 	@Override

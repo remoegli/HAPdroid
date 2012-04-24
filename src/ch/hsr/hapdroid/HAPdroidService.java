@@ -19,6 +19,9 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import ch.hsr.hapdroid.network.FlowTable;
+import ch.hsr.hapdroid.network.Packet;
+
 import com.stericson.RootTools.RootTools;
 
 public class HAPdroidService extends Service {
@@ -35,6 +38,7 @@ public class HAPdroidService extends Service {
 	HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mHandler;
 	private NetworkCaptureTask mNetworkCapture;
+	private FlowTable mFlowTable;
 
 	private static final String LOG_TAG = "HAPdroidService";
 
@@ -45,6 +49,7 @@ public class HAPdroidService extends Service {
 		RootTools.debugMode = true;
 
 		installBinary();
+		mFlowTable = new FlowTable();
 	}
 
 	private void installBinary() {
@@ -86,6 +91,14 @@ public class HAPdroidService extends Service {
 	public void onDestroy() {
 		Log.d(LOG_TAG, "Service onDestroy()");
 		super.onDestroy();
+	}
+
+	private void sendFlowTable() {
+		Message msg = new Message();
+		msg.what = HAPdroidRootActivity.RECEIVE_FLOW_TABLE;
+		msg.obj = mFlowTable;
+		if (mHandler != null)
+			mHandler.sendMessage(msg);
 	}
 
 	public void setCallbackHandler(Handler aHandler) {
@@ -132,8 +145,8 @@ public class HAPdroidService extends Service {
 			e.printStackTrace();
 		}
 	}
-	
-	public void stopCapture(){
+
+	public void stopCapture() {
 		stopWlanCapture();
 		stopMobileCapture();
 		mNetworkCapture.stopServer();
@@ -155,8 +168,8 @@ public class HAPdroidService extends Service {
 			mServerShouldStop = false;
 			Log.d(LOG_TAG, "NetworkCapture server started");
 		}
-		
-		public void stopServer(){
+
+		public void stopServer() {
 			mServerShouldStop = true;
 			shutdown();
 		}
@@ -192,11 +205,15 @@ public class HAPdroidService extends Service {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
+			Packet p = Packet.parsePacket(values[0]);
+
 			mMessage = new Message();
 			mMessage.what = HAPdroidRootActivity.RECEIVE_NETWORK_FLOW;
-			mMessage.obj = values[0] + '\n';
+			mMessage.obj = p;
 			if (mHandler != null)
 				mHandler.sendMessage(mMessage);
+
+			mFlowTable.add(p);
 		}
 
 		@Override
@@ -205,14 +222,17 @@ public class HAPdroidService extends Service {
 		}
 
 		private void shutdown() {
-			try {
-				mInputStream.close();
-				mServerSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (mServerSocket != null) {
+				try {
+					mInputStream.close();
+					mServerSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Log.d(LOG_TAG, "NetworkCapture server stoped");
 			}
-			Log.d(LOG_TAG, "NetworkCapture server stoped");
+			sendFlowTable();
 			stopSelf();
 		}
 
