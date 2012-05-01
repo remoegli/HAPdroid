@@ -1,12 +1,17 @@
 LOCAL_PATH := $(call my-dir)
+MY_PATH := $(call my-dir)
+include $(CLEAR_VARS)
 
-include $(CLEAR_VARS)  
-LOCAL_MODULE    := flowdump
-LOCAL_SRC_FILES := flowdump.c  
+LOCAL_SRC_FILES := hapvizwrapper.cpp
+LOCAL_MODULE := hapvizwrapper
 
-LOCAL_C_INCLUDES := $(NDK_ROOT)/external/libpcap   
-LOCAL_STATIC_LIBRARIES := libpcap  
-LOCAL_LDLIBS := -ldl -llog  
+LOCAL_C_INCLUDES :=\
+	$(NDK_ROOT)/external/boost\
+	hapviz
+	
+LOCAL_SHARED_LIBRARIES := hapviz
+LOCAL_LDLIBS := -llog
 
-include $(BUILD_EXECUTABLE)   
-include $(NDK_ROOT)/external/libpcap/Android.mk  
+include $(BUILD_SHARED_LIBRARY)
+include $(MY_PATH)/hapviz/Android.mk
+include jni/flowdump/Android.mk
