@@ -52,7 +52,7 @@ public class Area extends Rectangle{
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		switch(pSceneTouchEvent.getAction()) {
 			case TouchEvent.ACTION_DOWN:
-				//this.setScale(1.25f);
+				//this.setScale(1.25f); bla
 				if(!this.mGrabbed){
 					firstTouchY = pSceneTouchEvent.getY();
 					initialY = this.getY();
