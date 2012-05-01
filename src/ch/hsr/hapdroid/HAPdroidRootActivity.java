@@ -41,9 +41,11 @@ public class HAPdroidRootActivity extends Activity {
 			case RECEIVE_FLOW_TABLE:
 				FlowTable f = (FlowTable) msg.obj;
 				mResultView.setText(f.toString());
+				break;
 			case RECEIVE_TRANSACTION:
 				String s = (String) msg.obj + '\n';
 				mResultView.append(s);
+				break;
 			}
 
 		}

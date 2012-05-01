@@ -20,6 +20,7 @@ public class Packet {
 	public byte tos;
 	public int payload_size;
 	public Timeval timestamp;
+	public int pid;
 	
 	@Override
 	public String toString() {

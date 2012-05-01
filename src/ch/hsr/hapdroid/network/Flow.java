@@ -1,6 +1,9 @@
 package ch.hsr.hapdroid.network;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 /**
  * This class represents a flow with all necessary fields as
@@ -21,8 +24,9 @@ public class Flow implements Comparable<Flow>{
 	public static final int TYPE_LATE = 16;
 	public static final int TYPE_EARLY = 32;
 	public static final int TYPE_LONGSTAND = 48;
-	private static final byte MAGIC_NUMBER = 1;
 	public static final int SIZE_BYTE = 48;
+
+	private static final byte MAGIC_NUMBER = 1;
 	
 	private InetAddress src_addr;
 	private InetAddress dst_addr;
@@ -45,17 +49,50 @@ public class Flow implements Comparable<Flow>{
 		dst_addr = p.dst_addr;
 		dst_port = p.dst_port;
 		proto = p.proto;
+		as_local = p.pid;
 		
 		tos = p.tos;
 		starttime = p.timestamp;
 		flowSize = p.payload_size;
 		pkgCount = 1;
+		
+		if(isLocalHostAddress(src_addr))
+			direction = TYPE_OUTGOING;
+		else
+			direction = TYPE_INCOMING;
+	}
+
+	private boolean isLocalHostAddress(InetAddress addr) {
+		Enumeration<NetworkInterface> nics = null;
+		try {
+			nics = NetworkInterface.getNetworkInterfaces();
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (nics == null)
+			return false;
+		
+		Enumeration<InetAddress> addresses;
+		while (nics.hasMoreElements()){
+			addresses = nics.nextElement().getInetAddresses();
+			while(addresses.hasMoreElements()){
+				if(addresses.nextElement().equals(addr))
+					return true;
+			}
+		}
+		
+		return false;
 	}
 
 	public void add(Packet p) {
 		++pkgCount;
 		flowSize += p.payload_size;
 		duration = Timeval.getDifference(p.timestamp, starttime);
+		
+		if (p.dst_addr.equals(src_addr))
+			direction = TYPE_BIFLOW;
 	}
 
 	@Override
@@ -78,7 +115,7 @@ public class Flow implements Comparable<Flow>{
 	}
 	
 	public byte[] toByteArray(){
-		byte[] result = new byte[48];
+		byte[] result = new byte[Flow.SIZE_BYTE];
 		
 		setHostByteOrder(result, 0, src_addr.getAddress());
 		setHostByteOrder(result, 4, dst_addr.getAddress());
