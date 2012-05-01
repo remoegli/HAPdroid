@@ -42,7 +42,7 @@ public class HAPdroidRootActivity extends Activity {
 				FlowTable f = (FlowTable) msg.obj;
 				mResultView.setText(f.toString());
 			case RECEIVE_TRANSACTION:
-				String s = (String) msg.obj;
+				String s = (String) msg.obj + '\n';
 				mResultView.append(s);
 			}
 
@@ -127,9 +127,10 @@ public class HAPdroidRootActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				task.execute();
+				if (task.getStatus() != AsyncTask.Status.RUNNING)
+					task.execute();
 				Log.d(LOG_TAG, "getting transactions");
-				HAPvizLibrary.getTransactions("/sdcard/flows.gz", NetworkCaptureTask.SERVER_NAME, "10.0.1.3", "255.255.255.255");
+				HAPvizLibrary.getTransactions("/sdcard/flows.gz", NetworkCaptureTask.SERVER_NAME, "152.96.236.171", "255.255.255.255");
 				Log.d(LOG_TAG, "finished getting transactions");
 			}
 		});

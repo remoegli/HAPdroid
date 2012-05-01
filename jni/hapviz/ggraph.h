@@ -219,6 +219,9 @@ class CGraphlet {
 		static uint64_t getRemoteEport(const uint8_t flowtype, const uint8_t protocol, const uint32_t hostnum, const uint16_t remote_port, const uint16_t flow_id);
 		static uint64_t getRolnumClients(const uint32_t role_nr, const uint32_t client_count);
 		static std::string getSummaryNodeIdString(const CRoleMembership::sumnode_t* node);
+		void iterateSingleRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto_localPort, HashMapEdge & localPort_remotePort, std::ostream & outs, bool sum_localport);
+		void iterateSumRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto_localPort, HashMapEdge & localPort_remotePort, std::ostream & outs, bool sum_localport);
+		void print_transaction(HashMapEdge & srcip, HashMapEdge & local, HashMapEdge & port, HashMapEdge & remote, std::ostream & outs, bool sum_localport, bool sum_remoteport, bool sum_dst);
 };
 
 #endif

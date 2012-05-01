@@ -1065,50 +1065,124 @@ inline uint64_t CGraphlet::getRolnumClients(const uint32_t role_nr,
 }
 
 void CGraphlet::write_transactions(std::ostream & outs) {
-	hpg_field value[3];
-	value[0].reset();
-	value[1].reset();
-	value[2].reset();
-	// Put a version info edge right at the begin
-	value[0].eightbytevalue.data = version;
-	value[1].eightbytevalue.data = 3;
-	value[2].eightbytevalue.data = 0;
-	outs.write((char *) value, sizeof(value));
 
-	// localIP_prot
-	// ============
-	rank_t rank = localIP_prot;
-	value[0].eightbytevalue.data = rank;
+	// loop through all the hashmaps in order to print the transactions
 	int localIP_prot_count = 0;
 	for (iterIpProt = hm_localIp_prot->begin();
 			iterIpProt != hm_localIp_prot->end(); iterIpProt++) {
-		value[1].reset();
-		value[2].reset();
-		HashMapEdge edge = (HashMapEdge) iterIpProt->second;
-		value[1].data = edge.ip; // localIP
-		value[2].eightbytevalue.data = edge.valueA.proto/* & 0xff*/; // prot
-		outs.write((char *) value, sizeof(value));
+		HashMapEdge ip_proto = (HashMapEdge) iterIpProt->second;
 		localIP_prot_count++;
-		//cout<<"[w]value[0].fourbytevalue.data:"<<value[0].fourbytevalue.data<<endl;
-		//cout<<"[w]value[1].fourbytevalue.data:"<<value[1].fourbytevalue.data<<endl;
-		//cout<<"[w]value[2].fourbytevalue.data:"<<value[2].fourbytevalue.data<<endl;
+
+		for (iterProtEport = hm_prot_localPort_11->begin();
+				iterProtEport != hm_prot_localPort_11->end(); iterProtEport++) {
+			if (iterIpProt->second.valueA.proto
+					== iterProtEport->second.valueA.proto) {
+//				outs << "equal protocol (single port)" << endl;
+				for (iterEport2 = hm_localPort_remotePort_11->begin();
+						iterEport2 != hm_localPort_remotePort_11->end();
+						iterEport2++) {
+					iterateSingleRemotePort(ip_proto, iterProtEport->second,
+							iterEport2->second, outs, false);
+				}
+
+				for (iterEport2 = hm_localPort_remotePort_1n->begin();
+						iterEport2 != hm_localPort_remotePort_1n->end();
+						iterEport2++) {
+					iterateSumRemotePort(ip_proto, iterProtEport->second,
+							iterEport2->second, outs, false);
+				}
+			}
+		}
+
+		for (iterProtEport = hm_prot_localPort_1n->begin();
+				iterProtEport != hm_prot_localPort_1n->end(); iterProtEport++) {
+			if (iterIpProt->second.valueA.proto
+					== iterProtEport->second.valueA.proto) {
+//				outs << "equal protocol (summarized port)" << endl;
+				for (iterEport2 = hm_localPort_remotePort_n1->begin();
+						iterEport2 != hm_localPort_remotePort_n1->end();
+						iterEport2++) {
+					iterateSingleRemotePort(ip_proto, iterProtEport->second,
+							iterEport2->second, outs, true);
+				}
+
+				for (iterEport2 = hm_localPort_remotePort_nn->begin();
+						iterEport2 != hm_localPort_remotePort_nn->end();
+						iterEport2++) {
+					iterateSumRemotePort(ip_proto, iterProtEport->second,
+							iterEport2->second, outs, true);
+				}
+			}
+		}
+	}
+}
+
+void CGraphlet::iterateSingleRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto_localPort,
+		HashMapEdge & localPort_remotePort, ostream & outs, bool sum_localport) {
+	if (proto_localPort.valueB.port1 != localPort_remotePort.valueB.port1)
+		return;
+
+//	outs << "equal local port (single remote)" << endl;
+	for (iterEportIp = hm_remotePort_remoteIp_11->begin();
+			iterEportIp != hm_remotePort_remoteIp_11->end(); iterEportIp++) {
+		if (iterEportIp->second.valueB.port1
+				== localPort_remotePort.valueC.port2)
+			print_transaction(ip_proto, proto_localPort, localPort_remotePort,
+					iterEportIp->second, outs, sum_localport, false, false);
 	}
 
-	// prot_localPort
-	// ==============
-	rank = prot_localPort;
-	value[0].eightbytevalue.data = rank;
-	int prot_localPort_count = 0;
-	for (iterProtEport = hm_prot_localPort_11->begin();
-			iterProtEport != hm_prot_localPort_11->end(); iterProtEport++) {
-		value[1].reset();
-		value[2].reset();
-		HashMapEdge edge = (HashMapEdge) iterProtEport->second;
-		value[1].eightbytevalue.data = edge.valueA.proto; // prot
-		value[2].eightbytevalue.data = edge.valueB.port1; // localPort (eport)
-		outs.write((char *) value, sizeof(value));
-		prot_localPort_count++;
+	for (iterEportIp = hm_remotePort_remoteIp_1n->begin();
+			iterEportIp != hm_remotePort_remoteIp_1n->end(); iterEportIp++) {
+		if (iterEportIp->second.valueB.port1
+				== localPort_remotePort.valueC.port2)
+			print_transaction(ip_proto, proto_localPort, localPort_remotePort,
+					iterEportIp->second, outs, sum_localport, false, true);
 	}
+}
+
+void CGraphlet::iterateSumRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto_localPort,
+		HashMapEdge & localPort_remotePort, ostream & outs, bool sum_localport) {
+	if (proto_localPort.valueB.port1 != localPort_remotePort.valueB.port1)
+		return;
+
+//	outs << "equal local port (summarized remote)" << endl;
+	for (iterEportIp = hm_remotePort_remoteIp_n1->begin();
+			iterEportIp != hm_remotePort_remoteIp_n1->end(); iterEportIp++) {
+		if (iterEportIp->second.valueB.port1
+				== localPort_remotePort.valueC.port2)
+			print_transaction(ip_proto, proto_localPort, localPort_remotePort,
+					iterEportIp->second, outs, sum_localport, true, false);
+	}
+
+	for (iterEportIp = hm_remotePort_remoteIp_nn->begin();
+			iterEportIp != hm_remotePort_remoteIp_nn->end(); iterEportIp++) {
+		if (iterEportIp->second.valueB.port1
+				== localPort_remotePort.valueC.port2)
+			print_transaction(ip_proto, proto_localPort, localPort_remotePort,
+					iterEportIp->second, outs, sum_localport, true, true);
+	}
+}
+
+void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, HashMapEdge & port,
+		HashMapEdge & remote, ostream & outs, bool sum_localport, bool sum_remoteport, bool sum_dst) {
+	const static char DISCR = '|';
+	if (srcip.valueA.proto != local.valueA.proto || local.valueB.port1 != port.valueB.port1
+			|| port.valueC.port2 != remote.valueB.port1) {
+		outs << "something went wrong" << endl;
+		return;
+	}
+
+	outs << srcip.ip << DISCR << srcip.valueA.proto << DISCR
+			<< (port.valueB.port1 & 0xffff) << DISCR
+			<< (remote.valueB.port1 & 0xffff) << DISCR
+			<< remote.ip;
+
+	if (sum_dst){
+		uint32_t role_num = ((remote.valueA.rolnum_clients >> ROLE_SHIFT3) & ROLE_NR_BIT_MASK);
+		uint32_t client_count = remote.valueA.rolnum_clients & CLIENT_COUNT_BIT_MASK;
+		outs << DISCR << client_count << DISCR << role_num;
+	}
+	outs << endl;
 }
 
 /**
