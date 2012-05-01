@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.TimeoutException;
-
 import android.app.Service;
 import android.content.Intent;
 import android.net.LocalServerSocket;
@@ -118,11 +116,8 @@ public class HAPdroidService extends Service {
 	}
 
 	public void stopWlanCapture() {
-		try {
-			if (RootTools.isProcessRunning(CAPTURE_WLAN_CMD))
+		if (RootTools.isProcessRunning(CAPTURE_WLAN_CMD)){
 				RootTools.killProcess(CAPTURE_WLAN_CMD);
-		} catch (TimeoutException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -138,11 +133,8 @@ public class HAPdroidService extends Service {
 	}
 
 	public void stopMobileCapture() {
-		try {
-			if (RootTools.isProcessRunning(CAPTURE_MOBILE_CMD))
+		if (RootTools.isProcessRunning(CAPTURE_MOBILE_CMD)){
 				RootTools.killProcess(CAPTURE_MOBILE_CMD);
-		} catch (TimeoutException e) {
-			e.printStackTrace();
 		}
 	}
 

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -72,13 +71,15 @@ public class HAPdroidRootActivity extends Activity {
 	private boolean mBound;
 	private HAPdroidService mService;
 	private Button mTestLibBtn;
-
+	private Button mShowGraphletBtn;
+	
 	public static final StringBuilder mResult = new StringBuilder();
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
 	public static final int RECEIVE_TRANSACTION = 2;
 	private static final String LOG_TAG = "HAPdroidRootActivity";
 	private NetworkCaptureTask task;
+	
 
 	/** Called when the activity is first created. */
 	@Override
@@ -93,6 +94,7 @@ public class HAPdroidRootActivity extends Activity {
 		mCaptureMobileBtn = (Button) findViewById(id.capturemobile_btn);
 		mStopCaptureBtn = (Button) findViewById(id.stop_capture);
 		mTestLibBtn = (Button) findViewById(id.libhapviz);
+		mShowGraphletBtn = (Button) findViewById(id.show_graphlet);
 		
 		task = new NetworkCaptureTask();
 	}
@@ -132,6 +134,13 @@ public class HAPdroidRootActivity extends Activity {
 				Log.d(LOG_TAG, "getting transactions");
 				HAPvizLibrary.getTransactions("/sdcard/flows.gz", NetworkCaptureTask.SERVER_NAME, "152.96.236.171", "255.255.255.255");
 				Log.d(LOG_TAG, "finished getting transactions");
+			}
+		});
+		
+		mShowGraphletBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(v.getContext(), HAPdroidGraphletActivity.class));
 			}
 		});
 	}

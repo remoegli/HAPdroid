@@ -39,8 +39,13 @@
         android:id="@+id/libhapviz"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="libhapviz test" />
+        android:text="@string/libhapviz_test" />
     
+    <Button 
+        android:id="@+id/show_graphlet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_graphlet"/>
     </LinearLayout>
 
 </LinearLayout>
