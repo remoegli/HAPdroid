@@ -2,7 +2,6 @@ package ch.hsr.hapdroid.network;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 import android.util.Log;
 
@@ -17,10 +16,10 @@ public class Packet {
 	public int src_port;
 	public InetAddress dst_addr;
 	public int dst_port;
-	public short proto;
-	public short tos;
+	public byte proto;
+	public byte tos;
 	public int payload_size;
-	public Date timestamp;
+	public Timeval timestamp;
 	
 	@Override
 	public String toString() {
@@ -42,15 +41,15 @@ public class Packet {
 			return null;
 		}
 		
-		p.proto = Short.parseShort(tokens[1], 10);
-		p.tos = Short.parseShort(tokens[6], 10);
+		p.proto = Byte.parseByte(tokens[1], 10);
+		p.tos = Byte.parseByte(tokens[6], 10);
 		p.src_port = Integer.parseInt(tokens[3], 10);
 		p.dst_port = Integer.parseInt(tokens[5], 10);
 		p.payload_size = Integer.parseInt(tokens[7], 10);
 		
 		long seconds = Long.parseLong(tokens[8], 10);
 		long microseconds = Long.parseLong(tokens[9], 10);
-		p.timestamp = new Date(seconds * 1000 + microseconds / 1000);
+		p.timestamp = new Timeval(seconds, microseconds);
 		
 		return p;
 	}

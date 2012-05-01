@@ -37,6 +37,16 @@ public class FlowTable {
 		mFlowList.add(new Flow(packet));
 	}
 	
+	public byte[] toByteArray(){
+		byte[] result = new byte[mFlowList.size()*Flow.SIZE_BYTE];
+		int i = 0;
+		for (Flow f : mFlowList){
+			System.arraycopy(f.toByteArray(), 0, result, Flow.SIZE_BYTE*i, Flow.SIZE_BYTE);
+			++i;
+		}
+		return result;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
