@@ -54,6 +54,8 @@
 #include "gfilter.h"
 #include "gimport_config.h"
 
+#include "android_log.h"
+
 using namespace std;
 
 #ifdef NDEBUG
@@ -117,7 +119,7 @@ CImport::CImport(const std::string & in_filename,
 
 	if (!acceptForImport(in_filename)) {
 		string errtext = "Invalid file name: " + in_filename;
-		throw errtext;
+		LOGE(errtext.c_str());
 	}
 
 	hpg_filename = out_filename;
@@ -1454,16 +1456,16 @@ void CImport::read_stream(std::istream & in_stream, unsigned int flowcount, cons
 					(*importfilterIterator)->read_stream(in_stream, full_flowlist,
 							local_net, netmask, flowcount, false);
 				} catch (string & e) {
-					throw e;
+					LOGE(e.c_str());
 				} catch (...) {
-					throw string("Unkown error while importing");
+					LOGE("Unkown error while importing");
 				}
 				prepare_flowlist();
 				return;
 			}
 		}
 
-		throw "no usable importfilter found";
+		LOGE("no usable importfilter found");
 }
 /**
  *	Disables the remote-IP lookup

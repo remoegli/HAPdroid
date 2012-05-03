@@ -19,6 +19,8 @@
 #include "hpg.h"
 #include "gsummarynodeinfo.h"
 
+#include "android_log.h"
+
 using namespace std;
 
 #ifdef NDEBUG
@@ -1067,6 +1069,7 @@ inline uint64_t CGraphlet::getRolnumClients(const uint32_t role_nr,
 void CGraphlet::write_transactions(std::ostream & outs) {
 
 	// loop through all the hashmaps in order to print the transactions
+	LOGD("Looping through hashmaps");
 	int localIP_prot_count = 0;
 	for (iterIpProt = hm_localIp_prot->begin();
 			iterIpProt != hm_localIp_prot->end(); iterIpProt++) {
@@ -1172,10 +1175,12 @@ void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, Hash
 		return;
 	}
 
-	outs << srcip.ip << DISCR << srcip.valueA.proto << DISCR
-			<< (port.valueB.port1 & 0xffff) << DISCR
-			<< (remote.valueB.port1 & 0xffff) << DISCR
-			<< remote.ip;
+	outs << srcip.ip << DISCR
+		<< srcip.valueA.proto << DISCR
+		<< (port.valueB.port1 & 0xffff) << DISCR
+		<< (remote.valueB.port1 & 0xffff) << DISCR
+		<< remote.ip;
+	LOGD(srcip.ip.toString().append("-->").append(remote.ip.toString()).c_str());
 
 	if (sum_dst){
 		uint32_t role_num = ((remote.valueA.rolnum_clients >> ROLE_SHIFT3) & ROLE_NR_BIT_MASK);

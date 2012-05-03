@@ -17,6 +17,8 @@
 #include "gutil.h"
 #include "cflow.h"
 
+#include "android_log.h"
+
 using namespace std;
 
 /**
@@ -112,27 +114,33 @@ void GFilter_cflow4::read_stream(std::istream & in_stream, CFlowList & flowlist,
 
 	cflow4 tmpCflow4;
 	// Read file data: get all flows
-	cout << "starting to read flows\n";
+	LOGD("starting to read flows");
 	for (unsigned int i = 0; i < flowcount; ++i) {
 		in_stream.read((char *) &tmpCflow4, sizeof(struct cflow4));
 
-		streamsize num_read = in_stream.gcount();
-		if (num_read != sizeof(struct cflow4)) {
-			string errtext = "ERROR: read ";
-			errtext += num_read;
-			errtext += " byte instead of ";
-			errtext += sizeof(struct cflow4);
-			errtext += ". Possibly incomplete flow read from file.";
-			throw errtext;
-		}
+		/*
+		 * for some reason on Android (at least on my dev device)
+		 * sizeof returns zero for struct cflow4
+		 *
+		 */
+		//TODO fix size check
+//		streamsize num_read = in_stream.gcount();
+//		if (num_read != sizeof(struct cflow4)) {
+//			string errtext = "ERROR: supposed to read ";
+//			errtext += sizeof(struct cflow4);
+//			errtext += ", but read ";
+//			errtext += num_read;
+//			errtext += ". Possibly incomplete flow read from file.";
+//			LOGE(errtext.c_str());
+//		}
+
 
 		try {
 			read_flow(tmpCflow4, flowlist);
 		} catch (string & error) {
-			throw error;
+			LOGE(error.c_str());
 		}
 	}
-	cout << "finished to read flows\n";
 
 	// tellg() does not work on boost::iostreams::filtering_istream, so we have to work around
 	char tmpChar = 'X';
@@ -141,8 +149,9 @@ void GFilter_cflow4::read_stream(std::istream & in_stream, CFlowList & flowlist,
 	// if this is still good, something went wrong
 	if (in_stream.good()) {
 		string error = "ERROR: flow list overflow. ";
-		throw error;
+		LOGE(error.c_str());
 	}
+	LOGD("finished to read flows");
 }
 
 /**
@@ -250,7 +259,7 @@ void GFilter_cflow4::read_flow(cflow4 & tmpCflow4, CFlowList & flowlist) const {
 	if (tmpCflow4.magic != CFLOW_4_MAGIC_NUMBER) {
 		string errtext =
 				"ERROR: file check failed (wrong magic number) in in CImport::read_flow4.";
-		throw errtext;
+		LOGE(errtext.c_str());
 	}
 
 	cf.localIP = IPv6_addr(tmpCflow4.localIP);

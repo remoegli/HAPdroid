@@ -12,8 +12,16 @@ extern "C" {
  * Method:    getTransactions
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions
+JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
   (JNIEnv *, jclass, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     ch_hsr_hapdroid_HAPvizLibrary
+ * Method:    getTransactions
+ * Signature: ([BLjava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions___3BLjava_lang_String_2
+  (JNIEnv *, jclass, jbyteArray, jstring);
 
 #ifdef __cplusplus
 }

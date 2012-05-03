@@ -18,28 +18,16 @@
     	android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/capturewlan_btn"
+            android:id="@+id/capture_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/capture_tcpdump_wlan" />
-    
-    <Button
-        android:id="@+id/capturemobile_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/capture_tcpdump_mobile" />
+            android:text="@string/capture_start" />
 
     <Button
-        android:id="@+id/stop_capture"
+        android:id="@+id/capture_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/capture_stop" />
-
-    <Button
-        android:id="@+id/libhapviz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/libhapviz_test" />
     
     <Button 
         android:id="@+id/show_graphlet"

@@ -31,9 +31,16 @@ public class Timeval implements Comparable<Timeval> {
 	}
 
 	public byte[] getByteArrayMs() {
+		byte[] b = new byte[8];
+		
 		BigInteger ms = BigInteger.valueOf(microseconds/1000);
 		ms.add(BigInteger.valueOf(seconds*1000));
-		return ms.toByteArray();
+		
+		for (int i = 0; i < b.length; ++i){
+			b[i] = (byte) ms.intValue();
+			ms.divide(BigInteger.valueOf(256L));
+		}
+		return b;
 	}
 
 	@Override

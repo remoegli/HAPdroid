@@ -34,8 +34,8 @@ public class Flow implements Comparable<Flow>{
 	private int dst_port;
 	private int as_local;
 	private int as_remote;
-	private byte proto;
-	private byte tos;
+	private short proto;
+	private short tos;
 	private Timeval starttime;
 	
 	private Timeval duration;
@@ -53,6 +53,7 @@ public class Flow implements Comparable<Flow>{
 		
 		tos = p.tos;
 		starttime = p.timestamp;
+		duration = new Timeval(0,0);
 		flowSize = p.payload_size;
 		pkgCount = 1;
 		
@@ -131,9 +132,9 @@ public class Flow implements Comparable<Flow>{
 		set16bitInt(result, 36, as_local);
 		set16bitInt(result, 38, as_remote);
 		
-		result[40] = proto;
+		result[40] = (byte) proto;
 		result[41] = direction;
-		result[42] = tos;
+		result[42] = (byte) tos;
 		result[43] = MAGIC_NUMBER;
 		
 		return result;
@@ -169,8 +170,11 @@ public class Flow implements Comparable<Flow>{
 	}
 
 	private void setHostByteOrder(byte[] result, int start_index, byte[] address) {
+		if (address.length != 4)
+			return;
+		
 		int end_index = start_index + 3;
-		for (int i = start_index; i <= end_index; ++i){
+		for (int i = 0; i <= 3; ++i){
 			result[end_index - i] = address[i];
 		}
 	}
