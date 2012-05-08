@@ -14,7 +14,7 @@ import android.widget.Toast;
 import ch.hsr.hapdroid.network.FlowTable;
 import ch.hsr.hapdroid.network.NetworkHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
-import ch.hsr.hapdroid.network.TransactionTable;
+import ch.hsr.hapdroid.transaction.Transaction;
 
 import com.stericson.RootTools.RootTools;
 
@@ -57,7 +57,7 @@ public class HAPdroidService extends Service {
 	private NetworkHandlerTask mNetworkCapture;
 	private FlowTable mFlowTable;
 	private NetworkHandlerTask mTransactionCapture;
-	private TransactionTable mTransactionTable;
+	private HAPGraphlet mHAPGraphlet;
 	private Notification mNotification;
 	
 	public static final int RECIEVE_PACKET = 0;
@@ -81,7 +81,7 @@ public class HAPdroidService extends Service {
 	}
 	
 	private void handleTransaction(String s){
-		mTransactionTable.add(s);
+		mHAPGraphlet.add(Transaction.parse(s));
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class HAPdroidService extends Service {
 		RootTools.debugMode = true;
 		
 		mFlowTable = new FlowTable();
-		mTransactionTable = new TransactionTable();
+		mHAPGraphlet = new HAPGraphlet();
 		
 		installBinary();
 		initNotification();
@@ -155,7 +155,7 @@ public class HAPdroidService extends Service {
 	}
 
 	protected void finishGettingTransactions() {
-		Log.d(LOG_TAG, "TransactionTable: " + mTransactionTable.toString());
+		Log.d(LOG_TAG, "TransactionTable: " + mHAPGraphlet.toString());
 	}
 
 	private void startTransactionServer() {

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
 import ch.hsr.hapdroid.network.Packet;
-import ch.hsr.hapdroid.network.TransactionTable;
+import ch.hsr.hapdroid.transaction.Transaction;
 
 public class HAPdroidRootActivity extends Activity {
 	private Handler mHandler = new Handler() {
