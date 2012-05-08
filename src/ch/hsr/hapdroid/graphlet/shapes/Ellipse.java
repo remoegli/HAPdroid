@@ -129,7 +129,7 @@ public class Ellipse extends Shape {
 		GLHelper.disableTextures(pGL);
 		GLHelper.disableTexCoordArray(pGL);
 		// enable for nicer lines, at the expense of a limited linewidth of 1
-		// pGL.glEnable(GL10.GL_LINE_SMOOTH);
+		pGL.glEnable(GL10.GL_LINE_SMOOTH);
 		GLHelper.lineWidth(pGL, lineWidth);
 	}
 

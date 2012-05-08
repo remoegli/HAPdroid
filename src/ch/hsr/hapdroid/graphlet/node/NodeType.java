@@ -1,4 +1,4 @@
-package ch.hsr.hapdroid.graphlet.nodes;
+package ch.hsr.hapdroid.graphlet.node;
 
 public enum NodeType {
     
