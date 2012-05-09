@@ -11,6 +11,7 @@ import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.text.Text;
+import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.Font;
 import org.anddev.andengine.opengl.texture.Texture;
@@ -64,6 +65,7 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 
 	public Scene onLoadScene() {
 		Log.v(TAG, "onLoadScene Started");
+		this.mEngine.registerUpdateHandler(new FPSLogger());
 		myScene = new Scene();
 		myScene.setOnSceneTouchListener(this);
 		myScene.setBackground(new ColorBackground(0.8f, 0.8f, 0.8f));
@@ -131,9 +133,12 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 		dstIPArea.addNode(dstipNode1);
 
 		//Create Edges
-		createEdge(srcipNode1, protoNode1, "1");
-		createEdge(protoNode1, srcportNode1, "2");
-		createEdge(srcportNode1, dstportNode1, "3");
+		createEdge(srcipNode1, protoNode1, "1.1");
+		createEdge(srcipNode1, protoNode2, "1.2");
+		createEdge(protoNode1, srcportNode1, "2.1");
+		createEdge(protoNode2, srcportNode2, "2.2");
+		createEdge(srcportNode1, dstportNode1, "3.1");
+		createEdge(srcportNode2, dstportNode1, "3.2"); 
 		createEdge(dstportNode1, dstipNode1, "4");
 		
 		

@@ -26,19 +26,28 @@ public class Edge extends Line{
 
 	//Shared float arrays HAVE TO be initialized!	
 	public void update() {
-		//Update left Point
-		float[] leftNodeSceneCoordinates = new float[2];
-		leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY(), leftNodeSceneCoordinates);
-		Log.v("MyActivity", "Left Node: "+ leftNodeSceneCoordinates[0] + "/" + leftNodeSceneCoordinates[1]);
-
+		Log.v("MyActivity", "Updating Edge: " + edgeLabel.getText());
 		
+		//Update left Point
+		Log.v("MyActivity", "Left Node: "+ leftNode.getX() + "/" + leftNode.getY());
+		final float[] leftNodeCoordinates = leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY());
+		Log.v("MyActivity", "Left Node Scene: "+ leftNodeCoordinates[0] + "/" + leftNodeCoordinates[1]);
+		float[] leftNodeCoordinates2 = new float[2];
+		getParent().convertSceneToLocalCoordinates(leftNodeCoordinates, leftNodeCoordinates2);
+		Log.v("MyActivity", "Left Node Local: "+ leftNodeCoordinates2[0] + "/" + leftNodeCoordinates2[1]);
+				
+		//Update right Point
+		//Log.v("MyActivity", "Right Node: "+ rightNode.getX() + "/" + rightNode.getY());
 		float[] rightNodeSceneCoordinates = new float[2];
 		rightNode.convertLocalToSceneCoordinates(rightNode.getX(), rightNode.getY(), rightNodeSceneCoordinates);
-		Log.v("MyActivity", "Right Node: "+ rightNodeSceneCoordinates[0] + "/" + rightNodeSceneCoordinates[1]);	
+		//Log.v("MyActivity", "Right Node: "+ rightNodeSceneCoordinates[0] + "/" + rightNodeSceneCoordinates[1]);	
+		float[] rightNodeSceneCoordinates2 = new float[2];
+		getParent().convertSceneToLocalCoordinates(rightNodeSceneCoordinates[0], rightNodeSceneCoordinates[1], rightNodeSceneCoordinates2);
+		//Log.v("MyActivity", "Right Node: "+ rightNodeSceneCoordinates2[0] + "/" + rightNodeSceneCoordinates2[1]);
 //			float rightPointX = neighborSceneCoordinates[0] - nodeSceneCoordinates[0];
 //			float rightPointY = neighborSceneCoordinates[1] - nodeSceneCoordinates[1];
 //					
-		super.setPosition(leftNodeSceneCoordinates[0], leftNodeSceneCoordinates[1], rightNodeSceneCoordinates[0], rightNodeSceneCoordinates[1]);		
+		this.setPosition(leftNodeCoordinates2[0]-leftNode.getX(), leftNodeCoordinates2[1]-leftNode.getY(), rightNodeSceneCoordinates2[0]-rightNode.getX(), rightNodeSceneCoordinates2[1]-rightNode.getY());	
 	}
 
 	public static void setFont(Font mFont) {
