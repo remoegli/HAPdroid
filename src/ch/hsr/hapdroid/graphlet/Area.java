@@ -13,14 +13,13 @@ public class Area extends Rectangle{
 	
 	private static float NODESPACING = 10;
 	private static float NODEHEIGHT = 40;
+	
 	private boolean mGrabbed = false;
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
 	private Vector<Node> nodes;
 	private Vector<Edge> edges;
-	private Area leftNeighbor;
-	private Area rightNeighbor;
 	
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
@@ -44,7 +43,6 @@ public class Area extends Rectangle{
 			node.setPosition(this.getWidth()/2, nodeY);
 			nodeY = nodeY + NODEHEIGHT + NODESPACING;
 		}
-		
 	}
 
 	@Override
@@ -79,14 +77,6 @@ public class Area extends Rectangle{
 		updateEdges();
 	}
 	
-	public void setLeftNeighbor(Area area) {
-		leftNeighbor = area;
-	}
-
-	public void setRightNeighbor(Area area) {
-		rightNeighbor = area;
-	}
-
 	public void addEdge(Edge edge){
 		edges.add(edge);
 		if(!edge.hasParent()){
@@ -98,10 +88,6 @@ public class Area extends Rectangle{
 		for(Edge edge : edges){
 			edge.update();
 		}
-		if(rightNeighbor != null){
-			rightNeighbor.updateEdges();
-		}
 	}
-	
 }
 

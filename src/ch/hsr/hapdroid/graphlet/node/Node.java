@@ -16,48 +16,30 @@ public class Node extends BaseRectangle {
 	
 	public Node(NodeType type, String label) {
 		super(0, 0, type.width(), type.height());
-		this.setNodeType(type);
-		this.setNodeLabel(label);
+		nodeType = type;
+		nodeLabel = label;
 		this.setColor(0, 0, 0, 0);
-		mShape = getShape(type);
+		mShape = getShape();
 		this.attachChild(mShape);
-		Log.v("MyActivity", "Node \"" + label + "\" created");
+		Log.v("MyActivity", "Node \"" + label + "\" created on z-index" + this.getZIndex());
 	}
 
 	@Override
 	public void setPosition(float x, float y) {
 		super.setPosition(x, y);
 	}
-
-	public NodeType getNodeType() {
-		return nodeType;
-	}
-
-	private void setNodeType(NodeType nodeType) {
-		this.nodeType = nodeType;
-	}
-
-	public String getNodeLabel() {
-		return nodeLabel;
-	}
-
-	private void setNodeLabel(String nodeLabel) {
-		this.nodeLabel = nodeLabel;
-	}
-
 	
-	private Shape getShape(NodeType type){
+	private Shape getShape(){
 		Shape nShape;
-		switch(type){
+		switch(nodeType){
 		case IP:
 		case PROTO:
 		case PORT:
-			nShape = new EllipticNode(0, 0, type.width(), type.height(), aFont, getNodeLabel(), type.offset());
-			//nShape = new EllipticNode(this.getWidth()/2, this.getHeight()/2, type.width(), type.height(), aFont, getNodeLabel(), type.offset());
+			nShape = new EllipticNode(0, 0, nodeType.width(), nodeType.height(), aFont, nodeLabel, nodeType.offset());
 			break;
 		case S_IP:
 		case S_PORT:
-			nShape = new SumNode(this.getWidth()/2, this.getHeight()/2, type.width(), type.height(), aFont, getNodeLabel(), type.offset());
+			nShape = new SumNode(this.getWidth()/2, this.getHeight()/2, nodeType.width(), nodeType.height(), aFont, nodeLabel, nodeType.offset());
 			break;
 		default:
 			nShape = new EllipticNode(this.getWidth()/2, this.getHeight()/2, 60, 20, aFont, "unknown NodeType", -55);

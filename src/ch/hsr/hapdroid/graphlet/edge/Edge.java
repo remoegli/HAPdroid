@@ -10,6 +10,8 @@ import ch.hsr.hapdroid.graphlet.node.Node;
 
 public class Edge extends Line{
 
+	private static final int EDGE_X_LABELOFFSET = -10;
+	private static final int EDGE_Y_LABELOFFSET = -20;
 	private static Font aFont;
 	private Node leftNode;
 	private Node rightNode;
@@ -24,33 +26,18 @@ public class Edge extends Line{
 		this.attachChild(edgeLabel);
 	}
 
-	//Shared float arrays HAVE TO be initialized!	
 	public void update() {
-		Log.v("MyActivity", "Updating Edge: " + edgeLabel.getText());
+		Log.v("MyActivity", "Updating Edge: " + edgeLabel.getText() + " on z-index " + this.getZIndex());
 		
 		final float[] leftNodeCoordinates = getParent().convertSceneToLocalCoordinates(leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY()), new float[2]);
 		final float[] rightNodeCoordinates = getParent().convertSceneToLocalCoordinates(rightNode.convertLocalToSceneCoordinates(rightNode.getX(), rightNode.getY()), new float[2]);
+		float leftNodeX = leftNodeCoordinates[0]-leftNode.getX();
+		float leftNodeY = leftNodeCoordinates[1]-leftNode.getY();
+		float rightNodeX = rightNodeCoordinates[0]-rightNode.getX();
+		float rightNodeY = rightNodeCoordinates[1]-rightNode.getY();
 		
-//		Log.v("MyActivity", "Left Node: "+ leftNode.getX() + "/" + leftNode.getY());
-//		final float[] leftNodeCoordinates = leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY());
-//		Log.v("MyActivity", "Left Node Scene: "+ leftNodeCoordinates[0] + "/" + leftNodeCoordinates[1]);
-//		float[] leftNodeCoordinates2 = new float[2];
-//		getParent().convertSceneToLocalCoordinates(leftNodeCoordinates, leftNodeCoordinates2);
-//		Log.v("MyActivity", "Left Node Local: "+ leftNodeCoordinates2[0] + "/" + leftNodeCoordinates2[1]);
-
-		
-//		Log.v("MyActivity", "Right Node: "+ rightNode.getX() + "/" + rightNode.getY());
-//		float[] rightNodeSceneCoordinates = new float[2];
-//		rightNode.convertLocalToSceneCoordinates(rightNode.getX(), rightNode.getY(), rightNodeSceneCoordinates);
-//		Log.v("MyActivity", "Right Node: "+ rightNodeSceneCoordinates[0] + "/" + rightNodeSceneCoordinates[1]);	
-//		float[] rightNodeSceneCoordinates2 = new float[2];
-//		getParent().convertSceneToLocalCoordinates(rightNodeSceneCoordinates[0], rightNodeSceneCoordinates[1], rightNodeSceneCoordinates2);
-//		Log.v("MyActivity", "Right Node: "+ rightNodeSceneCoordinates2[0] + "/" + rightNodeSceneCoordinates2[1]);
-//			float rightPointX = neighborSceneCoordinates[0] - nodeSceneCoordinates[0];
-//			float rightPointY = neighborSceneCoordinates[1] - nodeSceneCoordinates[1];
-//					
-//		this.setPosition(leftNodeCoordinates2[0]-leftNode.getX(), leftNodeCoordinates2[1]-leftNode.getY(), rightNodeSceneCoordinates2[0]-rightNode.getX(), rightNodeSceneCoordinates2[1]-rightNode.getY());	
-		this.setPosition(leftNodeCoordinates[0]-leftNode.getX(), leftNodeCoordinates[1]-leftNode.getY(), rightNodeCoordinates[0]-rightNode.getX(), rightNodeCoordinates[1]-rightNode.getY());
+		edgeLabel.setPosition((rightNodeX-leftNodeX)/2+EDGE_X_LABELOFFSET, (rightNodeY-leftNodeY)/2+EDGE_Y_LABELOFFSET);
+		this.setPosition(leftNodeX, leftNodeY, rightNodeX, rightNodeY);
 	}
 
 	public static void setFont(Font mFont) {

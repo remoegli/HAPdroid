@@ -97,16 +97,6 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 		areas.add(dstIPArea);
 		dstIPArea.setColor(0.2f, 0.2f, 0, 0.5f);
 		
-		//Set Area dependencies
-		srcIPArea.setRightNeighbor(protoArea);
-		protoArea.setLeftNeighbor(srcIPArea);
-		protoArea.setRightNeighbor(srcPortArea);
-		srcPortArea.setLeftNeighbor(protoArea);
-		srcPortArea.setRightNeighbor(dstPortArea);
-		dstPortArea.setLeftNeighbor(srcPortArea);
-		dstPortArea.setRightNeighbor(dstIPArea);
-		dstIPArea.setLeftNeighbor(dstPortArea);
-		
 		//Attach Areas to Scene and register TouchHandler
 		for(Area area : areas){
 			myScene.attachChild(area);
