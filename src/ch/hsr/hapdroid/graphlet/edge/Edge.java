@@ -29,6 +29,7 @@ public class Edge extends Line{
 	public void update() {
 		Log.v("MyActivity", "Updating Edge: " + edgeLabel.getText() + " on z-index " + this.getZIndex());
 		
+		//Calculate both ends on the line relative to the area
 		final float[] leftNodeCoordinates = getParent().convertSceneToLocalCoordinates(leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY()), new float[2]);
 		final float[] rightNodeCoordinates = getParent().convertSceneToLocalCoordinates(rightNode.convertLocalToSceneCoordinates(rightNode.getX(), rightNode.getY()), new float[2]);
 		float leftNodeX = leftNodeCoordinates[0]-leftNode.getX();
@@ -36,6 +37,7 @@ public class Edge extends Line{
 		float rightNodeX = rightNodeCoordinates[0]-rightNode.getX();
 		float rightNodeY = rightNodeCoordinates[1]-rightNode.getY();
 		
+		//Set the lable to the middle of the edge		
 		edgeLabel.setPosition((rightNodeX-leftNodeX)/2+EDGE_X_LABELOFFSET, (rightNodeY-leftNodeY)/2+EDGE_Y_LABELOFFSET);
 		this.setPosition(leftNodeX, leftNodeY, rightNodeX, rightNodeY);
 	}
