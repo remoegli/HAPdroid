@@ -12,7 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
+public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private LocalServerSocket mServerSocket;
 	private BufferedReader mReader;
 	private InputStream mInputStream;
@@ -26,7 +26,7 @@ public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
 
 	private static final String LOG_TAG = "NetworkCaptureTask";
 
-	public NetworkHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
+	public NetworkStreamHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
 		mIsReady = false;
 		
 		mServerName = servername;
