@@ -9,9 +9,8 @@ public class Node<V>{
 	private V value;
 	private List<Node<V>> nodes;
 
-	public Node(int id, V value) {
+	public Node(V value) {
 		this.value = value;
-		this.id = id;
 		nodes = new ArrayList<Node<V>>();
 	}
 	
@@ -35,7 +34,7 @@ public class Node<V>{
 	public boolean equals(Object o) {
 		if(o instanceof Node<?>){
 			Node<?> n = (Node<?>) o;
-			return n.getId() == this.getId();
+			return n.getValue().equals(getValue());
 		}
 			
 		return super.equals(o);
@@ -47,6 +46,11 @@ public class Node<V>{
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+	
+	@Override
+	public String toString() {
+		return value.toString();
 	}
 	
 }

@@ -1,14 +1,14 @@
 package ch.hsr.hapdroid.transaction;
 
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.Map;
 
 public class NodeList<T> implements Iterable<Node<T>>{
 	private Map<T, Node<T>> mNodeList;
 	
 	public NodeList() {
-		mNodeList = new TreeMap<T, Node<T>>();
+		mNodeList = new HashMap<T, Node<T>>();
 	}
 
 	public Node<T> add(Node<T> node) {

@@ -1118,6 +1118,8 @@ void CGraphlet::write_transactions(std::ostream & outs) {
 			}
 		}
 	}
+
+	outs << EOF;
 }
 
 void CGraphlet::iterateSingleRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto_localPort,
@@ -1168,18 +1170,21 @@ void CGraphlet::iterateSumRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto
 
 void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, HashMapEdge & port,
 		HashMapEdge & remote, ostream & outs, bool sum_localport, bool sum_remoteport, bool sum_dst) {
-	const static char DISCR = '|';
+	const static char DISCR = ' ';
 	if (srcip.valueA.proto != local.valueA.proto || local.valueB.port1 != port.valueB.port1
 			|| port.valueC.port2 != remote.valueB.port1) {
 		outs << "something went wrong" << endl;
 		return;
 	}
 
-	outs << srcip.ip << DISCR
-		<< srcip.valueA.proto << DISCR
-		<< (port.valueB.port1 & 0xffff) << DISCR
-		<< (remote.valueB.port1 & 0xffff) << DISCR
-		<< remote.ip;
+	outs << 't' << DISCR << (srcip.valueA.bytes & 0xffff)
+			<< DISCR << (remote.valueB.packets & 0xffff)
+			<< DISCR << (remote.valueA.rolnum_clients & 0xffff) << endl
+		<< "SrcIp" << DISCR << srcip.ip << endl
+		<< "Proto" << DISCR << (srcip.valueA.proto & 0xff)<< endl
+		<< "SrcPort" << DISCR << (port.valueB.port1 & 0xffff) << endl
+		<< "DstPort" << DISCR << (remote.valueB.port1 & 0xffff) << endl
+		<< "DstIp" << DISCR << remote.ip << endl;
 	LOGD(srcip.ip.toString().append("-->").append(remote.ip.toString()).c_str());
 
 	if (sum_dst){

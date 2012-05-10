@@ -3,13 +3,13 @@ package ch.hsr.hapdroid;
 import java.net.InetAddress;
 
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.graph.SimpleGraph;
 
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 import ch.hsr.hapdroid.transaction.Transaction;
 
-public class HAPGraphlet extends SimpleDirectedGraph<Node<?>, DefaultEdge>{
+public class HAPGraphlet extends SimpleGraph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mSrcIp;
 	private NodeList<Integer> mProto;
 	private NodeList<Integer> mSrcPort;
@@ -24,6 +24,7 @@ public class HAPGraphlet extends SimpleDirectedGraph<Node<?>, DefaultEdge>{
 	public HAPGraphlet() {
 		super(DefaultEdge.class);
 		
+		
 		mSrcIp = new NodeList<InetAddress>();
 		mProto = new NodeList<Integer>();
 		mSrcPort = new NodeList<Integer>();
@@ -32,10 +33,13 @@ public class HAPGraphlet extends SimpleDirectedGraph<Node<?>, DefaultEdge>{
 	}
 	
 	public void add(Transaction trans){
-		Node<InetAddress> srcIp = mSrcIp.add(trans.getSourceIp());
+		if (trans == null)
+			return;
+		
+		Node<InetAddress> srcIp = mSrcIp.add(trans.getSrcIp());
 		addVertex(srcIp);
 		
-		Node<Integer> proto = mProto.add(trans.getProtocol());
+		Node<Integer> proto = mProto.add(trans.getProto());
 		addVertex(proto);
 		addEdge(srcIp, proto);
 		

@@ -59,6 +59,8 @@ public class HAPdroidService extends Service {
 	private NetworkHandlerTask mTransactionCapture;
 	private HAPGraphlet mHAPGraphlet;
 	private Notification mNotification;
+	private String[] mTransactionString;
+	private int mTransactionStringPos;
 	
 	public static final int RECIEVE_PACKET = 0;
 	public static final int RECIEVE_PACKET_FINISH = 1;
@@ -81,7 +83,25 @@ public class HAPdroidService extends Service {
 	}
 	
 	private void handleTransaction(String s){
-		mHAPGraphlet.add(Transaction.parse(s));
+		Log.d(LOG_TAG, "partial transaction recieved: " + s);
+		if (s.length() > 1 && s.charAt(0) == 't'){
+			Transaction t = Transaction.parse(mTransactionString);
+			if (t != null)
+				Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
+			mHAPGraphlet.add(t);
+			resetTransactionString();
+		}
+		if (s.length() > 1 && s.charAt(0) == '-'){
+			stopTransactionServer();
+			return;
+		}
+		
+		mTransactionString[mTransactionStringPos++] = s;
+	}
+
+	private void resetTransactionString() {
+		mTransactionString = new String[7];
+		mTransactionStringPos = 0;
 	}
 
 	@Override
@@ -92,6 +112,7 @@ public class HAPdroidService extends Service {
 		
 		mFlowTable = new FlowTable();
 		mHAPGraphlet = new HAPGraphlet();
+		resetTransactionString();
 		
 		installBinary();
 		initNotification();
@@ -143,6 +164,10 @@ public class HAPdroidService extends Service {
 		mCallbackHandler = aHandler;
 		Log.d(LOG_TAG, "CallbackHandler set");
 	}
+	
+	public HAPGraphlet getGraphlet(){
+		return mHAPGraphlet;
+	}
 
 	private void getTransactions() {
 		startTransactionServer();
@@ -151,11 +176,12 @@ public class HAPdroidService extends Service {
 		}
 		HAPvizLibrary.getTransactions(mFlowTable.toByteArray(), SERVER_TRANSACTIONS);
 //		HAPvizLibrary.getTransactions("/sdcard/flows.gz", SERVER_TRANSACTIONS, "10.0.0.1", "255.255.255.255");
-		stopTransactionServer();
+//		stopTransactionServer();
 	}
 
 	protected void finishGettingTransactions() {
-		Log.d(LOG_TAG, "TransactionTable: " + mHAPGraphlet.toString());
+		mCallbackHandler.sendEmptyMessage(HAPdroidRootActivity.RECEIVE_TRANSACTION_TABLE);
+//		Log.d(LOG_TAG, "TransactionTable: " + mHAPGraphlet.toString());
 	}
 
 	private void startTransactionServer() {

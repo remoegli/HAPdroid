@@ -17,7 +17,6 @@ import android.widget.TextView;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
 import ch.hsr.hapdroid.network.Packet;
-import ch.hsr.hapdroid.transaction.Transaction;
 
 public class HAPdroidRootActivity extends Activity {
 	private Handler mHandler = new Handler() {
@@ -29,6 +28,9 @@ public class HAPdroidRootActivity extends Activity {
 				Packet p = (Packet) msg.obj;
 				mResultView.append(p.toString());
 				break;
+			case RECEIVE_TRANSACTION_TABLE:
+				HAPGraphlet h = mService.getGraphlet();
+				mResultView.setText(h.toString());
 			}
 
 		}
