@@ -32,6 +32,26 @@ public class HAPGraphlet extends SimpleGraph<Node<?>, DefaultEdge>{
 		mDstIp = new NodeList<InetAddress>();
 	}
 	
+	public NodeList<InetAddress> getSrcIpList() {
+		return mSrcIp;
+	}
+
+	public NodeList<Integer> getProtoList() {
+		return mProto;
+	}
+
+	public NodeList<Integer> getSrcPortList() {
+		return mSrcPort;
+	}
+
+	public NodeList<Integer> getDstPortList() {
+		return mDstPort;
+	}
+
+	public NodeList<InetAddress> getDstIpList() {
+		return mDstIp;
+	}
+
 	public void add(Transaction trans){
 		if (trans == null)
 			return;
@@ -55,5 +75,6 @@ public class HAPGraphlet extends SimpleGraph<Node<?>, DefaultEdge>{
 		addVertex(dstIp);
 		addEdge(dstPort, dstIp);
 	}
-
+	
+	
 }
