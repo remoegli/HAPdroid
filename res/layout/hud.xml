@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+	<org.anddev.andengine.opengl.view.RenderSurfaceView
+		android:id="@+id/view_graphlet"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_centerInParent="true"
+		android:gravity="center" />
+
+    <Button
+        android:id="@+id/btn_file_open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/file_open" />
+
+    <Button
+        android:id="@+id/btn_capture_start_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/btn_file_open"
+        android:text="@string/capture_start" />
+
+    <Button
+        android:id="@+id/btn_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/settings" />
+
+    <LinearLayout
+        android:id="@+id/timeline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@id/btn_capture_start_stop"
+        android:layout_toLeftOf="@id/btn_settings"
+        android:layout_toRightOf="@id/btn_capture_start_stop" >
+
+    </LinearLayout>
+
+</RelativeLayout>
