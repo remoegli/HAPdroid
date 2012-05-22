@@ -29,4 +29,8 @@ public class NodeList<T> implements Iterable<Node<T>>{
 		return mNodeList.values().iterator();
 	}
 
+	public void clear() {
+		mNodeList.clear();
+	}
+
 }

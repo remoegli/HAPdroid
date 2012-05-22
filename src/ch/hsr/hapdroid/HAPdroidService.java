@@ -12,7 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 import ch.hsr.hapdroid.network.FlowTable;
-import ch.hsr.hapdroid.network.NetworkHandlerTask;
+import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
 import ch.hsr.hapdroid.transaction.Transaction;
 
@@ -20,8 +20,9 @@ import com.stericson.RootTools.RootTools;
 
 public class HAPdroidService extends Service {
 
-	private static final String CAPTURE_WLAN_CMD = "flowdump wlan0 ";
-	private static final String CAPTURE_MOBILE_CMD = "flowdump vsnet0 ";
+	private static final String EXECUTABLE = "flowdump ";
+	private static final String CAPTURE_WLAN_CMD = "flowdump -i wlan0 ";
+	private static final String CAPTURE_MOBILE_CMD = "flowdump -i vsnet0 ";
 
 	public class HAPdroidBinder extends Binder {
 		public HAPdroidService getService() {
@@ -54,13 +55,14 @@ public class HAPdroidService extends Service {
 
 	HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mCallbackHandler;
-	private NetworkHandlerTask mNetworkCapture;
+	private NetworkStreamHandlerTask mNetworkCapture;
 	private FlowTable mFlowTable;
-	private NetworkHandlerTask mTransactionCapture;
+	private NetworkStreamHandlerTask mTransactionCapture;
 	private HAPGraphlet mHAPGraphlet;
 	private Notification mNotification;
 	private String[] mTransactionString;
 	private int mTransactionStringPos;
+	private boolean mHasRoot;
 	
 	public static final int RECIEVE_PACKET = 0;
 	public static final int RECIEVE_PACKET_FINISH = 1;
@@ -74,9 +76,9 @@ public class HAPdroidService extends Service {
 
 	private void handlePacket(Packet p) {
 		mFlowTable.add(p);
-		
+		Log.d(LOG_TAG, "packet recieved");
 		Message msg = new Message();
-		msg.what = HAPdroidRootActivity.RECEIVE_NETWORK_FLOW;
+		msg.what = HAPdroidActivity.RECEIVE_NETWORK_FLOW;
 		msg.obj = p;
 		if(mCallbackHandler != null)
 			mCallbackHandler.sendMessage(msg);
@@ -110,6 +112,8 @@ public class HAPdroidService extends Service {
 		super.onCreate();
 		RootTools.debugMode = true;
 		
+		mHasRoot = RootTools.isRootAvailable();
+		RootTools.useRoot = mHasRoot;
 		mFlowTable = new FlowTable();
 		mHAPGraphlet = new HAPGraphlet();
 		resetTransactionString();
@@ -129,7 +133,7 @@ public class HAPdroidService extends Service {
 	private void initNotification() {
 		mNotification = new Notification(R.drawable.ic_notification, "HAPdroid Network Capture", System.currentTimeMillis());
 		
-		Intent notificationIntent = new Intent(this, HAPdroidRootActivity.class);
+		Intent notificationIntent = new Intent(this, HAPdroidActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		
 		mNotification.setLatestEventInfo(this, getText(R.string.notification_title),
@@ -180,7 +184,7 @@ public class HAPdroidService extends Service {
 	}
 
 	protected void finishGettingTransactions() {
-		mCallbackHandler.sendEmptyMessage(HAPdroidRootActivity.RECEIVE_TRANSACTION_TABLE);
+		mCallbackHandler.sendEmptyMessage(HAPdroidActivity.RECEIVE_TRANSACTION_TABLE);
 //		Log.d(LOG_TAG, "TransactionTable: " + mHAPGraphlet.toString());
 	}
 
@@ -190,7 +194,7 @@ public class HAPdroidService extends Service {
 				return;
 			}
 		}
-		mTransactionCapture = new NetworkHandlerTask(SERVER_TRANSACTIONS, 
+		mTransactionCapture = new NetworkStreamHandlerTask(SERVER_TRANSACTIONS, 
 				mHandler, RECIEVE_TRANSACTION, RECIEVE_TRANSACTION_FINISH);
 		mTransactionCapture.execute();
 	}
@@ -201,17 +205,45 @@ public class HAPdroidService extends Service {
 			mTransactionCapture.stopServer();
 	}
 
-	public void startNetworkCapture(){
-		startNetworkCaptureServer();
+	public void startNetworkCapture() throws UnsupportedOperationException{
+		if (!mHasRoot){
+			throw new UnsupportedOperationException();
+		}
 		
+		startNetworkCaptureServer();
 		while (!mNetworkCapture.isReady()) {
 			sleep(500);
 		}
-		
 		startWlanCapture();
 		startMobileCapture();
 		
 		startForeground(NOTIFICATION_ID, mNotification);
+	}
+	
+	public void startExecutableCapture(String params){
+		startNetworkCaptureServer();
+		while (!mNetworkCapture.isReady()) {
+			sleep(500);
+		}
+		startExecutable(params);
+		
+		// we cant start the service in foreground because this will
+		// break testing with a NPE. See android issue 12122
+		//startForeground(NOTIFICATION_ID, mNotification);
+	}
+	
+	private void startExecutable(String params){
+//		RootTools.useRoot = false;
+		try {
+			RootTools.runBinary(getApplicationContext(), EXECUTABLE + params,
+					"-s " + SERVER_PACKETS);
+			Log.d(LOG_TAG, "executable started with params: " + params);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+//			RootTools.useRoot = true;
+		}
 	}
 
 	/**
@@ -239,7 +271,7 @@ public class HAPdroidService extends Service {
 				return;
 			}
 		}
-		mNetworkCapture = new NetworkHandlerTask(SERVER_PACKETS, 
+		mNetworkCapture = new NetworkStreamHandlerTask(SERVER_PACKETS, 
 				mHandler, RECIEVE_PACKET, RECIEVE_PACKET_FINISH);
 		mNetworkCapture.execute();
 	}
@@ -247,7 +279,7 @@ public class HAPdroidService extends Service {
 	private void startMobileCapture() {
 		try {
 			RootTools.runBinary(getApplicationContext(), CAPTURE_MOBILE_CMD,
-					SERVER_PACKETS);
+					"-s " + SERVER_PACKETS);
 			Log.d(LOG_TAG, "Mobile capture started");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -258,7 +290,7 @@ public class HAPdroidService extends Service {
 	private void startWlanCapture() {
 		try {
 			RootTools.runBinary(getApplicationContext(), CAPTURE_WLAN_CMD,
-					SERVER_PACKETS);
+					"-s " + SERVER_PACKETS);
 			Log.d(LOG_TAG, "WLAN capture started");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -266,7 +298,7 @@ public class HAPdroidService extends Service {
 		}
 	}
 
-	public void stopNetworkCapture(){
+	public void stopNetworkCapture() {
 		stopWlanCapture();
 		stopMobileCapture();
 		stopNetworkCaptureServer();
@@ -291,6 +323,15 @@ public class HAPdroidService extends Service {
 		if (mNetworkCapture != null &&
 				mNetworkCapture.getStatus() == Status.RUNNING)
 			mNetworkCapture.stopServer();
+	}
+
+	public void clearCapture() {
+		mFlowTable.clear();
+		mHAPGraphlet.clear();
+	}
+
+	public FlowTable getFlowTable() {
+		return mFlowTable;
 	}
 
 }

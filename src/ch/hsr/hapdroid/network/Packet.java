@@ -18,6 +18,7 @@ public class Packet {
 	public int dst_port;
 	public short proto;
 	public short tos;
+	public int header_size;
 	public int payload_size;
 	public Timeval timestamp;
 	public int pid;
@@ -47,10 +48,11 @@ public class Packet {
 			p.tos = Short.parseShort(tokens[6], 10);
 			p.src_port = Integer.parseInt(tokens[3], 10);
 			p.dst_port = Integer.parseInt(tokens[5], 10);
-			p.payload_size = Integer.parseInt(tokens[7], 10);
+			p.header_size = Integer.parseInt(tokens[7], 10);
+			p.payload_size = Integer.parseInt(tokens[8], 10);
 
-			long seconds = Long.parseLong(tokens[8], 10);
-			long microseconds = Long.parseLong(tokens[9], 10);
+			long seconds = Long.parseLong(tokens[9], 10);
+			long microseconds = Long.parseLong(tokens[10], 10);
 			p.timestamp = new Timeval(seconds, microseconds);
 		} catch (NumberFormatException e) {
 			Log.e(LOG_TAG, "wrong packet format: " + packet);

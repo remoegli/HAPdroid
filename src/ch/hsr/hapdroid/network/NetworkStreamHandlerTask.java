@@ -12,7 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
+public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private LocalServerSocket mServerSocket;
 	private BufferedReader mReader;
 	private InputStream mInputStream;
@@ -24,9 +24,9 @@ public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
 	private int mShutdownMessage;
 	private boolean mIsReady;
 
-	private static final String LOG_TAG = "NetworkCaptureTask";
+	private static final String LOG_TAG = "NetworkStreamHandlerTask";
 
-	public NetworkHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
+	public NetworkStreamHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
 		mIsReady = false;
 		
 		mServerName = servername;
@@ -69,6 +69,7 @@ public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
 				mReader = new BufferedReader(
 						new InputStreamReader(mInputStream));
 				while ((line = mReader.readLine()) != null) {
+					Log.d(LOG_TAG, "line recieved: " + line);
 					publishProgress(line);
 				}
 			}
@@ -83,11 +84,14 @@ public class NetworkHandlerTask extends AsyncTask<Void, String, Void> {
 	@Override
 	protected void onProgressUpdate(String... values) {
 		for (String s : values) {
+			Log.d(LOG_TAG, "publishing message: " + s);
 			mMessage = new Message();
 			mMessage.what = mProgressMessage;
 			mMessage.obj = s;
-			if (mHandler != null)
+			if (mHandler != null){
 				mHandler.sendMessage(mMessage);
+				Log.d(LOG_TAG, "message sent");
+			}
 		}
 	}
 
