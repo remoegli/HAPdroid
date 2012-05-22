@@ -1,10 +1,13 @@
 package ch.hsr.hapdroid.network;
 
-import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Date;
+
+import android.util.Log;
 
 public class Timeval implements Comparable<Timeval> {
 
+	private static final String LOG_TAG = "Timeval";
 	private long seconds;
 	private long microseconds;
 
@@ -30,15 +33,26 @@ public class Timeval implements Comparable<Timeval> {
 		return microseconds;
 	}
 
+	//TODO don't use long
 	public byte[] getByteArrayMs() {
-		byte[] b = new byte[8];
+		long ms = Math.round((double)microseconds/1000);
+		ms += seconds*1000;
+		byte[] b = ByteBuffer.allocate(8).putLong(ms).array();
+		Log.d(LOG_TAG, Long.toHexString(ms));
 		
-		BigInteger ms = BigInteger.valueOf(microseconds/1000);
-		ms.add(BigInteger.valueOf(seconds*1000));
-		
-		for (int i = 0; i < b.length; ++i){
-			b[i] = (byte) ms.intValue();
-			ms.divide(BigInteger.valueOf(256L));
+		return reverse(b);
+	}
+
+	private byte[] reverse(byte[] b) {
+		int i = 0;
+		int j = b.length - 1;
+		byte tmp;
+		while (j > i) {
+			tmp = b[j];
+			b[j] = b[i];
+			b[i] = tmp;
+			j--;
+			i++;
 		}
 		return b;
 	}

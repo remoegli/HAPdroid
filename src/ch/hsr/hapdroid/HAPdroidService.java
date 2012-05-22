@@ -76,7 +76,7 @@ public class HAPdroidService extends Service {
 
 	private void handlePacket(Packet p) {
 		mFlowTable.add(p);
-		
+		Log.d(LOG_TAG, "packet recieved");
 		Message msg = new Message();
 		msg.what = HAPdroidActivity.RECEIVE_NETWORK_FLOW;
 		msg.obj = p;
@@ -220,17 +220,29 @@ public class HAPdroidService extends Service {
 		startForeground(NOTIFICATION_ID, mNotification);
 	}
 	
-	public void startExecutable(String params){
-		RootTools.useRoot = false;
+	public void startExecutableCapture(String params){
+		startNetworkCaptureServer();
+		while (!mNetworkCapture.isReady()) {
+			sleep(500);
+		}
+		startExecutable(params);
+		
+		// we cant start the service in foreground because this will
+		// break testing with a NPE. See android issue 12122
+		//startForeground(NOTIFICATION_ID, mNotification);
+	}
+	
+	private void startExecutable(String params){
+//		RootTools.useRoot = false;
 		try {
 			RootTools.runBinary(getApplicationContext(), EXECUTABLE + params,
-					SERVER_PACKETS);
+					"-s " + SERVER_PACKETS);
 			Log.d(LOG_TAG, "executable started with params: " + params);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			RootTools.useRoot = true;
+//			RootTools.useRoot = true;
 		}
 	}
 
@@ -311,6 +323,15 @@ public class HAPdroidService extends Service {
 		if (mNetworkCapture != null &&
 				mNetworkCapture.getStatus() == Status.RUNNING)
 			mNetworkCapture.stopServer();
+	}
+
+	public void clearCapture() {
+		mFlowTable.clear();
+		mHAPGraphlet.clear();
+	}
+
+	public FlowTable getFlowTable() {
+		return mFlowTable;
 	}
 
 }

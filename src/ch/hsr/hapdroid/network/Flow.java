@@ -5,6 +5,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import android.util.Log;
+
 /**
  * This class represents a flow with all necessary fields as
  * described in the cflow4 format.
@@ -16,7 +18,7 @@ public class Flow implements Comparable<Flow>{
 	public static final int TYPE_OUTGOING = 1;
 	public static final int TYPE_INCOMING = 2;
 	public static final int TYPE_UNIFLOW = 3;
-	public static final int TYPE_BIFLOW = 4;
+	public static final int TYPE_BIFLOW = 2;
 	public static final int TYPE_UNIBIFLOW = 8;
 	public static final int TYPE_ALLFLOW = 7;
 	public static final int TYPE_OKFLOW = 12;
@@ -27,6 +29,7 @@ public class Flow implements Comparable<Flow>{
 	public static final int SIZE_BYTE = 48;
 
 	private static final byte MAGIC_NUMBER = 1;
+	private static final String LOG_TAG = "Flow";
 	
 	private InetAddress src_addr;
 	private InetAddress dst_addr;
@@ -40,6 +43,7 @@ public class Flow implements Comparable<Flow>{
 	
 	private Timeval duration;
 	private long flowSize;
+	private long payloadSize;
 	private byte direction;
 	private int pkgCount;
 
@@ -54,7 +58,8 @@ public class Flow implements Comparable<Flow>{
 		tos = p.tos;
 		starttime = p.timestamp;
 		duration = new Timeval(0,0);
-		flowSize = p.payload_size;
+		flowSize = p.payload_size + p.header_size;
+		payloadSize = p.payload_size;
 		pkgCount = 1;
 		
 		if(isLocalHostAddress(src_addr))
@@ -89,7 +94,8 @@ public class Flow implements Comparable<Flow>{
 
 	public void add(Packet p) {
 		++pkgCount;
-		flowSize += p.payload_size;
+		flowSize += p.payload_size + p.header_size;
+		payloadSize += p.payload_size;
 		duration = Timeval.getDifference(p.timestamp, starttime);
 		
 		if (p.dst_addr.equals(src_addr))
@@ -102,15 +108,23 @@ public class Flow implements Comparable<Flow>{
 		if (result == 0)
 			result = dst_addr.getHostAddress().compareTo(another.dst_addr.getHostAddress());
 		if (result == 0)
-			result = starttime.compareTo(another.starttime);
+			result = another.starttime.compareTo(starttime);
 		
 		return result;
 	}
 
 	public boolean describes(Packet p) {
-		boolean isSrcEqual = src_addr.equals(p.src_addr) && src_port == p.src_port;
-		boolean isDstEqual = dst_addr.equals(p.dst_addr) && dst_port == p.dst_port;
+		boolean isSrcEqual = false;
+		boolean isDstEqual = false;
 		boolean isProtoEqual = proto == p.proto;
+		
+		if (src_addr.equals(p.src_addr)){
+			isSrcEqual = src_addr.equals(p.src_addr) && src_port == p.src_port;
+			isDstEqual = dst_addr.equals(p.dst_addr) && dst_port == p.dst_port;
+		} else {
+			isSrcEqual = src_addr.equals(p.dst_addr) && src_port == p.dst_port;
+			isDstEqual = dst_addr.equals(p.src_addr) && dst_port == p.src_port;
+		}
 		
 		return isSrcEqual && isDstEqual && isProtoEqual;
 	}
@@ -127,7 +141,9 @@ public class Flow implements Comparable<Flow>{
 		set16bitInt(result, 22, dst_port);
 		
 		set48bitLong(result, 24, flowSize);
+		Log.d(LOG_TAG, Long.toHexString(flowSize));
 		set32bitLong(result, 32, pkgCount);
+		Log.d(LOG_TAG, Long.toHexString(flowSize));
 		
 		set16bitInt(result, 36, as_local);
 		set16bitInt(result, 38, as_remote);
@@ -184,6 +200,18 @@ public class Flow implements Comparable<Flow>{
 		return src_addr.toString() +":"+src_port + " TO "+
 			dst_addr.toString() +":"+dst_port + " PROTO "+proto+
 			" SIZE "+flowSize+" COUNT "+pkgCount+
-			" DIRECTION "+direction+" DURATION "+duration+"\n";
+			" DIRECTION "+direction+" STARTTIME "+starttime+"\n";
+	}
+
+	public int getPacketCount() {
+		return pkgCount;
+	}
+
+	public long getByteCount() {
+		return flowSize;
+	}
+	
+	public long getPayloadCount(){
+		return payloadSize;
 	}
 }

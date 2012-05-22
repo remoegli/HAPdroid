@@ -24,7 +24,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private int mShutdownMessage;
 	private boolean mIsReady;
 
-	private static final String LOG_TAG = "NetworkCaptureTask";
+	private static final String LOG_TAG = "NetworkStreamHandlerTask";
 
 	public NetworkStreamHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
 		mIsReady = false;
@@ -69,6 +69,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 				mReader = new BufferedReader(
 						new InputStreamReader(mInputStream));
 				while ((line = mReader.readLine()) != null) {
+					Log.d(LOG_TAG, "line recieved: " + line);
 					publishProgress(line);
 				}
 			}
@@ -83,11 +84,14 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	@Override
 	protected void onProgressUpdate(String... values) {
 		for (String s : values) {
+			Log.d(LOG_TAG, "publishing message: " + s);
 			mMessage = new Message();
 			mMessage.what = mProgressMessage;
 			mMessage.obj = s;
-			if (mHandler != null)
+			if (mHandler != null){
 				mHandler.sendMessage(mMessage);
+				Log.d(LOG_TAG, "message sent");
+			}
 		}
 	}
 

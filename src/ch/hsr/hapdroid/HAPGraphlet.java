@@ -75,6 +75,12 @@ public class HAPGraphlet extends SimpleGraph<Node<?>, DefaultEdge>{
 		addVertex(dstIp);
 		addEdge(dstPort, dstIp);
 	}
-	
-	
+
+	public void clear() {
+		mSrcIp.clear();
+		mProto.clear();
+		mSrcPort.clear();
+		mDstPort.clear();
+		mDstIp.clear();
+	}
 }
