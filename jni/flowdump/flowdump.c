@@ -165,7 +165,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	fdprintf(fd, "%s:%d", inet_ntoa(ip->ip_src), ntohs(transp->h_sport));
 	fdprintf(fd, "-->");
 	fdprintf(fd, "%s:%d", inet_ntoa(ip->ip_dst), ntohs(transp->h_dport));
-	fdprintf(fd, ":%d:%d:%ld,%06ld\n", ip_tos, size_header, size_payload, ts.tv_sec,
+	fdprintf(fd, ":%d:%d:%d:%ld,%06ld\n", ip_tos, size_header, size_payload, ts.tv_sec,
 			ts.tv_usec);
 
 	return;

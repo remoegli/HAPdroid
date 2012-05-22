@@ -22,11 +22,6 @@
             </intent-filter>
         </activity>
         
-        <activity 
-            android:name=".HAPdroidActivity"
-            android:label="@string/app_name">
-        </activity>
-        
         <activity
             android:name="HAPdroidNonRootActivity"
             android:label="@string/app_name">
