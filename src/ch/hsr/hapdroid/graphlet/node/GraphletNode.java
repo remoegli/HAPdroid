@@ -13,7 +13,6 @@ public class GraphletNode extends BaseRectangle {
 	private static Font aFont;
 	private NodeType nodeType;
 	private String nodeLabel;
-	private Shape mShape;
 	private Node<?> mNode;
 	
 	
@@ -22,14 +21,13 @@ public class GraphletNode extends BaseRectangle {
 		nodeType = type;
 		nodeLabel = label;
 		this.setColor(0, 0, 0, 0);
-		mShape = getShape();
-		this.attachChild(mShape);
-		Log.v("MyActivity", "Node \"" + label + "\" created on z-index" + this.getZIndex());
+		this.attachChild(getShape());
+		//Log.v("MyActivity", "Node \"" + label + "\" created on z-index" + this.getZIndex());
 	}
 
 	public GraphletNode(NodeType type, Node<?> node) {
 		this(type, node.toString());
-		mNode = node;
+		this.mNode = node;
 	}
 
 	@Override
