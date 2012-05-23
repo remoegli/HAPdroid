@@ -6,8 +6,6 @@ import org.anddev.andengine.opengl.font.Font;
 
 import ch.hsr.hapdroid.transaction.Node;
 
-import android.util.Log;
-
 public class GraphletNode extends BaseRectangle {
 	
 	private static Font aFont;

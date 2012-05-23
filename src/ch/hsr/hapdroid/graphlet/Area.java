@@ -79,9 +79,6 @@ public class Area extends Rectangle{
 	
 	public void addEdge(Edge edge){
 		edges.add(edge);
-		if(!edge.hasParent()){
-			this.attachChild(edge);
-		}
 	}
 	
 	public void updateEdges(){
