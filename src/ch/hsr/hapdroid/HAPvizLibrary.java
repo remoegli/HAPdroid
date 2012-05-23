@@ -9,5 +9,7 @@ public class HAPvizLibrary {
 		System.loadLibrary("hapviz");
 		System.loadLibrary("hapvizwrapper");
 	}
-	static native boolean getTransactions(String in_filename, String localServSocket, String ipAddress, String netmask);
+	
+	static native boolean getTransactions(String in_filename, String localServName, String ipAddress, String netmask);
+	static native boolean getTransactions(byte[] cflows, String localServName);
 }

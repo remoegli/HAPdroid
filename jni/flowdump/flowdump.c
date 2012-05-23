@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -75,17 +76,29 @@ struct sniff_tcp {
 	u_short th_urp; /* urgent pointer */
 };
 
+struct sniff_udp {
+	u_short	uh_sport;		/* source port */
+	u_short	uh_dport;		/* destination port */
+	u_short	uh_ulen;		/* datagram length */
+	u_short	uh_sum;			/* datagram checksum */
+};
+
+struct sniff_transp {
+	u_short	h_sport;		/* source port */
+	u_short	h_dport;		/* destination port */
+};
+
 int fd = 1;
 char *dev = NULL; /* capture device name */
 
 void print_usage(void) {
 
-	printf("Usage: %s [interface] [servername]\n", APP_NAME);
+	printf("Usage: %s [-i interface|-p pcap-file] -s servername\n", APP_NAME);
 	printf("\n");
 	printf("Options:\n");
-	printf("    interface    Listen on <interface> for packets.\n");
-	printf(
-			"    servername   Connect to local server socket <servername> for output.\n");
+	printf("	-i interface    Listen on <interface> for packets.\n");
+	printf("	-p pcap-file	Open pcap file for import.\n"
+			"	-s servername	Connect to local server socket <servername> for output.\n");
 	printf("\n");
 
 	return;
@@ -97,12 +110,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	/* declare pointers to packet headers */
 	const struct sniff_ethernet *ethernet; /* The ethernet header [1] */
 	const struct sniff_ip *ip; /* The IP header */
-	const struct sniff_tcp *tcp; /* The TCP header */
+	const struct sniff_transp *transp; /* The transport protocol header */
+	const struct sniff_tcp *tcp; /* The TCP protocol header */
 
 	const struct timeval ts = (struct timeval) (header->ts);
 
 	int size_ip;
-	int size_tcp;
+	int size_transp;
 	int size_payload;
 
 	/* define ethernet header */
@@ -113,41 +127,46 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	size_ip = IP_HL(ip) * 4;
 	if (size_ip < 20) {
 		fprintf(stderr, "   * Invalid IP header length: %u bytes\n", size_ip);
-		return;
 	}
 
-	/* print source and destination IP addresses */
-	const char * ip_src = inet_ntoa(ip->ip_src);
-	const char * ip_dst = inet_ntoa(ip->ip_dst);
 	u_char ip_p = ip->ip_p;
 	u_char ip_tos = ip->ip_tos;
 
-	/*
-	 *  OK, this packet is TCP.
-	 */
-
-	/* define/compute tcp header offset */
-	tcp = (struct sniff_tcp*) (packet + SIZE_ETHERNET + size_ip);
-	size_tcp = TH_OFF(tcp) * 4;
-	if (size_tcp < 20) {
-		fprintf(stderr, "   * Invalid TCP header length: %u bytes\n", size_tcp);
-		return;
+	size_transp = 0;
+	//TODO assign sizes to size_transp
+	switch(ip->ip_p) {
+		case IPPROTO_TCP:
+			tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+			size_transp = TH_OFF(tcp)*4;
+			break;
+		case IPPROTO_UDP:
+			size_transp = 8;
+			break;
+		case IPPROTO_ICMP:
+			size_transp = 8;
+			break;
+		case IPPROTO_IP:
+			break;
+		default:
+			printf("Protocol: unknown\n");
+			return;
 	}
 
-	u_short sport = ntohs(tcp->th_sport);
-	u_short dport = ntohs(tcp->th_dport);
+	transp = (struct sniff_transp*) (packet + SIZE_ETHERNET + size_ip);
 
-	size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+	/* get payload size */
+	int size_header = size_ip + size_transp;
+	size_payload = ntohs(ip->ip_len) - size_header;
 
 	/*
 	 * Print header data.
 	 */
-
-	if (size_payload > 0) {
-		fdprintf(fd, "%s:%d:%s:%d-->%s:%d:%d:%d:%ld,%06ld\n", dev, ip_p, ip_src,
-				sport, ip_dst, dport, ip_tos, size_payload, ts.tv_sec,
-				ts.tv_usec);
-	}
+	fdprintf(fd, "%s:%d:", dev, ip_p);
+	fdprintf(fd, "%s:%d", inet_ntoa(ip->ip_src), ntohs(transp->h_sport));
+	fdprintf(fd, "-->");
+	fdprintf(fd, "%s:%d", inet_ntoa(ip->ip_dst), ntohs(transp->h_dport));
+	fdprintf(fd, ":%d:%d:%d:%ld,%06ld\n", ip_tos, size_header, size_payload, ts.tv_sec,
+			ts.tv_usec);
 
 	return;
 }
@@ -182,7 +201,6 @@ int init_srv_conn(const char* srvname) {
 	}
 
 	printf("flowdump : Connecting to Java LocalSocketServer succeed\n");
-
 	return sk;
 }
 
@@ -220,32 +238,58 @@ int main(int argc, char **argv) {
 	bpf_u_int32 net; /* ip */
 	int num_packets = -1; /* number of packets to capture */
 
-	/* check for capture device name on command-line */
-	if (argc == 2) {
-		dev = argv[1];
-	} else if (argc == 3) {
-		dev = argv[1];
-		srvname = argv[2];
-		fd = init_srv_conn(srvname);
-	} else if (argc > 3) {
-		fprintf(stderr, "error: unrecognized command-line options\n\n");
-		print_usage();
-		exit(EXIT_FAILURE);
+	/* check for command line options */
+	int c;
+	while ((c = getopt(argc, argv, "i:p:s:h?")) != -1){
+		switch (c) {
+		case 'i':
+			dev = optarg;
+			/* open capture device */
+			handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
+			if (!handle) {
+				fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 'p':
+			dev = "pcap";
+			handle = pcap_open_offline(optarg, errbuf);
+			if (!handle) {
+				fprintf(stderr, "Couldn't open file %s: %s\n", optarg, errbuf);
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 's':
+			srvname = optarg;
+			break;
+		case 'h':
+		case '?':
+			fprintf(stderr, "\nerror: unrecognized command-line options\n\n");
+			print_usage();
+			exit(EXIT_FAILURE);
+			break;
+		default:
+			abort();
+			break;
+		}
+	}
+
+	if(!srvname){
+		fprintf(stderr, "missing option -s, using stdout.\n");
+		fd = 1;
 	} else {
+		fd = init_srv_conn(srvname);
+	}
+
+	if (!dev) {
 		/* find a capture device if not specified on command-line */
 		dev = pcap_lookupdev(errbuf);
 		if (dev == NULL) {
 			fprintf(stderr, "Couldn't find default device: %s\n", errbuf);
 			exit(EXIT_FAILURE);
 		}
-	}
-
-	/* get network number and mask associated with capture device */
-	if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-		fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev,
-				errbuf);
-		net = 0;
-		mask = 0;
+		/* open capture device */
+		handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
 	}
 
 	/* print capture info */
@@ -253,13 +297,6 @@ int main(int argc, char **argv) {
 	fprintf(stdout, "using filedescriptor: %i\n", fd);
 	fprintf(stdout, "Number of packets: %d\n", num_packets);
 	fprintf(stdout, "Filter expression: %s\n", filter_exp);
-
-	/* open capture device */
-	handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
-	if (handle == NULL) {
-		fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
-		exit(EXIT_FAILURE);
-	}
 
 	/* compile the filter expression */
 	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {

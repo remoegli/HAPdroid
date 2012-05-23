@@ -9,11 +9,13 @@
         is required for this application to work properly. 
         Please Root your phone, if not already done so, 
         and install the su package.</string>
-    <string name="capture_tcpdump_wlan">Capture wlan</string>
-    <string name="capture_tcpdump_mobile">Capture mobile</string>
+        
+    <string name="notification_title">HAPdroid</string>
+    <string name="notification_message">Capturing network Traffic</string>
+    
     <string name="capture_toast">Capturing tcpdump, please wait.</string>
+    <string name="capture_start">Start Capture</string>
     <string name="capture_stop">Stop Capture</string>
-    <string name="libhapviz_test">libhapviz test</string>
     <string name="show_graphlet">Graphlet</string>
     
 </resources>

@@ -6,18 +6,18 @@ import org.anddev.andengine.opengl.font.Font;
 
 import android.util.Log;
 
-import ch.hsr.hapdroid.graphlet.node.Node;
+import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 
 public class Edge extends Line{
 
 	private static final int EDGE_X_LABELOFFSET = -10;
 	private static final int EDGE_Y_LABELOFFSET = -20;
 	private static Font aFont;
-	private Node leftNode;
-	private Node rightNode;
+	private GraphletNode leftNode;
+	private GraphletNode rightNode;
 	private Text edgeLabel;
 	
-	public Edge(Node left, Node right, String label){
+	public Edge(GraphletNode left, GraphletNode right, String label){
 		super(0, 0, 0, 0);
 		this.setColor(0, 0, 0);
 		leftNode = left;

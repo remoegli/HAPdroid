@@ -24,7 +24,7 @@ LOCAL_C_INCLUDES := $(NDK_ROOT)/external/boost
 LOCAL_SHARED_LIBRARIES :=\
 	boost_iostreams\
 	boost_regex
-LOCAL_LDLIBS := -lz
+LOCAL_LDLIBS := -lz -llog
 
 include $(BUILD_SHARED_LIBRARY)
 include $(MY_PATH)/boost/iostreams.mk

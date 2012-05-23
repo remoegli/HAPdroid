@@ -1,5 +1,7 @@
 package ch.hsr.hapdroid;
 
+import java.net.InetAddress;
+import java.util.Set;
 import java.util.Vector;
 
 import org.anddev.andengine.engine.Engine;
@@ -18,12 +20,21 @@ import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
+import org.jgrapht.graph.DefaultEdge;
+
+import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.graphlet.Area;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
-import ch.hsr.hapdroid.graphlet.node.Node;
+import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.graphlet.node.NodeType;
+import ch.hsr.hapdroid.transaction.Node;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
 
@@ -41,6 +52,27 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 	private Camera pCamera;
 	
 	private Vector<Area> areas;
+	private Intent mServiceIntent;
+	private boolean mBound;
+	private HAPdroidService mService;
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			HAPdroidBinder binder = (HAPdroidBinder) service;
+			mService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			mBound = false;
+		}
+	};
+	private HAPGraphlet mHAPgraphlet;
+	private Vector<GraphletNode> nodes;
+	
+	
 	
 	public Engine onLoadEngine() {
 		
@@ -58,9 +90,13 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 		Log.v(TAG, "onLoadResources Started");
 		mTex = new BitmapTextureAtlas(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mFont = new Font(mTex, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 15, true, Color.BLACK);
-		Node.setFont(mFont);
+		GraphletNode.setFont(mFont);
 		Edge.setFont(mFont);
 		areas = new Vector<Area>();
+		nodes = new Vector<GraphletNode>();
+		
+		mHAPgraphlet = mService.getGraphlet();
+		
 	}
 
 	public Scene onLoadScene() {
@@ -103,34 +139,72 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 			myScene.registerTouchArea(area);
 		}
 		
-		//CreateNodes
-		Node srcipNode1 = new Node(NodeType.IP, "192.168.100.100");
-		Node protoNode1 = new Node(NodeType.PROTO, "TCP");
-		Node srcportNode1 = new Node(NodeType.PORT, "65128");
-		Node dstportNode1 = new Node(NodeType.PORT, "80");
-		Node dstipNode1 = new Node(NodeType.IP, "69.171.234.48");
-
-		Node protoNode2 = new Node(NodeType.PROTO, "UDP");
-		Node srcportNode2 = new Node(NodeType.PORT, "32123");
+		//Get nodes from graphlet
+		for(Node<?> node : mHAPgraphlet.getSrcIpList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
+			srcIPArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
 		
-		//Add nodes to area
-		srcIPArea.addNode(srcipNode1);
-		protoArea.addNode(protoNode1);
-		protoArea.addNode(protoNode2);
-		srcPortArea.addNode(srcportNode1);
-		srcPortArea.addNode(srcportNode2);
-		dstPortArea.addNode(dstportNode1);
-		dstIPArea.addNode(dstipNode1);
+		for(Node<?> node : mHAPgraphlet.getProtoList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PROTO, node);
+			protoArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : mHAPgraphlet.getSrcPortList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
+			srcPortArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : mHAPgraphlet.getDstPortList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
+			dstPortArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : mHAPgraphlet.getDstIpList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
+			dstIPArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(GraphletNode graphletNode : nodes){
+			Set<DefaultEdge> edges = mHAPgraphlet.edgesOf(graphletNode.getNode());
+			for(DefaultEdge edge : edges){
+				createEdge(findNode(mHAPgraphlet.getEdgeSource(edge)), findNode(mHAPgraphlet.getEdgeTarget(edge)), "[no label");
+			}
+		}
+		
+		//CreateNodes
+//		GraphletNode srcipNode1 = new GraphletNode(NodeType.IP, "192.168.100.100");
+//		GraphletNode protoNode1 = new GraphletNode(NodeType.PROTO, "TCP");
+//		GraphletNode srcportNode1 = new GraphletNode(NodeType.PORT, "65128");
+//		GraphletNode dstportNode1 = new GraphletNode(NodeType.PORT, "80");
+//		GraphletNode dstipNode1 = new GraphletNode(NodeType.IP, "69.171.234.48");
+//
+//		GraphletNode protoNode2 = new GraphletNode(NodeType.PROTO, "UDP");
+//		GraphletNode srcportNode2 = new GraphletNode(NodeType.PORT, "32123");
+//		
+//		//Add nodes to area
+//		srcIPArea.addNode(srcipNode1);
+//		protoArea.addNode(protoNode1);
+//		protoArea.addNode(protoNode2);
+//		srcPortArea.addNode(srcportNode1);
+//		srcPortArea.addNode(srcportNode2);
+//		dstPortArea.addNode(dstportNode1);
+//		dstIPArea.addNode(dstipNode1);
 
 		//Create Edges
-		createEdge(srcipNode1, protoNode1, "1.1");
-		createEdge(srcipNode1, protoNode2, "1.2");
-		createEdge(protoNode1, srcportNode1, "2.1");
-		createEdge(protoNode2, srcportNode2, "2.2");
-		createEdge(srcportNode1, dstportNode1, "3.1");
-		createEdge(srcportNode2, dstportNode1, "3.2"); 
-		createEdge(dstportNode1, dstipNode1, "4");
-		
+//		createEdge(srcipNode1, protoNode1, "1.1");
+//		createEdge(srcipNode1, protoNode2, "1.2");
+//		createEdge(protoNode1, srcportNode1, "2.1");
+//		createEdge(protoNode2, srcportNode2, "2.2");
+//		createEdge(srcportNode1, dstportNode1, "3.1");
+//		createEdge(srcportNode2, dstportNode1, "3.2"); 
+//		createEdge(dstportNode1, dstipNode1, "4");
+//		
 		
 		
 		this.getEngine().getTextureManager().loadTexture(mTex);
@@ -151,10 +225,39 @@ public class HAPdroidGraphletActivity extends BaseGameActivity implements IOnSce
 		return true;
 	}
    
-	private void createEdge(Node left, Node right, String label){
+	private void createEdge(GraphletNode left, GraphletNode right, String label){
 		Edge edge = new Edge(left, right, label);
 		((Area)left.getParent()).addEdge(edge);
 		((Area)right.getParent()).addEdge(edge);
+	}
+	
+	private GraphletNode findNode(Node<?> node){
+		GraphletNode returnNode = null;
+		for(GraphletNode graphletNode : nodes){
+			if(node.equals(graphletNode.getNode())){
+				returnNode = graphletNode;
+				break;
+			}
+		}
+		return returnNode;
+		
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		mServiceIntent = new Intent(this, HAPdroidService.class);
+		bindService(mServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (mBound) {
+			unbindService(mServiceConnection);
+			mBound = false;
+		}
 	}
 	
 }
