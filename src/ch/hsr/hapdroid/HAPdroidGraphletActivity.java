@@ -49,6 +49,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
 	public static final int RECEIVE_TRANSACTION_TABLE = 2;
+	public static final int PICK_FILE = 0;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -99,6 +100,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Button mBtnCaptureStartStop;
 	private OnClickListener mOnClickStart;
 	private OnClickListener mOnClickStop;
+	private Button mBtnImport;
 
 	/**
 	 * Called when the activity is first created.
@@ -108,6 +110,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		super.onCreate(savedInstanceState);
 
 		mBtnCaptureStartStop = (Button) findViewById(id.btn_capture_start_stop);
+		mBtnImport = (Button) findViewById(id.btn_file_open);
 	}
 
 	private void setOnClickListeners() {
@@ -131,7 +134,26 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			}
 		};
 
+		mBtnImport.setOnClickListener(new OnClickListener() {
+			Intent intent = new Intent();
+			
+			@Override
+			public void onClick(View v) {
+				intent.setClass(getBaseContext(), FileImportActivity.class);
+				intent.setAction(Intent.ACTION_MAIN);
+				startActivityForResult(intent, PICK_FILE);
+			}
+		});
 		switchStartStopButton(mService.isCaptureRunning());
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == PICK_FILE){
+			if (resultCode == RESULT_OK){
+				mService.importFile(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
+			}
+		}
 	}
 
 	private void switchStartStopButton(boolean isCaptureStarted) {

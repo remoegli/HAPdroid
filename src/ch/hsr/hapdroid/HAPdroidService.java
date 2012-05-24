@@ -340,4 +340,8 @@ public class HAPdroidService extends Service {
 		return mNetworkCapture.getStatus() == Status.RUNNING;
 	}
 
+	public void importFile(CharSequence filePath) {
+		startExecutableCapture("-p " + filePath);
+	}
+
 }
