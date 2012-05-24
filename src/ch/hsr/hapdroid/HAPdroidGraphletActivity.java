@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -145,6 +146,15 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		if (requestCode == PICK_FILE){
 			if (resultCode == RESULT_OK){
 				mService.importFile(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
+				synchronized(this) {
+					try {
+						wait(1500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				generateGraphlet();
 			}
 		}
 	}
@@ -244,6 +254,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 	
 	private void generateGraphlet(){
+		Log.d(LOG_TAG, "generating graphlet");
 		mGraphlet.update(mService.getGraphlet());
 	}
 	

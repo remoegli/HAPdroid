@@ -133,7 +133,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	u_char ip_tos = ip->ip_tos;
 
 	size_transp = 0;
-	//TODO assign sizes to size_transp
 	switch(ip->ip_p) {
 		case IPPROTO_TCP:
 			tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
@@ -157,6 +156,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	/* get payload size */
 	int size_header = size_ip + size_transp;
 	size_payload = ntohs(ip->ip_len) - size_header;
+//	size_payload = sizeof(packet);
 
 	/*
 	 * Print header data.

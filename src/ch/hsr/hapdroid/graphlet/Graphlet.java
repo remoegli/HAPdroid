@@ -130,7 +130,9 @@ public class Graphlet extends Scene{
 //		}
 		
 		findEdges(srcIPArea, protoArea);
-			
+		findEdges(protoArea, srcPortArea);
+		findEdges(srcPortArea, dstPortArea);
+		findEdges(dstPortArea, dstIPArea);
 		
 		refreshEdges();
 		

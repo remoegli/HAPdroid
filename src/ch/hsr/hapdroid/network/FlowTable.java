@@ -1,16 +1,18 @@
 package ch.hsr.hapdroid.network;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import android.util.Log;
 
 public class FlowTable {
 	private static final String LOG_TAG = "FlowTable";
-	private SortedSet<Flow> mFlowList;
+	private List<Flow> mFlowList;
 	
 	public FlowTable() {
-		mFlowList = new TreeSet<Flow>();
+		mFlowList = new ArrayList<Flow>();
 	}
 
 	public boolean add(Packet packet) {
@@ -42,10 +44,12 @@ public class FlowTable {
 	
 	public byte[] toByteArray(){
 		byte[] result = new byte[mFlowList.size()*Flow.SIZE_BYTE];
-		int i = 0;
-		for (Flow f : mFlowList){
+		Collections.sort(mFlowList);
+		Iterator<Flow> it = mFlowList.iterator();
+		Flow f;
+		for (int i = 0; it.hasNext(); i++){
+			f = it.next();
 			System.arraycopy(f.toByteArray(), 0, result, Flow.SIZE_BYTE*i, Flow.SIZE_BYTE);
-			++i;
 		}
 		Log.d(LOG_TAG, mFlowList.toString());
 		return result;
@@ -53,10 +57,7 @@ public class FlowTable {
 	
 	@Override
 	public String toString() {
-		StringBuilder result = new StringBuilder();
-		for (Flow f : mFlowList)
-			result.append(f.toString());
-		return result.toString();
+		return mFlowList.toString();
 	}
 
 	public void clear() {

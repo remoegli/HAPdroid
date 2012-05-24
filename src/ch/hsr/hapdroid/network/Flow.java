@@ -18,7 +18,7 @@ public class Flow implements Comparable<Flow>{
 	public static final int TYPE_OUTGOING = 1;
 	public static final int TYPE_INCOMING = 2;
 	public static final int TYPE_UNIFLOW = 3;
-	public static final int TYPE_BIFLOW = 2;
+	public static final int TYPE_BIFLOW = 4;
 	public static final int TYPE_UNIBIFLOW = 8;
 	public static final int TYPE_ALLFLOW = 7;
 	public static final int TYPE_OKFLOW = 12;
@@ -39,13 +39,13 @@ public class Flow implements Comparable<Flow>{
 	private int as_remote;
 	private short proto;
 	private short tos;
-	private Timeval starttime;
 	
-	private Timeval duration;
+	private int pkgCount;
 	private long flowSize;
 	private long payloadSize;
+	private Timeval starttime;
+	private Timeval duration;
 	private byte direction;
-	private int pkgCount;
 
 	public Flow(Packet p) {
 		src_addr = p.src_addr;
@@ -108,9 +108,17 @@ public class Flow implements Comparable<Flow>{
 		if (result == 0)
 			result = dst_addr.getHostAddress().compareTo(another.dst_addr.getHostAddress());
 		if (result == 0)
-			result = another.starttime.compareTo(starttime);
+			result = (int) (another.flowSize - flowSize);
 		
 		return result;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Flow)
+			return compareTo((Flow) o) == 0;
+
+		return super.equals(o);
 	}
 
 	public boolean describes(Packet p) {
@@ -176,7 +184,7 @@ public class Flow implements Comparable<Flow>{
 		long tmp = value;
 		for(int i = 0; i < count; ++i){
 			result[start_index+i] = (byte) tmp;
-			tmp <<= 8;
+			tmp >>= 8;
 		}
 	}
 

@@ -47,6 +47,7 @@ public class HAPdroidService extends Service {
 				handleTransaction(s);
 				break;
 			case RECIEVE_TRANSACTION_FINISH:
+				Log.d(LOG_TAG, "finish getting transactions");
 				finishGettingTransactions();
 				break;
 			}
@@ -78,7 +79,7 @@ public class HAPdroidService extends Service {
 		mFlowTable.add(p);
 		Log.d(LOG_TAG, "packet recieved");
 		Message msg = new Message();
-		msg.what = HAPdroidActivity.RECEIVE_NETWORK_FLOW;
+		msg.what = HAPdroidGraphletActivity.RECEIVE_NETWORK_FLOW;
 		msg.obj = p;
 		if(mCallbackHandler != null)
 			mCallbackHandler.sendMessage(msg);
@@ -133,7 +134,7 @@ public class HAPdroidService extends Service {
 	private void initNotification() {
 		mNotification = new Notification(R.drawable.ic_notification, "HAPdroid Network Capture", System.currentTimeMillis());
 		
-		Intent notificationIntent = new Intent(this, HAPdroidActivity.class);
+		Intent notificationIntent = new Intent(this, HAPdroidGraphletActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		
 		mNotification.setLatestEventInfo(this, getText(R.string.notification_title),

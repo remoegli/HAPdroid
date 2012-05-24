@@ -63,7 +63,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 		Log.d(LOG_TAG, mServerName + ": Start reading lines");
 		try {
 			mIsReady = true;
-			while (!mServerShouldStop) {
+//			while (!mServerShouldStop) {
 				LocalSocket sk = mServerSocket.accept();
 				mInputStream = sk.getInputStream();
 				mReader = new BufferedReader(
@@ -72,7 +72,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 					Log.d(LOG_TAG, "line recieved: " + line);
 					publishProgress(line);
 				}
-			}
+//			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 
 	@Override
 	protected void onPostExecute(Void result) {
-		shutdown();
+		stopServer();
 	}
 
 	private void shutdown() {
