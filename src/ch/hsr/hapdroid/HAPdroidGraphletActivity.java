@@ -196,7 +196,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public Engine onLoadEngine() {
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT);
 		pCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT); //floats pX, pY, pWidth, pHeight
-		EngineOptions pEngineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE, pResolutionPolicy, pCamera);
+		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, pCamera);
 		Engine myEngine = new Engine(pEngineOptions);
 		return myEngine;
 	}
