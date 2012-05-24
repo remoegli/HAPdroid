@@ -68,7 +68,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 				mInputStream = sk.getInputStream();
 				mReader = new BufferedReader(
 						new InputStreamReader(mInputStream));
-				while ((line = mReader.readLine()) != null) {
+				while (!mServerShouldStop && (line = mReader.readLine()) != null) {
 					Log.d(LOG_TAG, "line recieved: " + line);
 					publishProgress(line);
 				}

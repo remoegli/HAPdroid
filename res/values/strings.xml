@@ -17,5 +17,8 @@
     <string name="capture_start">Start Capture</string>
     <string name="capture_stop">Stop Capture</string>
     <string name="show_graphlet">Graphlet</string>
+    <string name="settings">Settings</string>
+    <string name="file_open">Open…</string>
+    <string name="import_file_title">Import File</string>
     
 </resources>

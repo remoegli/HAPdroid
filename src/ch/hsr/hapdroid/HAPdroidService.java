@@ -334,4 +334,14 @@ public class HAPdroidService extends Service {
 		return mFlowTable;
 	}
 
+	public boolean isCaptureRunning() {
+		if (mNetworkCapture == null)
+			return false;
+		return mNetworkCapture.getStatus() == Status.RUNNING;
+	}
+
+	public void importFile(CharSequence filePath) {
+		startExecutableCapture("-p " + filePath);
+	}
+
 }
