@@ -27,6 +27,7 @@ public class Graphlet extends Scene{
 	private Area dstPortArea;
 	private Area dstIPArea;
 	private Vector<GraphletNode> nodes;
+	private HAPGraphlet hapGraphlet;
 	
 	public Graphlet(int cameraWidth, int cameraHeight){
 		super();
@@ -89,59 +90,78 @@ public class Graphlet extends Scene{
 	
 	
 	public void update(HAPGraphlet graphlet) {
-		
+		hapGraphlet = graphlet;
 		//Get nodes from graphlet
 		for(Node<?> node : graphlet.getSrcIpList()){
 			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
 			srcIPArea.addNode(graphletNode);
-			nodes.add(graphletNode);
+//			nodes.add(graphletNode);
 		}
 		
 		for(Node<?> node : graphlet.getProtoList()){
 			GraphletNode graphletNode = new GraphletNode(NodeType.PROTO, node);
 			protoArea.addNode(graphletNode);
-			nodes.add(graphletNode);
+//			nodes.add(graphletNode);
 		}
 		
 		for(Node<?> node : graphlet.getSrcPortList()){
 			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
 			srcPortArea.addNode(graphletNode);
-			nodes.add(graphletNode);
+//			nodes.add(graphletNode);
 		}
 		
 		for(Node<?> node : graphlet.getDstPortList()){
 			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
 			dstPortArea.addNode(graphletNode);
-			nodes.add(graphletNode);
+//			nodes.add(graphletNode);
 		}
 		
 		for(Node<?> node : graphlet.getDstIpList()){
 			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
 			dstIPArea.addNode(graphletNode);
-			nodes.add(graphletNode);
+//			nodes.add(graphletNode);
 		}
 		
-		for(GraphletNode graphletNode : nodes){
-			Set<DefaultEdge> edges = graphlet.edgesOf(graphletNode.getNode());
-			for(DefaultEdge edge : edges){
-				createEdge(findNode(graphlet.getEdgeSource(edge)), findNode(graphlet.getEdgeTarget(edge)), "[no label]");
-			}
-		}
+//		for(GraphletNode graphletNode : nodes){
+//			Set<DefaultEdge> edges = graphlet.edgesOf(graphletNode.getNode());
+//			for(DefaultEdge edge : edges){
+//				createEdge(findNode(graphlet.getEdgeSource(edge)), findNode(graphlet.getEdgeTarget(edge)), "[no label]");
+//			}
+//		}
+		
+		findEdges(srcIPArea, protoArea);
+			
 		
 		refreshEdges();
 		
 	}
 
-	private GraphletNode findNode(Node<?> node){
-	GraphletNode returnNode = null;
-	for(GraphletNode graphletNode : nodes){
-		if(node.equals(graphletNode.getNode())){
-			returnNode = graphletNode;
-			break;
+	private void findEdges(Area left, Area right) {
+		for(int i = left.getChildCount()-1; i >= 0; i--){
+			GraphletNode leftNode = (GraphletNode) left.getChild(i);
+			Set<DefaultEdge> edges = hapGraphlet.edgesOf(leftNode.getNode());
+			for(DefaultEdge edge : edges){
+				for(int j = right.getChildCount()-1; j >= 0; j--){
+					GraphletNode rightNode = (GraphletNode)right.getChild(j);
+					if(hapGraphlet.getEdgeTarget(edge).equals(rightNode.getNode())){
+						createEdge(leftNode, rightNode, "-");
+					}
+				}
+			}
 		}
 	}
-	return returnNode;
-	}
+
+
+//	private GraphletNode findNode(Node<?> node){
+//	GraphletNode returnNode = null;
+//	for(GraphletNode graphletNode : nodes){
+//		if(node.equals(graphletNode.getNode())){
+//			returnNode = graphletNode;
+//			break;
+//		}
+//	}
+//	return returnNode;
+//	}
 		
 	
 	private void addTestContent(){
