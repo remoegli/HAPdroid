@@ -3,9 +3,6 @@ package ch.hsr.hapdroid.graphlet.edge;
 import org.anddev.andengine.entity.primitive.Line;
 import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.opengl.font.Font;
-
-import android.util.Log;
-
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 
 public class Edge extends Line{
@@ -27,7 +24,6 @@ public class Edge extends Line{
 	}
 
 	public void update() {
-		Log.v("MyActivity", "Updating Edge: " + edgeLabel.getText() + " on z-index " + this.getZIndex());
 		
 		//Calculate both ends on the line relative to the area
 		final float[] leftNodeCoordinates = getParent().convertSceneToLocalCoordinates(leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY()), new float[2]);

@@ -31,7 +31,7 @@ public class Area extends Rectangle{
 	public void addNode(GraphletNode node){
 		nodes.add(node);
 		updateNodePositions();
-		attachChild(node);
+		this.attachChild(node);
 	}
 	
 	private void updateNodePositions() {		
@@ -79,9 +79,6 @@ public class Area extends Rectangle{
 	
 	public void addEdge(Edge edge){
 		edges.add(edge);
-		if(!edge.hasParent()){
-			this.attachChild(edge);
-		}
 	}
 	
 	public void updateEdges(){
