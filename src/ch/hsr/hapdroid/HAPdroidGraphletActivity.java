@@ -42,6 +42,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
 	public static final int RECEIVE_TRANSACTION_TABLE = 2;
+	public static final int GENERATE_GRAPHLET = 3;
 	public static final int PICK_FILE = 0;
 
 	private Handler mHandler = new Handler() {
@@ -51,6 +52,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			case RECEIVE_NETWORK_FLOW:
 				break;
 			case RECEIVE_TRANSACTION_TABLE:
+				break;
+			case GENERATE_GRAPHLET:
+				generateGraphlet();
 				break;
 			}
 
@@ -86,7 +90,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			mBound = false;
 		}
 	};
-	private HAPGraphlet mHAPgraphlet;
 	private Button mBtnCaptureStartStop;
 	private OnClickListener mOnClickStart;
 	private OnClickListener mOnClickStop;
@@ -175,24 +178,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
-	@Override
-//	private Intent mServiceIntent;
-//	private boolean mBound;
-//	private HAPdroidService mService;
-//	private ServiceConnection mServiceConnection = new ServiceConnection() {
-//		@Override
-//		public void onServiceConnected(ComponentName className, IBinder service) {
-//			HAPdroidBinder binder = (HAPdroidBinder) service;
-//			mService = binder.getService();
-//			mBound = true;
-//		}
-//		@Override
-//		public void onServiceDisconnected(ComponentName arg0) {
-//			mBound = false;
-//		}
-//	};
-//	private HAPGraphlet mHAPgraphlet;
-	
 	public Engine onLoadEngine() {
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT);
 		pCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT); //floats pX, pY, pWidth, pHeight
@@ -205,9 +190,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public void onLoadResources() {
 		mTex = new BitmapTextureAtlas(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mFont = new Font(mTex, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 15, true, Color.BLACK);
+		//TODO: Refactoring?
 		GraphletNode.setFont(mFont);
 		Edge.setFont(mFont);
-//		mHAPgraphlet = mService.getGraphlet();
 	}
 
 	@Override
@@ -231,45 +216,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				+ " Width: " + width);
 		mGraphlet.attachChild(info);
 
-		//Get nodes from graphlet
-//		for(Node<?> node : mHAPgraphlet.getSrcIpList()){
-//			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
-//			srcIPArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-//		}
-//		
-//		for(Node<?> node : mHAPgraphlet.getProtoList()){
-//			GraphletNode graphletNode = new GraphletNode(NodeType.PROTO, node);
-//			protoArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-//		}
-//		
-//		for(Node<?> node : mHAPgraphlet.getSrcPortList()){
-//			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
-//			srcPortArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-//		}
-//		
-//		for(Node<?> node : mHAPgraphlet.getDstPortList()){
-//			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
-//			dstPortArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-//		}
-//		
-//		for(Node<?> node : mHAPgraphlet.getDstIpList()){
-//			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
-//			dstIPArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-//		}
-//		
-//		for(GraphletNode graphletNode : nodes){
-//			Set<DefaultEdge> edges = mHAPgraphlet.edgesOf(graphletNode.getNode());
-//			for(DefaultEdge edge : edges){
-//				createEdge(findNode(mHAPgraphlet.getEdgeSource(edge)), findNode(mHAPgraphlet.getEdgeTarget(edge)), "[no label");
-//			}
-//		}
-//		
-		
+	
 		this.getEngine().getTextureManager().loadTexture(mTex);
 		this.getEngine().getFontManager().loadFont(mFont);
 
@@ -278,24 +225,13 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 	@Override
 	public void onLoadComplete() {
-		mGraphlet.update();
+
 	}
 
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		return true;
 	}
-
-//	private GraphletNode findNode(Node<?> node){
-//		GraphletNode returnNode = null;
-//		for(GraphletNode graphletNode : nodes){
-//			if(node.equals(graphletNode.getNode())){
-//				returnNode = graphletNode;
-//				break;
-//			}
-//		}
-//		return returnNode;
-//	}
 
 	@Override
 	protected int getLayoutID() {
@@ -306,5 +242,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	protected int getRenderSurfaceViewID() {
 		return R.id.view_graphlet;
 	}
-
+	
+	private void generateGraphlet(){
+		mGraphlet.update(mService.getGraphlet());
+	}
+	
 }

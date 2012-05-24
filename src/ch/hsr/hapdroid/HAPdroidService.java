@@ -184,7 +184,7 @@ public class HAPdroidService extends Service {
 	}
 
 	protected void finishGettingTransactions() {
-		mCallbackHandler.sendEmptyMessage(HAPdroidActivity.RECEIVE_TRANSACTION_TABLE);
+		mCallbackHandler.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
 //		Log.d(LOG_TAG, "TransactionTable: " + mHAPGraphlet.toString());
 	}
 

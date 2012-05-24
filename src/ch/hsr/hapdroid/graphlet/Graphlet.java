@@ -1,13 +1,17 @@
 package ch.hsr.hapdroid.graphlet;
 
+import java.util.Set;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.input.touch.TouchEvent;
+import org.jgrapht.graph.DefaultEdge;
 
+import ch.hsr.hapdroid.HAPGraphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.graphlet.node.NodeType;
+import ch.hsr.hapdroid.transaction.Node;
 
 public class Graphlet extends Scene{
 
@@ -22,17 +26,18 @@ public class Graphlet extends Scene{
 	private Area srcPortArea;
 	private Area dstPortArea;
 	private Area dstIPArea;
+	private Vector<GraphletNode> nodes;
 	
 	public Graphlet(int cameraWidth, int cameraHeight){
 		super();
 		areas = new Vector<Area>();
-//		nodes = new Vector<GraphletNode>();
+		nodes = new Vector<GraphletNode>();
 //		CAMERA_WIDTH = cameraWidth;
 		CAMERA_HEIGHT = cameraHeight;
 		AREA_WIDTH = cameraWidth/5;
 		
 		createAreas();
-		addTestContent();
+		//addTestContent();
 		
 	}
 
@@ -71,7 +76,7 @@ public class Graphlet extends Scene{
 		((Area)right.getParent()).addEdge(edge);
 	}
 	
-	public void update(){
+	private void refreshEdges(){
 		for(Area area : areas){
 			area.updateEdges();
 		}
@@ -83,6 +88,62 @@ public class Graphlet extends Scene{
 	}
 	
 	
+	public void update(HAPGraphlet graphlet) {
+		
+		//Get nodes from graphlet
+		for(Node<?> node : graphlet.getSrcIpList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
+			srcIPArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : graphlet.getProtoList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PROTO, node);
+			protoArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : graphlet.getSrcPortList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
+			srcPortArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : graphlet.getDstPortList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
+			dstPortArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(Node<?> node : graphlet.getDstIpList()){
+			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
+			dstIPArea.addNode(graphletNode);
+			nodes.add(graphletNode);
+		}
+		
+		for(GraphletNode graphletNode : nodes){
+			Set<DefaultEdge> edges = graphlet.edgesOf(graphletNode.getNode());
+			for(DefaultEdge edge : edges){
+				createEdge(findNode(graphlet.getEdgeSource(edge)), findNode(graphlet.getEdgeTarget(edge)), "[no label]");
+			}
+		}
+		
+		refreshEdges();
+		
+	}
+
+	private GraphletNode findNode(Node<?> node){
+	GraphletNode returnNode = null;
+	for(GraphletNode graphletNode : nodes){
+		if(node.equals(graphletNode.getNode())){
+			returnNode = graphletNode;
+			break;
+		}
+	}
+	return returnNode;
+	}
+		
+	
 	private void addTestContent(){
 		//CreateNodes
 		GraphletNode srcipNode1 = new GraphletNode(NodeType.IP, "192.168.100.100");
@@ -90,7 +151,7 @@ public class Graphlet extends Scene{
 		GraphletNode srcportNode1 = new GraphletNode(NodeType.PORT, "65128");
 		GraphletNode dstportNode1 = new GraphletNode(NodeType.PORT, "80");
 		GraphletNode dstipNode1 = new GraphletNode(NodeType.IP, "69.171.234.48");
-
+	
 		GraphletNode protoNode2 = new GraphletNode(NodeType.PROTO, "UDP");
 		GraphletNode srcportNode2 = new GraphletNode(NodeType.PORT, "32123");
 		
@@ -102,7 +163,7 @@ public class Graphlet extends Scene{
 		srcPortArea.addNode(srcportNode2);
 		dstPortArea.addNode(dstportNode1);
 		dstIPArea.addNode(dstipNode1);
-
+	
 		//Create Edges
 		createEdge(srcipNode1, protoNode1, "1.1");
 		createEdge(srcipNode1, protoNode2, "1.2");
@@ -111,7 +172,7 @@ public class Graphlet extends Scene{
 		createEdge(srcportNode1, dstportNode1, "3.1");
 		createEdge(srcportNode2, dstportNode1, "3.2"); 
 		createEdge(dstportNode1, dstipNode1, "4");
-
+	
 	}
 	
 }
