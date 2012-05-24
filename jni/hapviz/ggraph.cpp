@@ -1178,14 +1178,28 @@ void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, Hash
 	}
 
 	outs << 't' << DISCR << (srcip.valueA.bytes & 0xffff)
-			<< DISCR << (remote.valueB.packets & 0xffff)
-			<< DISCR << (remote.valueA.rolnum_clients & 0xffff) << endl
-		<< "SrcIp" << DISCR << srcip.ip << endl
-		<< "Proto" << DISCR << (srcip.valueA.proto & 0xff)<< endl
-		<< "SrcPort" << DISCR << (port.valueB.port1 & 0xffff) << endl
-		<< "DstPort" << DISCR << (remote.valueB.port1 & 0xffff) << endl
-		<< "DstIp" << DISCR << remote.ip << endl;
-	LOGD(srcip.ip.toString().append("-->").append(remote.ip.toString()).c_str());
+		<< DISCR << (remote.valueB.packets & 0xffff)
+		<< DISCR << (remote.valueA.rolnum_clients & 0xffff) << endl
+		<< "SrcIp" << DISCR << srcip.ip.toNumericString() << endl
+		<< "Proto" << DISCR << (srcip.valueA.proto & 0xff)<< endl;
+
+	char localport_des = "SrcPort";
+	if (sum_localport)
+		localport_des = "sSrcPort";
+	outs
+		<< localport_des << DISCR << (port.valueB.port1 & 0xffff) << endl;
+
+	char remoteport_des = "DstPort";
+	if (sum_remoteport)
+		remoteport_des = "sDstPort";
+	outs
+		<< remoteport_des << DISCR << (remote.valueB.port1 & 0xffff) << endl;
+
+	char remoteip_des = "DstIp";
+	if (sum_dst)
+		remoteip_des = "sDstIp";
+	outs
+		<< remoteip_des << DISCR << remote.ip.toNumericString() << endl;
 
 	if (sum_dst){
 		uint32_t role_num = ((remote.valueA.rolnum_clients >> ROLE_SHIFT3) & ROLE_NR_BIT_MASK);
