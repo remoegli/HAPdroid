@@ -10,15 +10,11 @@ import org.jgrapht.graph.DefaultEdge;
 import ch.hsr.hapdroid.HAPGraphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
-import ch.hsr.hapdroid.graphlet.node.NodeType;
-import ch.hsr.hapdroid.transaction.Node;
+import ch.hsr.hapdroid.transaction.Transaction;
 
 public class Graphlet extends Scene{
 
 	private Vector<Area> areas;
-//	private Vector<GraphletNode> nodes;
-	
-//	private final int CAMERA_WIDTH;
 	private final int CAMERA_HEIGHT;
 	private final int AREA_WIDTH;
 	private Area srcIPArea;
@@ -26,23 +22,21 @@ public class Graphlet extends Scene{
 	private Area srcPortArea;
 	private Area dstPortArea;
 	private Area dstIPArea;
-	private Vector<GraphletNode> nodes;
 	private HAPGraphlet hapGraphlet;
 	
 	public Graphlet(int cameraWidth, int cameraHeight){
 		super();
 		areas = new Vector<Area>();
-		nodes = new Vector<GraphletNode>();
-//		CAMERA_WIDTH = cameraWidth;
 		CAMERA_HEIGHT = cameraHeight;
 		AREA_WIDTH = cameraWidth/5;
 		
 		createAreas();
-		//addTestContent();
+		addTestContent();
 		
 	}
 
 	private void createAreas() {
+		//TODO: Remove Coloring
 		//Areas
 		srcIPArea = new Area(0, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(srcIPArea);
@@ -69,19 +63,13 @@ public class Graphlet extends Scene{
 	}
 	
 	private void createEdge(GraphletNode left, GraphletNode right, String label){
+		//TODO: fix Edge duplication
 		Edge edge = new Edge(left, right, label);
 		edge.setZIndex(5);
 		this.attachChild(edge);
 		
 		((Area)left.getParent()).addEdge(edge);
 		((Area)right.getParent()).addEdge(edge);
-	}
-	
-	private void refreshEdges(){
-		for(Area area : areas){
-			area.updateEdges();
-		}
-		this.sortChildren();
 	}
 	
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
@@ -91,37 +79,13 @@ public class Graphlet extends Scene{
 	
 	public void update(HAPGraphlet graphlet) {
 		hapGraphlet = graphlet;
-		//Get nodes from graphlet
-		for(Node<?> node : graphlet.getSrcIpList()){
-			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
-			srcIPArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-		}
 		
-		for(Node<?> node : graphlet.getProtoList()){
-			GraphletNode graphletNode = new GraphletNode(NodeType.PROTO, node);
-			protoArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-		}
-		
-		for(Node<?> node : graphlet.getSrcPortList()){
-			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
-			srcPortArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-		}
-		
-		for(Node<?> node : graphlet.getDstPortList()){
-			GraphletNode graphletNode = new GraphletNode(NodeType.PORT, node);
-			dstPortArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-		}
-		
-		for(Node<?> node : graphlet.getDstIpList()){
-			GraphletNode graphletNode = new GraphletNode(NodeType.IP, node);
-			dstIPArea.addNode(graphletNode);
-//			nodes.add(graphletNode);
-		}
-		
+		srcIPArea.addAllNodes(graphlet.getSrcIpList());
+		protoArea.addAllNodes(graphlet.getProtoList());
+		srcPortArea.addAllNodes(graphlet.getSrcPortList());
+		dstPortArea.addAllNodes(graphlet.getDstPortList());
+		dstIPArea.addAllNodes(graphlet.getDstIpList());
+				
 //		for(GraphletNode graphletNode : nodes){
 //			Set<DefaultEdge> edges = graphlet.edgesOf(graphletNode.getNode());
 //			for(DefaultEdge edge : edges){
@@ -136,6 +100,22 @@ public class Graphlet extends Scene{
 		
 		refreshEdges();
 		
+	}
+	
+	public void addTransaction(Transaction trans){
+		//TODO: change back to true/false because of edge duplication
+		GraphletNode srcIP = srcIPArea.addNode(new GraphletNode(trans.getSrcIp()));
+		GraphletNode proto = protoArea.addNode(new GraphletNode(trans.getProto()));
+		GraphletNode srcPort = srcPortArea.addNode(new GraphletNode(trans.getSrcPort()));
+		GraphletNode dstPort = dstPortArea.addNode(new GraphletNode(trans.getDstPort()));
+		GraphletNode dstIP = dstIPArea.addNode(new GraphletNode(trans.getDstIp()));
+		
+		createEdge(srcIP, proto, "update");
+		createEdge(proto, srcPort, "update");
+		createEdge(srcPort, dstPort, trans.getBytes() + "(" + trans.getPackets() + ")");
+		createEdge(dstPort, dstIP, "[flows]([pkg/flow])");
+		
+		refreshEdges();
 	}
 
 	private void findEdges(Area left, Area right) {
@@ -153,6 +133,12 @@ public class Graphlet extends Scene{
 		}
 	}
 
+	private void refreshEdges(){
+		for(Area area : areas){
+			area.updateEdges();
+		}
+		this.sortChildren();
+	}
 
 //	private GraphletNode findNode(Node<?> node){
 //	GraphletNode returnNode = null;
@@ -163,37 +149,50 @@ public class Graphlet extends Scene{
 //		}
 //	}
 //	return returnNode;
-//	}
-		
+//	}		
 	
 	private void addTestContent(){
-		//CreateNodes
-		GraphletNode srcipNode1 = new GraphletNode(NodeType.IP, "192.168.100.100");
-		GraphletNode protoNode1 = new GraphletNode(NodeType.PROTO, "TCP");
-		GraphletNode srcportNode1 = new GraphletNode(NodeType.PORT, "65128");
-		GraphletNode dstportNode1 = new GraphletNode(NodeType.PORT, "80");
-		GraphletNode dstipNode1 = new GraphletNode(NodeType.IP, "69.171.234.48");
-	
-		GraphletNode protoNode2 = new GraphletNode(NodeType.PROTO, "UDP");
-		GraphletNode srcportNode2 = new GraphletNode(NodeType.PORT, "32123");
+		HAPGraphlet testGraphlet = new HAPGraphlet();
+		//bytes packets direction srcip proto srcport dstport dstip
+		String[] sArray1 = {" 12345 678 3", " 192.168.100.100", " 1", " 65128", " 80", " 69.171.234.48"};
+		String[] sArray2 = {" 345 78 2", " 192.168.100.100", " 1", " 65132", " 80", " 212.35.35.35"};
+		String[] sArray3 = {" 2345 142 1", " 192.168.100.100", " 2", " 32458", " 123", " 195.186.1.111"};
+		testGraphlet.add(Transaction.parse(sArray1));
+		testGraphlet.add(Transaction.parse(sArray2));
+		testGraphlet.add(Transaction.parse(sArray3));
 		
-		//Add nodes to area
-		srcIPArea.addNode(srcipNode1);
-		protoArea.addNode(protoNode1);
-		protoArea.addNode(protoNode2);
-		srcPortArea.addNode(srcportNode1);
-		srcPortArea.addNode(srcportNode2);
-		dstPortArea.addNode(dstportNode1);
-		dstIPArea.addNode(dstipNode1);
-	
-		//Create Edges
-		createEdge(srcipNode1, protoNode1, "1.1");
-		createEdge(srcipNode1, protoNode2, "1.2");
-		createEdge(protoNode1, srcportNode1, "2.1");
-		createEdge(protoNode2, srcportNode2, "2.2");
-		createEdge(srcportNode1, dstportNode1, "3.1");
-		createEdge(srcportNode2, dstportNode1, "3.2"); 
-		createEdge(dstportNode1, dstipNode1, "4");
+		this.update(testGraphlet);
+		
+		String[] updateTest = {" 12345 678 3", " 192.168.100.100", " 1", " 20568", " 80", " 195.186.1.111"};
+		this.addTransaction(Transaction.parse(updateTest));
+		
+		
+//		//CreateNodes
+//		GraphletNode srcipNode1 = new GraphletNode(NodeType.IP, "192.168.100.100");
+//		GraphletNode protoNode1 = new GraphletNode(NodeType.PROTO, "TCP");
+//		GraphletNode srcportNode1 = new GraphletNode(NodeType.PORT, "65128");
+//		GraphletNode dstportNode1 = new GraphletNode(NodeType.PORT, "80");
+//		GraphletNode dstipNode1 = new GraphletNode(NodeType.IP, "69.171.234.48");
+//		GraphletNode protoNode2 = new GraphletNode(NodeType.PROTO, "UDP");
+//		GraphletNode srcportNode2 = new GraphletNode(NodeType.PORT, "32123");
+//		
+//		//Add nodes to area
+//		srcIPArea.addNode(srcipNode1);
+//		protoArea.addNode(protoNode1);
+//		protoArea.addNode(protoNode2);
+//		srcPortArea.addNode(srcportNode1);
+//		srcPortArea.addNode(srcportNode2);
+//		dstPortArea.addNode(dstportNode1);
+//		dstIPArea.addNode(dstipNode1);
+//	
+//		//Create Edges
+//		createEdge(srcipNode1, protoNode1, "1.1");
+//		createEdge(srcipNode1, protoNode2, "1.2");
+//		createEdge(protoNode1, srcportNode1, "2.1");
+//		createEdge(protoNode2, srcportNode2, "2.2");
+//		createEdge(srcportNode1, dstportNode1, "3.1");
+//		createEdge(srcportNode2, dstportNode1, "3.2"); 
+//		createEdge(dstportNode1, dstipNode1, "4");
 	
 	}
 	

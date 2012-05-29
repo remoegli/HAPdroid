@@ -2,56 +2,37 @@ package ch.hsr.hapdroid.graphlet.node;
 
 import org.anddev.andengine.entity.primitive.BaseRectangle;
 import org.anddev.andengine.entity.shape.Shape;
+import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.opengl.font.Font;
 
 import ch.hsr.hapdroid.transaction.Node;
 
-public class GraphletNode extends BaseRectangle {
-	
+public class GraphletNode extends BaseRectangle{
+
+	private static final String LOGTAG = "hapdroid.GraphletNode";
 	private static Font aFont;
-	private NodeType nodeType;
-	private String nodeLabel;
 	private Node<?> mNode;
+	private static final int NODE_HEIGHT = 30;
 	
-	
-	public GraphletNode(NodeType type, String label) {
-		super(0, 0, type.width(), type.height());
-		nodeType = type;
-		nodeLabel = label;
-		this.setColor(0, 0, 0, 0);
-		this.attachChild(getShape());
-		//Log.v("MyActivity", "Node \"" + label + "\" created on z-index" + this.getZIndex());
-	}
-
-	public GraphletNode(NodeType type, Node<?> node) {
-		this(type, node.toString());
+	public GraphletNode(Node<?> node) {
+		super(0, 0, 0, NODE_HEIGHT);
 		this.mNode = node;
-	}
-
-	@Override
-	public void setPosition(float x, float y) {
-		super.setPosition(x, y);
-	}
-	
-	private Shape getShape(){
-		Shape nShape;
-		switch(nodeType){
-		case IP:
-		case PROTO:
-		case PORT:
-			nShape = new EllipticNode(0, 0, nodeType.width(), nodeType.height(), aFont, nodeLabel, nodeType.offset());
-			break;
-		case S_IP:
-		case S_PORT:
-			nShape = new SumNode(this.getWidth()/2, this.getHeight()/2, nodeType.width(), nodeType.height(), aFont, nodeLabel, nodeType.offset());
-			break;
-		default:
-			nShape = new EllipticNode(this.getWidth()/2, this.getHeight()/2, 60, 20, aFont, "unknown NodeType", -55);
-			nShape.setColor(1.0f, 0, 0);
-			break;
+		this.setColor(0, 0, 0, 0);
+		
+		Text nodeLabel = new Text(0 , 0, aFont, mNode.toString());
+		this.setWidth(nodeLabel.getWidth()+NODE_HEIGHT);
+		nodeLabel.setPosition(this.getWidth()/2-nodeLabel.getWidth()/2, this.getHeight()/2-nodeLabel.getHeight()/2);
+		
+		Shape mShape;
+		if(!mNode.isSummarized()){
+			mShape = new EllipticNode(this.getWidth()/2, this.getHeight()/2, this.getWidth()/2, this.getHeight()/2);
+		} else{
+			mShape = new SumNode(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		}
-		return nShape;
-}
+		
+		this.attachChild(mShape);
+		this.attachChild(nodeLabel);
+	}
 
 	public Node<?> getNode(){
 		return mNode;
@@ -59,6 +40,19 @@ public class GraphletNode extends BaseRectangle {
 	
 	public static void setFont(Font mFont) {
 		aFont = mFont;
+	}
+	
+	@Override
+	public void setPosition(float x, float y) {
+		super.setPosition(x-(this.getWidth()/2), y-(this.getHeight()/2));
+	}
+
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof GraphletNode){
+			return this.mNode.equals(((GraphletNode)o).getNode());
+		}
+		return super.equals(o);
 	}
 	
 }

@@ -5,21 +5,27 @@ import java.util.Vector;
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.input.touch.TouchEvent;
 
+import android.util.Log;
+
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
+import ch.hsr.hapdroid.transaction.Node;
+import ch.hsr.hapdroid.transaction.NodeList;
 
 
 public class Area extends Rectangle{
 	
+	private static final String LOGTAG = "hapdroid.Area";
 	private static float NODESPACING = 10;
-	private static float NODEHEIGHT = 40;
-	
 	private boolean mGrabbed = false;
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
+	
+	//TODO: What to use? Make something ourselfes? Ask Poms betr. NodeList
 	private Vector<GraphletNode> nodes;
 	private Vector<Edge> edges;
+	
 	
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
@@ -28,20 +34,48 @@ public class Area extends Rectangle{
 		edges = new Vector<Edge>();
 	}
 
-	public void addNode(GraphletNode node){
-		nodes.add(node);
-		updateNodePositions();
-		this.attachChild(node);
+	public void addAllNodes(NodeList<?> nodeList) {
+		for( Node<?> node : nodeList){
+			GraphletNode graphletNode = new GraphletNode(node);
+			this.addNode(graphletNode);
+		}
+	}
+
+	public GraphletNode addNode(GraphletNode node){
+		if(!nodes.contains(node)){
+			nodes.add(node);
+			this.attachChild(node);
+			updateNodePositions();
+			return node;
+		} else{
+			return nodes.elementAt(nodes.indexOf(node));
+		}
+		
 	}
 	
-	private void updateNodePositions() {		
-		super.setHeight((nodes.size()*(NODEHEIGHT+NODESPACING))+NODESPACING); //Every node with it's spacing plus the extra spacing at the top
+	public void addEdge(Edge edge){
+		edges.add(edge);
+	}
+
+	public void updateEdges(){
+		for(Edge edge : edges){
+			edge.update();
+		}
+	}
+
+	private void updateNodePositions() {
+		//Every node with it's spacing plus the extra spacing at the top
+		float height = NODESPACING;
+		for(GraphletNode node : nodes){
+			height = height + node.getHeight() + NODESPACING;
+		}
+		super.setHeight(height); 
 		super.setPosition(this.getX(), (initHeight/2)-(this.getHeight()/2)); //Set the area to display center
 		
-		float nodeY = NODESPACING + NODEHEIGHT/2;
+		float nodeY = NODESPACING + nodes.firstElement().getHeight()/2;
 		for(GraphletNode node : nodes){
 			node.setPosition(this.getWidth()/2, nodeY);
-			nodeY = nodeY + NODEHEIGHT + NODESPACING;
+			nodeY = nodeY + node.getHeight() + NODESPACING;
 		}
 	}
 
@@ -75,16 +109,6 @@ public class Area extends Rectangle{
 	public void setPosition(final float pX, final float pY) {
 		super.setPosition(pX, pY);
 		updateEdges();
-	}
-	
-	public void addEdge(Edge edge){
-		edges.add(edge);
-	}
-	
-	public void updateEdges(){
-		for(Edge edge : edges){
-			edge.update();
-		}
 	}
 }
 

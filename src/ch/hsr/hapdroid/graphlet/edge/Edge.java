@@ -26,12 +26,12 @@ public class Edge extends Line{
 	public void update() {
 		
 		//Calculate both ends on the line relative to the area
-		final float[] leftNodeCoordinates = getParent().convertSceneToLocalCoordinates(leftNode.convertLocalToSceneCoordinates(leftNode.getX(), leftNode.getY()), new float[2]);
-		final float[] rightNodeCoordinates = getParent().convertSceneToLocalCoordinates(rightNode.convertLocalToSceneCoordinates(rightNode.getX(), rightNode.getY()), new float[2]);
-		float leftNodeX = leftNodeCoordinates[0]-leftNode.getX();
-		float leftNodeY = leftNodeCoordinates[1]-leftNode.getY();
-		float rightNodeX = rightNodeCoordinates[0]-rightNode.getX();
-		float rightNodeY = rightNodeCoordinates[1]-rightNode.getY();
+		final float[] leftNodeCoordinates = getParent().convertSceneToLocalCoordinates(leftNode.getSceneCenterCoordinates(), new float[2]);
+		final float[] rightNodeCoordinates = getParent().convertSceneToLocalCoordinates(rightNode.getSceneCenterCoordinates(), new float[2]);
+		float leftNodeX = leftNodeCoordinates[0];//-leftNode.getX();
+		float leftNodeY = leftNodeCoordinates[1];//-leftNode.getY();
+		float rightNodeX = rightNodeCoordinates[0];//-rightNode.getX();
+		float rightNodeY = rightNodeCoordinates[1];//-rightNode.getY();
 		
 		//Set the lable to the middle of the edge		
 		edgeLabel.setPosition((rightNodeX-leftNodeX)/2+EDGE_X_LABELOFFSET, (rightNodeY-leftNodeY)/2+EDGE_Y_LABELOFFSET);
