@@ -34,6 +34,10 @@ public class GraphletNode extends BaseRectangle{
 		this.attachChild(nodeLabel);
 	}
 
+	public String getLabel(){
+		return (String) mNode.getValue();
+	}
+	
 	public Node<?> getNode(){
 		return mNode;
 	}

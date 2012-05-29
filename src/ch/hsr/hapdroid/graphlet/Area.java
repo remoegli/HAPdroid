@@ -12,7 +12,6 @@ import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 
-
 public class Area extends Rectangle{
 	
 	private static final String LOGTAG = "hapdroid.Area";
@@ -21,16 +20,13 @@ public class Area extends Rectangle{
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
-	
-	//TODO: What to use? Make something ourselfes? Ask Poms betr. NodeList
-	private Vector<GraphletNode> nodes;
+	private GraphletNodeList nodes;
 	private Vector<Edge> edges;
 	
-	
-	public Area(float pX, float pY, float pWidth, float pHeight) {
+	public Area(float pX, float pY, float pWidth, float pHeight, String label) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
-		nodes = new Vector<GraphletNode>();
+		nodes = new GraphletNodeList();
 		edges = new Vector<Edge>();
 	}
 
@@ -41,16 +37,20 @@ public class Area extends Rectangle{
 		}
 	}
 
+	/*
+	 * must return null so the graphlet can get the existing node
+	 */
 	public GraphletNode addNode(GraphletNode node){
-		if(!nodes.contains(node)){
-			nodes.add(node);
+		if(nodes.add(node)){
 			this.attachChild(node);
 			updateNodePositions();
 			return node;
-		} else{
-			return nodes.elementAt(nodes.indexOf(node));
 		}
-		
+		return null;
+	}
+	
+	public GraphletNode getNode(GraphletNode node){
+		return nodes.getNode(node);
 	}
 	
 	public void addEdge(Edge edge){
@@ -78,6 +78,19 @@ public class Area extends Rectangle{
 			nodeY = nodeY + node.getHeight() + NODESPACING;
 		}
 	}
+	
+	@Override
+	public void setPosition(final float pX, final float pY) {
+		super.setPosition(pX, pY);
+		updateEdges();
+	}
+	
+	@Override
+	public void detachChildren(){
+		super.detachChildren();
+		nodes.clear();
+		edges.clear();
+	}
 
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -103,12 +116,6 @@ public class Area extends Rectangle{
 				break;
 		}
 		return true;
-	}	
-	
-	@Override
-	public void setPosition(final float pX, final float pY) {
-		super.setPosition(pX, pY);
-		updateEdges();
 	}
 }
 
