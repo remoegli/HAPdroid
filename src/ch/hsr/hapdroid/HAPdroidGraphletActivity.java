@@ -62,7 +62,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	};
 	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 480;
-
 	private static final String LOG_TAG = "MyActivity";
 
 	private Texture mTex;
@@ -201,21 +200,18 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mGraphlet = new Graphlet(CAMERA_WIDTH, CAMERA_HEIGHT);
 		mGraphlet.setOnSceneTouchListener(this);
 		mGraphlet.setTouchAreaBindingEnabled(true);
+		
+		//TODO: Make nice color :-)
 		mGraphlet.setBackground(new ColorBackground(0.8f, 0.8f, 0.8f));
-
-		// final int centerX = (CAMERA_WIDTH -
-		// this.mHAPTextureRegion.getWidth()) / 2;
-		// final int centerY = (CAMERA_HEIGHT -
-		// this.mHAPTextureRegion.getHeight()) / 2;
 
 		// Some Info
 		Display display = getWindowManager().getDefaultDisplay();
+		//getWindowManager().getDefaultDisplay().getMetrics(outMetrics)
 		int width = display.getWidth();
 		int height = display.getHeight();
 		Text info = new Text(0, 0, mFont, "Display Height: " + height
 				+ " Width: " + width);
 		mGraphlet.attachChild(info);
-
 	
 		this.getEngine().getTextureManager().loadTexture(mTex);
 		this.getEngine().getFontManager().loadFont(mFont);
