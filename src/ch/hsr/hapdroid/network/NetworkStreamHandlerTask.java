@@ -84,5 +84,12 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	@Override
 	protected void onPostExecute(Void result) {
 		mHandler.sendEmptyMessage(mShutdownMessage);
+		try {
+			mReader.close();
+			mInputStream.close();
+			mServerSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

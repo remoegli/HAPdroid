@@ -42,6 +42,9 @@ public class Transaction {
 		setDstPortData(trans[4], t);
 		setDstIpData(trans[5], t);
 
+		if (t.getBytes() == 0)
+			return null;
+		
 		return t;
 	}
 	
@@ -77,7 +80,8 @@ public class Transaction {
 		String[] tokens = srcip.split(" ");
 		
 		try {
-			t.setSrcIp(new Node<InetAddress>(Inet4Address.getByName(tokens[1])));
+			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]));
+			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

@@ -20,5 +20,6 @@
     <string name="settings">Settings</string>
     <string name="file_open">Open…</string>
     <string name="import_file_title">Import File</string>
-    
+    <string name="import_file_message">Please wait while the file is loading</string>
+    <string name="import_file_message_title"></string>
 </resources>

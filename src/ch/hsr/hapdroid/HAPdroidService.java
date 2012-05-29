@@ -23,9 +23,9 @@ import com.stericson.RootTools.RootTools.Result;
 
 public class HAPdroidService extends Service {
 
-	private static final String EXECUTABLE = "flowdump ";
-	private static final String CAPTURE_WLAN_CMD = "flowdump -i wlan0 ";
-	private static final String CAPTURE_MOBILE_CMD = "flowdump -i vsnet0 ";
+	private static final String EXECUTABLE = "flowdump";
+	private static final String CAPTURE_WLAN_CMD = "flowdump -i wlan0";
+	private static final String CAPTURE_MOBILE_CMD = "flowdump -i vsnet0";
 
 	public class HAPdroidBinder extends Binder {
 		public HAPdroidService getService() {
@@ -39,6 +39,7 @@ public class HAPdroidService extends Service {
 			String s;
 			switch (msg.what) {
 			case RECIEVE_PACKET_FINISH:
+				getTransactions();
 				break;
 			case RECIEVE_TRANSACTION:
 				s = (String) msg.obj;
@@ -75,7 +76,36 @@ public class HAPdroidService extends Service {
 			// TODO Auto-generated method stub
 		}
 	};
+	private Result mExecutableCallback = new Result() {
 
+		@Override
+		public void processError(String line) throws Exception {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void process(String line) throws Exception {
+			Packet p = Packet.parsePacket(line);
+			if (p == null)
+				return;
+
+			mFlowTable.add(p);
+		}
+
+		@Override
+		public void onFailure(Exception ex) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onComplete(int diag) {
+			//because we cant start the transaction server outside the UI thread
+			//we use the handler to execute the UI code
+			mHandler.sendEmptyMessage(RECIEVE_PACKET_FINISH);
+		}
+	};
 	private HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mCallbackHandler;
 	private FlowTable mFlowTable;
@@ -113,17 +143,22 @@ public class HAPdroidService extends Service {
 	private void handleTransaction(String s) {
 		Log.d(LOG_TAG, "partial transaction recieved: " + s);
 		if (s.length() > 1 && s.charAt(0) == 't') {
-			Transaction t = Transaction.parse(mTransactionString);
-			if (t != null)
-				Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
-			mHAPGraphlet.add(t);
-			resetTransactionString();
+			parseTransaction();
 		}
 		if (s.length() > 1 && s.charAt(0) == '-') {
+			parseTransaction();
 			return;
 		}
 
 		mTransactionString[mTransactionStringPos++] = s;
+	}
+
+	private void parseTransaction() {
+		Transaction t = Transaction.parse(mTransactionString);
+		if (t != null)
+			Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
+		mHAPGraphlet.add(t);
+		resetTransactionString();
 	}
 
 	private void resetTransactionString() {
@@ -149,7 +184,7 @@ public class HAPdroidService extends Service {
 
 	private void installBinary() {
 		if (!RootTools.installBinary(getApplicationContext(), R.raw.flowdump,
-				EXECUTABLE))
+				EXECUTABLE, "0755"))
 			Toast.makeText(getApplicationContext(), "Unable to install binary",
 					Toast.LENGTH_LONG);
 
@@ -214,7 +249,8 @@ public class HAPdroidService extends Service {
 	}
 
 	protected void finishGettingTransactions() {
-		mCallbackHandler
+		if (mCallbackHandler != null)
+			mCallbackHandler
 				.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
 	}
 
@@ -241,6 +277,7 @@ public class HAPdroidService extends Service {
 	}
 
 	public void startExecutableCapture(String params) {
+		mHAPGraphlet.clear();
 		startExecutable(params);
 
 		// we cant start the service in foreground because this will
@@ -253,8 +290,8 @@ public class HAPdroidService extends Service {
 			@Override
 			public void run() {
 				try {
-					RootTools.sendShell(mFileDir + EXECUTABLE + params,
-							mResultCallback, -1);
+					RootTools.sendShell(mFileDir + EXECUTABLE + " " +params,
+							mExecutableCallback, -1);
 					Log.d(LOG_TAG, "executable started with params: " + params);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

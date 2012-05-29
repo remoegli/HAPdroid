@@ -1183,19 +1183,19 @@ void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, Hash
 		<< "SrcIp" << DISCR << srcip.ip.toNumericString() << endl
 		<< "Proto" << DISCR << (srcip.valueA.proto & 0xff)<< endl;
 
-	char localport_des = "SrcPort";
+	string localport_des = "SrcPort";
 	if (sum_localport)
 		localport_des = "sSrcPort";
 	outs
 		<< localport_des << DISCR << (port.valueB.port1 & 0xffff) << endl;
 
-	char remoteport_des = "DstPort";
+	string remoteport_des = "DstPort";
 	if (sum_remoteport)
 		remoteport_des = "sDstPort";
 	outs
 		<< remoteport_des << DISCR << (remote.valueB.port1 & 0xffff) << endl;
 
-	char remoteip_des = "DstIp";
+	string remoteip_des = "DstIp";
 	if (sum_dst)
 		remoteip_des = "sDstIp";
 	outs
