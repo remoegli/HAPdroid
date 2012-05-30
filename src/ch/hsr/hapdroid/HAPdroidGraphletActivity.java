@@ -21,18 +21,22 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
+import ch.hsr.hapdroid.graphlet.Area;
 import ch.hsr.hapdroid.graphlet.Graphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
@@ -61,9 +65,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	};
 	private static final int CAMERA_WIDTH = 800;
-	private static final int CAMERA_HEIGHT = 480;
+	private static final int CAMERA_HEIGHT = 442;//480;
 	private static final String LOG_TAG = "MyActivity";
 
+	private int screenWidth;
+	private int screenHeight;
 	private Texture mTex;
 	private Font mFont;
 	private Graphlet mGraphlet; 
@@ -178,8 +184,14 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	public Engine onLoadEngine() {
-		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT);
-		pCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT); //floats pX, pY, pWidth, pHeight
+		
+		Rect viewSize = new Rect();
+		getWindow().getDecorView().getWindowVisibleDisplayFrame(viewSize);
+		screenWidth = viewSize.width();
+		screenHeight = viewSize.height();
+		
+		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
+		pCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
 		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, pCamera);
 		Engine myEngine = new Engine(pEngineOptions);
 		return myEngine;
@@ -192,12 +204,13 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		//TODO: Refactoring?
 		GraphletNode.setFont(mFont);
 		Edge.setFont(mFont);
+		Area.setFont(mFont);
 	}
 
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		mGraphlet = new Graphlet(CAMERA_WIDTH, CAMERA_HEIGHT);
+		mGraphlet = new Graphlet(screenWidth, screenHeight);
 		mGraphlet.setOnSceneTouchListener(this);
 		mGraphlet.setTouchAreaBindingEnabled(true);
 		
@@ -205,13 +218,26 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mGraphlet.setBackground(new ColorBackground(0.8f, 0.8f, 0.8f));
 
 		// Some Info
-		Display display = getWindowManager().getDefaultDisplay();
-		//getWindowManager().getDefaultDisplay().getMetrics(outMetrics)
-		int width = display.getWidth();
-		int height = display.getHeight();
-		Text info = new Text(0, 0, mFont, "Display Height: " + height
-				+ " Width: " + width);
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		Text info = new Text(0, 0, mFont, "Display Metrics Height: " + displayMetrics.heightPixels
+				+ " Width: " + displayMetrics.widthPixels);
 		mGraphlet.attachChild(info);
+		
+		Rect r = new Rect();
+		getWindow().getDecorView().getGlobalVisibleRect(r);
+		Text rinfo = new Text(0, 20, mFont, "Display Rect Height: " + r.height() + " Width: " + r.width());
+		mGraphlet.attachChild(rinfo);
+		
+		Rect r2 = new Rect();
+		getWindow().getDecorView().getFocusedRect(r2);
+		Text r2info = new Text(0, 40, mFont, "Display Rect Height: " + r2.height() + " Width: " + r2.width());
+		mGraphlet.attachChild(r2info);
+		
+		Rect r3 = new Rect();
+		getWindow().getDecorView().getWindowVisibleDisplayFrame(r3);
+		Text r3info = new Text(0, 60, mFont, "Display Rect Height: " + r3.height() + " Width: " + r3.width());
+		mGraphlet.attachChild(r3info);
 	
 		this.getEngine().getTextureManager().loadTexture(mTex);
 		this.getEngine().getFontManager().loadFont(mFont);
