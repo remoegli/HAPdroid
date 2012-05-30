@@ -3,7 +3,9 @@ package ch.hsr.hapdroid.graphlet;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.primitive.Rectangle;
+import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.input.touch.TouchEvent;
+import org.anddev.andengine.opengl.font.Font;
 
 import android.util.Log;
 
@@ -16,6 +18,7 @@ public class Area extends Rectangle{
 	
 	private static final String LOGTAG = "hapdroid.Area";
 	private static float NODESPACING = 10;
+	private static Font aFont;
 	private boolean mGrabbed = false;
 	private float firstTouchY;
 	private float initialY;
@@ -28,6 +31,10 @@ public class Area extends Rectangle{
 		initHeight = pHeight;
 		nodes = new GraphletNodeList();
 		edges = new Vector<Edge>();
+		
+		Text areaLabel = new Text(10, 10, aFont, label);
+		this.attachChild(areaLabel);
+		
 	}
 
 	public void addAllNodes(NodeList<?> nodeList) {
@@ -85,11 +92,14 @@ public class Area extends Rectangle{
 		updateEdges();
 	}
 	
-	@Override
-	public void detachChildren(){
-		super.detachChildren();
+	public void clear(){
+		detachChildren();
 		nodes.clear();
 		edges.clear();
+	}
+	
+	public static void setFont(Font mFont) {
+		aFont = mFont;		
 	}
 
 	@Override

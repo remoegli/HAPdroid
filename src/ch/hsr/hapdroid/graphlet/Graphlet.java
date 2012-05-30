@@ -85,7 +85,7 @@ public class Graphlet extends Scene{
 		edges.clear();
 		
 		for(Area area : areas){
-			area.detachChildren();
+			area.clear();
 		}
 	}
 	
