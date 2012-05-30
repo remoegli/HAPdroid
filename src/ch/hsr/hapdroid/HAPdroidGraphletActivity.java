@@ -23,11 +23,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -35,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
+import ch.hsr.hapdroid.graphlet.Area;
 import ch.hsr.hapdroid.graphlet.Graphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
@@ -191,6 +194,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		getWindow().getDecorView().getWindowVisibleDisplayFrame(viewSize);
 		screenWidth = viewSize.width();
 		screenHeight = viewSize.height();
+		Log.v(LOG_TAG, "screen width/height: " + screenWidth + "/" + screenHeight);
 		
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
 		pCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
