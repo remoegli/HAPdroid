@@ -9,6 +9,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 import ch.hsr.hapdroid.HAPGraphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
+import ch.hsr.hapdroid.graphlet.edge.EdgeType;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Transaction;
 

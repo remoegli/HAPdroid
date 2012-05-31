@@ -8,7 +8,6 @@ import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolic
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
-import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.Font;
@@ -23,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,12 +41,14 @@ import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 
 public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		IOnSceneTouchListener {
+
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
 	public static final int RECEIVE_TRANSACTION_TABLE = 2;
 	public static final int GENERATE_GRAPHLET = 3;
 	public static final int PICK_FILE = 0;
-
+	private static final String LOG_TAG = "MyActivity";
+	
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -62,19 +62,15 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				generateGraphlet();
 				break;
 			}
-
 		}
 	};
-	private static final int CAMERA_WIDTH = 800;
-	private static final int CAMERA_HEIGHT = 442;//480;
-	private static final String LOG_TAG = "MyActivity";
 
 	private int screenWidth;
 	private int screenHeight;
 	private Texture mTex;
 	private Font mFont;
 	private Graphlet mGraphlet; 
-	private Camera pCamera;
+	private Camera mCamera;
 	
 	private Intent mServiceIntent;
 	private boolean mBound;
@@ -120,7 +116,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 	private void setOnClickListeners() {
 		mOnClickStart = new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				startService(mServiceIntent);
@@ -186,18 +181,25 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			mBound = false;
 		}
 	}
-
+	
 	public Engine onLoadEngine() {
-		
-		Rect viewSize = new Rect();
-		getWindow().getDecorView().getWindowVisibleDisplayFrame(viewSize);
-		screenWidth = viewSize.width();
-		screenHeight = viewSize.height();
-		Log.v(LOG_TAG, "screen width/height: " + screenWidth + "/" + screenHeight);
-		
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.containsKey("screenWidth") && bundle.containsKey("screenHeight")) {
+        	this.screenWidth  = bundle.getInt("screenWidth");
+        	this.screenHeight = bundle.getInt("screenHeight");
+        } else {
+        	DisplayMetrics outMetrics = new DisplayMetrics();
+    		getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+    		screenWidth = outMetrics.widthPixels;
+            screenHeight = outMetrics.heightPixels;
+        }
+        
+        Log.v(LOG_TAG, "Screen width/height: " + screenWidth + "/" + screenHeight);
+        
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
-		pCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
-		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, pCamera);
+		mCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
+		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, mCamera);
 		Engine myEngine = new Engine(pEngineOptions);
 		return myEngine;
 	}
@@ -215,34 +217,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
+		
 		mGraphlet = new Graphlet(screenWidth, screenHeight);
 		mGraphlet.setOnSceneTouchListener(this);
 		mGraphlet.setTouchAreaBindingEnabled(true);
-		
-		//TODO: Make nice color :-)
-		mGraphlet.setBackground(new ColorBackground(0.8f, 0.8f, 0.8f));
-
-		// Some Info
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		Text info = new Text(0, 0, mFont, "Display Metrics Height: " + displayMetrics.heightPixels
-				+ " Width: " + displayMetrics.widthPixels);
-		mGraphlet.attachChild(info);
-		
-		Rect r = new Rect();
-		getWindow().getDecorView().getGlobalVisibleRect(r);
-		Text rinfo = new Text(0, 20, mFont, "Display Rect Height: " + r.height() + " Width: " + r.width());
-		mGraphlet.attachChild(rinfo);
-		
-		Rect r2 = new Rect();
-		getWindow().getDecorView().getFocusedRect(r2);
-		Text r2info = new Text(0, 40, mFont, "Display Rect Height: " + r2.height() + " Width: " + r2.width());
-		mGraphlet.attachChild(r2info);
-		
-		Rect r3 = new Rect();
-		getWindow().getDecorView().getWindowVisibleDisplayFrame(r3);
-		Text r3info = new Text(0, 60, mFont, "Display Rect Height: " + r3.height() + " Width: " + r3.width());
-		mGraphlet.attachChild(r3info);
+		mGraphlet.setBackground(new ColorBackground(1f, 1f, 1f));
 	
 		this.getEngine().getTextureManager().loadTexture(mTex);
 		this.getEngine().getFontManager().loadFont(mFont);
