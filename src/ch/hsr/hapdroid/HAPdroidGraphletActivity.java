@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
 import ch.hsr.hapdroid.graphlet.Area;
@@ -97,6 +98,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private OnClickListener mOnClickStop;
 	private Button mBtnImport;
 	private ProgressDialog mProgressDialog;
+	private TextView mTxtStart;
+	private TextView mTxtEnd;
 
 	/**
 	 * Called when the activity is first created.
@@ -107,6 +110,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		mBtnCaptureStartStop = (Button) findViewById(id.btn_capture_start_stop);
 		mBtnImport = (Button) findViewById(id.btn_file_open);
+		mTxtStart = (TextView) findViewById(R.id.text_starttime);
+		mTxtEnd = (TextView) findViewById(R.id.text_endtime);
+		
 		mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle(R.string.import_file_message_title);
         mProgressDialog.setMessage(getResources().getText(R.string.import_file_message));
@@ -128,6 +134,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 			@Override
 			public void onClick(View v) {
+				mProgressDialog.show();
 				mService.stopNetworkCapture();
 				stopService(mServiceIntent);
 				switchStartStopButton(false);
@@ -254,6 +261,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private void generateGraphlet(){
 		Log.d(LOG_TAG, "generating graphlet");
 		mGraphlet.update(mService.getGraphlet());
+		mTxtStart.setText(mService.getStartTime());
+		mTxtEnd.setText(mService.getEndTime());
 	}
 	
 }

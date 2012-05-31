@@ -254,4 +254,12 @@ public class Flow implements Comparable<Flow>{
 		
 		return srcIp && booleanProto && srcPort && dstPort && dstIp;
 	}
+
+	public Timeval getStartTime() {
+		return starttime;
+	}
+	
+	public Timeval getDuration() {
+		return duration;
+	}
 }

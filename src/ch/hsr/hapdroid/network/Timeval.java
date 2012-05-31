@@ -16,6 +16,10 @@ public class Timeval implements Comparable<Timeval> {
 		this.microseconds = microseconds;
 	}
 
+	public Timeval(Timeval other) {
+		this(other.getSeconds(), other.getMicroseconds());
+	}
+
 	@Override
 	public String toString() {
 		return getDate().toLocaleString();
@@ -68,5 +72,10 @@ public class Timeval implements Comparable<Timeval> {
 	public static Timeval getDifference(Timeval minuend, Timeval subtrahend) {
 		return new Timeval(minuend.getSeconds() - subtrahend.getSeconds(),
 				minuend.getMicroseconds() - subtrahend.getMicroseconds());
+	}
+
+	public void add(Timeval other) {
+		seconds += other.getSeconds(); 
+		microseconds += other.getMicroseconds();
 	}
 }

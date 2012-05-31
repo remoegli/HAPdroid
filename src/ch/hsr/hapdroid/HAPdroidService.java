@@ -209,6 +209,7 @@ public class HAPdroidService extends Service {
 
 		Intent notificationIntent = new Intent(this,
 				HAPdroidGraphletActivity.class);
+		notificationIntent.setAction(Intent.ACTION_MAIN);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, 0);
 
@@ -379,6 +380,14 @@ public class HAPdroidService extends Service {
 
 	public void importFile(CharSequence filePath) {
 		startExecutableCapture("-p " + filePath);
+	}
+
+	public String getStartTime() {
+		return mFlowTable.getStartTime().toString();
+	}
+
+	public String getEndTime() {
+		return mFlowTable.getEndTime().toString();
 	}
 
 }

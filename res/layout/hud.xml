@@ -18,31 +18,45 @@
         android:layout_alignParentLeft="true"
         android:text="@string/file_open" />
 
+
     <Button
         android:id="@+id/btn_capture_start_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/btn_file_open"
-        android:text="@string/capture_start" />
-
-    <Button
-        android:id="@+id/btn_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="@string/settings" />
+        android:text="@string/capture_start" />
 
     <LinearLayout
         android:id="@+id/timeline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignTop="@id/btn_capture_start_stop"
-        android:layout_toLeftOf="@id/btn_settings"
-        android:layout_toRightOf="@id/btn_capture_start_stop" >
+        android:layout_alignTop="@+id/btn_file_open"
+        android:layout_toLeftOf="@id/btn_capture_start_stop"
+        android:layout_toRightOf="@id/btn_file_open"
+        android:background="@drawable/gradient_grey" >
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_starttime"
+        android:textColor="#DDD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/btn_file_open"
+        android:layout_alignBottom="@id/btn_file_open"
+        android:layout_toRightOf="@id/btn_file_open"
+        android:text="@string/starttime" />
+
+    <TextView
+        android:id="@+id/text_endtime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btn_capture_start_stop"
+        android:layout_alignBottom="@+id/btn_capture_start_stop"
+        android:layout_toLeftOf="@+id/btn_capture_start_stop"
+        android:text="@string/endtime"
+        android:textColor="#DDD" />
 
 </RelativeLayout>

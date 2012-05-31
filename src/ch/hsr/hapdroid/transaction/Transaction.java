@@ -47,8 +47,8 @@ public class Transaction {
 		setDstPortData(trans[4], t);
 		setDstIpData(trans[5], t);
 
-		//ignore local internal captured packages
-		if (t.getProto().getValue() == Proto.UNKNOWN)
+		//ignore internal local server socket packages
+		if (t.getDstPort().getValue() == 0)
 			return null;
 		
 		return t;

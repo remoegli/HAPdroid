@@ -22,4 +22,6 @@
     <string name="import_file_title">Import File</string>
     <string name="import_file_message">Please wait while the file is loading</string>
     <string name="import_file_message_title"></string>
+    <string name="starttime">Starttime</string>
+    <string name="endtime">Endtime</string>
 </resources>
