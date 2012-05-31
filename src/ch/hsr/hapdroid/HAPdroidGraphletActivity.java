@@ -193,6 +193,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		getWindow().getDecorView().getWindowVisibleDisplayFrame(viewSize);
 		screenWidth = viewSize.width();
 		screenHeight = viewSize.height();
+		Log.v(LOG_TAG, "screen width/height: " + screenWidth + "/" + screenHeight);
 		
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
 		pCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
