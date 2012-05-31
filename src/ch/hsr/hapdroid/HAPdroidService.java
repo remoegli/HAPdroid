@@ -1,6 +1,7 @@
 package ch.hsr.hapdroid;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
+import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.FlowTable;
 import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
@@ -52,7 +54,8 @@ public class HAPdroidService extends Service {
 			}
 		}
 	};
-	private Result mResultCallback = new Result() {
+	private Result mNetworkResult = new Result() {
+
 
 		@Override
 		public void processError(String line) throws Exception {
@@ -62,7 +65,8 @@ public class HAPdroidService extends Service {
 
 		@Override
 		public void process(String line) throws Exception {
-			handlePacket(Packet.parsePacket(line));
+			mCurrentPacket = Packet.parsePacket(line);
+			handlePacket(mCurrentPacket);
 		}
 
 		@Override
@@ -76,7 +80,7 @@ public class HAPdroidService extends Service {
 			// TODO Auto-generated method stub
 		}
 	};
-	private Result mExecutableCallback = new Result() {
+	private Result mExecutableResult = new Result() {
 
 		@Override
 		public void processError(String line) throws Exception {
@@ -115,6 +119,7 @@ public class HAPdroidService extends Service {
 	private String[] mTransactionString;
 	private int mTransactionStringPos;
 	private String mFileDir;
+	private Packet mCurrentPacket;
 	private boolean mHasRoot;
 	private boolean mCaptureRunning = false;
 
@@ -130,7 +135,7 @@ public class HAPdroidService extends Service {
 	private void handlePacket(Packet p) {
 		if (p == null)
 			return;
-
+		
 		mFlowTable.add(p);
 		Message msg = new Message();
 		msg.what = HAPdroidGraphletActivity.RECEIVE_NETWORK_FLOW;
@@ -247,6 +252,10 @@ public class HAPdroidService extends Service {
 		HAPvizLibrary.getTransactions(mFlowTable.toByteArray(),
 				SERVER_TRANSACTIONS);
 	}
+	
+	public List<Flow> desummarizeTransaction(Transaction t){
+		return mFlowTable.getFlowsForTransaction(t);
+	}
 
 	protected void finishGettingTransactions() {
 		if (mCallbackHandler != null)
@@ -291,7 +300,7 @@ public class HAPdroidService extends Service {
 			public void run() {
 				try {
 					RootTools.sendShell(mFileDir + EXECUTABLE + " " +params,
-							mExecutableCallback, -1);
+							mExecutableResult, -1);
 					Log.d(LOG_TAG, "executable started with params: " + params);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -307,7 +316,7 @@ public class HAPdroidService extends Service {
 			public void run() {
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_MOBILE_CMD,
-							mResultCallback, -1);
+							mNetworkResult, -1);
 					Log.d(LOG_TAG, "Mobile capture started");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -324,7 +333,7 @@ public class HAPdroidService extends Service {
 				// TODO Auto-generated method stub
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_WLAN_CMD,
-							mResultCallback, -1);
+							mNetworkResult, -1);
 					Log.d(LOG_TAG, "WLAN capture started");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
