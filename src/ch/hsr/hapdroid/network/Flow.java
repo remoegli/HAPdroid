@@ -239,10 +239,7 @@ public class Flow implements Comparable<Flow>{
 		Node<Integer> dstPortNode = t.getDstPort();
 		boolean dstIp = true;
 		Node<InetAddress> dstIpNode = t.getDstIp();
-		
-		if (!t.getSrcIp().equals(src_addr))
-			srcIp = false;
-		
+
 		if (t.getProto().getValue() != Proto.get(proto))
 			booleanProto = false;
 		
@@ -252,7 +249,7 @@ public class Flow implements Comparable<Flow>{
 		if (!dstPortNode.isSummarized() && dstPortNode.getValue().intValue() != dst_port)
 			dstPort = false;
 		
-		if (!dstIpNode.isSummarized() && !dstIpNode.equals(dst_addr))
+		if (!dstIpNode.isSummarized() && !dstIpNode.getValue().equals(dst_addr))
 			dstIp = false;
 		
 		return srcIp && booleanProto && srcPort && dstPort && dstIp;
