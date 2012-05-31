@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.hsr.hapdroid.transaction.Transaction;
+
 import android.util.Log;
 
 public class FlowTable {
@@ -86,5 +88,16 @@ public class FlowTable {
 			result += f.getPayloadCount();
 		}
 		return result;
+	}
+	
+	public List<Flow> getFlowsForTransaction(Transaction t){
+		List<Flow> flowlist = new ArrayList<Flow>();
+		
+		for (Flow f : mFlowList){
+			if (f.belongsTo(t))
+				flowlist.add(f);
+		}
+		
+		return flowlist;
 	}
 }

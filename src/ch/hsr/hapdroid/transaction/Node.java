@@ -8,10 +8,14 @@ public class Node<V>{
 	private boolean active;
 	private V value;
 	private List<Node<V>> nodes;
+	private boolean mSummarized;
+	private Transaction mTransaction;
 
-	public Node(V value) {
+	public Node(V value, Transaction t) {
 		this.value = value;
 		nodes = new ArrayList<Node<V>>();
+		mSummarized = false;
+		mTransaction = t;
 	}
 	
 	public boolean addNode(Node<V> node) {
@@ -27,9 +31,13 @@ public class Node<V>{
 	}
 	
 	public boolean isSummarized(){
-		return nodes.size() > 0;
+		return mSummarized;
 	}
 	
+	public void setSummarized(boolean b) {
+		mSummarized = b;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if(o instanceof Node<?>){
@@ -52,5 +60,4 @@ public class Node<V>{
 	public String toString() {
 		return value.toString();
 	}
-	
 }

@@ -5,6 +5,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import ch.hsr.hapdroid.transaction.Node;
+import ch.hsr.hapdroid.transaction.Transaction;
+
 import android.util.Log;
 
 /**
@@ -221,5 +224,33 @@ public class Flow implements Comparable<Flow>{
 	
 	public long getPayloadCount(){
 		return payloadSize;
+	}
+
+	public boolean belongsTo(Transaction t) {
+		boolean srcIp = true;
+		boolean booleanProto = true;
+		boolean srcPort = true;
+		Node<Integer> srcPortNode = t.getSrcPort();
+		boolean dstPort = true;
+		Node<Integer> dstPortNode = t.getDstPort();
+		boolean dstIp = true;
+		Node<InetAddress> dstIpNode = t.getDstIp();
+		
+		if (!t.getSrcIp().equals(src_addr))
+			srcIp = false;
+		
+		if (t.getProto().getValue().intValue() != proto)
+			booleanProto = false;
+		
+		if (!srcPortNode.isSummarized() && srcPortNode.getValue().intValue() != src_port)
+			srcPort = false;
+		
+		if (!dstPortNode.isSummarized() && dstPortNode.getValue().intValue() != dst_port)
+			dstPort = false;
+		
+		if (!dstIpNode.isSummarized() && !dstIpNode.equals(dst_addr))
+			dstIp = false;
+		
+		return srcIp && booleanProto && srcPort && dstPort && dstIp;
 	}
 }

@@ -10,6 +10,7 @@ import android.util.Log;
 public class Transaction {
 	
 	private static final String LOG_TAG = "Transaction";
+	private static final String SPLIT_STRING = "\\s+";
 	private long mBytes;
 	private long mPackets;
 	private int mDirection;
@@ -49,42 +50,48 @@ public class Transaction {
 	}
 	
 	private static void setDstIpData(String dstip, Transaction t) {
-		String[] tokens = dstip.split(" ");
+		String[] tokens = dstip.split(SPLIT_STRING);
 		
 		try {
-			t.setDstIp(new Node<InetAddress>(Inet4Address.getByName(tokens[1])));
+			t.setDstIp(new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private static void setDstPortData(String dstport, Transaction t) {
-		String[] tokens = dstport.split(" ");
+		String[] tokens = dstport.split(SPLIT_STRING);
 		
-		t.setDstPort(new Node<Integer>(Integer.valueOf(tokens[1])));
+		t.setDstPort(new Node<Integer>(Integer.valueOf(tokens[1]), t));
 	}
 	
 	private static void setSrcPortData(String srcPort, Transaction t) {
-		String[] tokens = srcPort.split(" ");
+		String[] tokens = srcPort.split(SPLIT_STRING);
 		
-		t.setSrcPort(new Node<Integer>(Integer.valueOf(tokens[1])));
+		t.setSrcPort(new Node<Integer>(Integer.valueOf(tokens[1]), t));
 	}
 	
 	private static void setProtoData(String proto, Transaction t) {
-		String[] tokens = proto.split(" ");
+		String[] tokens = proto.split(SPLIT_STRING);
 		
-		t.setProto(new Node<Integer>(Integer.valueOf(tokens[1])));
+		t.setProto(new Node<Integer>(Integer.valueOf(tokens[1]), t));
 	}
 	
 	private static void setSrcIpData(String srcip, Transaction t) {
-		String[] tokens = srcip.split(" ");
+		String[] tokens = srcip.split(SPLIT_STRING);
 		
 		try {
-			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]));
+			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t);
+			setSummarized(tokens[0],n);
 			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void setSummarized(String string, Node<InetAddress> n) {
+		if (string.length()>0 && string.charAt(0)=='s')
+			n.setSummarized(true);
 	}
 
 	private void setSrcIp(Node<InetAddress> node) {
@@ -92,7 +99,7 @@ public class Transaction {
 	}
 
 	private static void setTransactionData(String trans, Transaction t) {
-		String[] tokens = trans.split(" ");
+		String[] tokens = trans.split(SPLIT_STRING);
 		
 		t.setBytes(Long.parseLong(tokens[1]));
 		t.setPackets(Long.parseLong(tokens[2]));
