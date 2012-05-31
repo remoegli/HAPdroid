@@ -97,8 +97,8 @@ public class HAPdroidServiceTest extends ServiceTestCase<HAPdroidService> {
 		checkPcap(mPath + "pcap_ipp.pcap");
 		checkGeneratedCflow(mPath + "cflow_ipp");
 		
-//		checkPcap(mPath + "pcap_teamspeak2.pcap");
-//		checkGeneratedCflow(mPath + "cflow_teamspeak2");
+		checkPcap(mPath + "pcap_teamspeak2.pcap");
+		checkGeneratedCflow(mPath + "cflow_teamspeak2");
 
 		checkPcap(mPath + "pcap_vpn_client_connect.pcap");
 		checkGeneratedCflow(mPath + "cflow_vpn_client_connect");
@@ -122,7 +122,8 @@ public class HAPdroidServiceTest extends ServiceTestCase<HAPdroidService> {
 		
 		for(int i = 0; i < cflow_flowTable.length; i++){
 			//skip duration since there seems to be a rounding error involved
-			if (i%48==16)
+			//skip last byte of flowsize since it includes the ethernet trailer but 
+			if (i%48==16 || i%48==24)
 				continue;
 			assertEquals("cflow for file " + file + " in flow "+i/48+", byte "+i%48+" different", 
 					String.format("%02X", cflow_file[i]), String.format("%02X", cflow_flowTable[i]));

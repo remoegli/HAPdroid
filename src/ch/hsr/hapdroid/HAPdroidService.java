@@ -287,6 +287,7 @@ public class HAPdroidService extends Service {
 
 	public void startExecutableCapture(String params) {
 		mHAPGraphlet.clear();
+		mFlowTable.clear();
 		startExecutable(params);
 
 		// we cant start the service in foreground because this will
