@@ -3,12 +3,7 @@ package ch.hsr.hapdroid.graphlet;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.primitive.Rectangle;
-import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.input.touch.TouchEvent;
-import org.anddev.andengine.opengl.font.Font;
-
-import android.util.Log;
-
 import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Node;
@@ -18,7 +13,6 @@ public class Area extends Rectangle{
 	
 	private static final String LOGTAG = "hapdroid.Area";
 	private static float NODESPACING = 10;
-	private static Font aFont;
 	private boolean mGrabbed = false;
 	private float firstTouchY;
 	private float initialY;
@@ -26,15 +20,11 @@ public class Area extends Rectangle{
 	private GraphletNodeList nodes;
 	private Vector<Edge> edges;
 	
-	public Area(float pX, float pY, float pWidth, float pHeight, String label) {
+	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
 		nodes = new GraphletNodeList();
 		edges = new Vector<Edge>();
-		
-		Text areaLabel = new Text(10, -20, aFont, label);
-		this.attachChild(areaLabel);
-		
 	}
 
 	public void addAllNodes(NodeList<?> nodeList) {
@@ -44,8 +34,12 @@ public class Area extends Rectangle{
 		}
 	}
 
-	/*
+	/**
+	 *
 	 * must return null so the graphlet can get the existing node
+	 *
+	 * @param node
+	 * @return
 	 */
 	public GraphletNode addNode(GraphletNode node){
 		if(nodes.add(node)){
@@ -98,10 +92,6 @@ public class Area extends Rectangle{
 		edges.clear();
 	}
 	
-	public static void setFont(Font mFont) {
-		aFont = mFont;		
-	}
-
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		switch(pSceneTouchEvent.getAction()) {

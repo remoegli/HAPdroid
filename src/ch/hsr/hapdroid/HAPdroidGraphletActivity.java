@@ -211,7 +211,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		//TODO: Refactoring?
 		GraphletNode.setFont(mFont);
 		Edge.setFont(mFont);
-		Area.setFont(mFont);
 		Graphlet.setFont(mFont);
 	}
 
