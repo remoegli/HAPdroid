@@ -60,4 +60,8 @@ public class Node<V>{
 	public String toString() {
 		return value.toString();
 	}
+	
+	public Transaction getTransaction() {
+		return mTransaction;
+	}
 }

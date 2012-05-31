@@ -53,7 +53,9 @@ public class Transaction {
 		String[] tokens = dstip.split(SPLIT_STRING);
 		
 		try {
-			t.setDstIp(new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t));
+			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t);
+			t.setDstIp(n);
+			setSummarized(tokens[0], n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -62,13 +64,17 @@ public class Transaction {
 	private static void setDstPortData(String dstport, Transaction t) {
 		String[] tokens = dstport.split(SPLIT_STRING);
 		
-		t.setDstPort(new Node<Integer>(Integer.valueOf(tokens[1]), t));
+		Node<Integer> n = new Node<Integer>(Integer.valueOf(tokens[1]), t);
+		t.setDstPort(n);
+		setSummarized(tokens[0], n);
 	}
 	
 	private static void setSrcPortData(String srcPort, Transaction t) {
 		String[] tokens = srcPort.split(SPLIT_STRING);
 		
-		t.setSrcPort(new Node<Integer>(Integer.valueOf(tokens[1]), t));
+		Node<Integer> n = new Node<Integer>(Integer.valueOf(tokens[1]), t);
+		t.setSrcPort(n);
+		setSummarized(tokens[0], n);
 	}
 	
 	private static void setProtoData(String proto, Transaction t) {
@@ -82,14 +88,13 @@ public class Transaction {
 		
 		try {
 			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t);
-			setSummarized(tokens[0],n);
 			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void setSummarized(String string, Node<InetAddress> n) {
+	private static void setSummarized(String string, Node<?> n) {
 		if (string.length()>0 && string.charAt(0)=='s')
 			n.setSummarized(true);
 	}
