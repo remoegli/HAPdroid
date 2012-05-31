@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import ch.hsr.hapdroid.network.Flow;
+import ch.hsr.hapdroid.network.Proto;
 
 import android.util.Log;
 
@@ -19,7 +20,7 @@ public class Transaction {
 	private int mDirection;
 	
 	private Node<InetAddress> mSrcIp;
-	private Node<Integer> mProtocol;
+	private Node<Proto> mProtocol;
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
 	private Node<InetAddress> mDstIp;
@@ -47,7 +48,7 @@ public class Transaction {
 		setDstIpData(trans[5], t);
 
 		//ignore local internal captured packages
-		if (t.getProto().getValue().intValue() == 0)
+		if (t.getProto().getValue() == Proto.UNKNOWN)
 			return null;
 		
 		return t;
@@ -83,8 +84,8 @@ public class Transaction {
 	
 	private static void setProtoData(String proto, Transaction t) {
 		String[] tokens = proto.split(SPLIT_STRING);
-		
-		t.setProto(new Node<Integer>(Integer.valueOf(tokens[1]), t));
+		Proto p = Proto.get(Integer.valueOf(tokens[1]));
+		t.setProto(new Node<Proto>(p, t));
 	}
 	
 	private static void setSrcIpData(String srcip, Transaction t) {
@@ -121,11 +122,11 @@ public class Transaction {
 		return mSrcIp;
 	}
 
-	public Node<Integer> getProto() {
+	public Node<Proto> getProto() {
 		return mProtocol;
 	}
 
-	public void setProto(Node<Integer> mProtocol) {
+	public void setProto(Node<Proto> mProtocol) {
 		this.mProtocol = mProtocol;
 	}
 

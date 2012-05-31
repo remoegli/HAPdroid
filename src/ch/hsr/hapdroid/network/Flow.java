@@ -239,7 +239,7 @@ public class Flow implements Comparable<Flow>{
 		if (!t.getSrcIp().equals(src_addr))
 			srcIp = false;
 		
-		if (t.getProto().getValue().intValue() != proto)
+		if (t.getProto().getValue() != Proto.get(proto))
 			booleanProto = false;
 		
 		if (!srcPortNode.isSummarized() && srcPortNode.getValue().intValue() != src_port)

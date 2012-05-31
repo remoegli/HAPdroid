@@ -5,13 +5,14 @@ import java.net.InetAddress;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Pseudograph;
 
+import ch.hsr.hapdroid.network.Proto;
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 import ch.hsr.hapdroid.transaction.Transaction;
 
 public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mSrcIp;
-	private NodeList<Integer> mProto;
+	private NodeList<Proto> mProto;
 	private NodeList<Integer> mSrcPort;
 	private NodeList<Integer> mDstPort;
 	private NodeList<InetAddress> mDstIp;
@@ -26,7 +27,7 @@ public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 		
 		
 		mSrcIp = new NodeList<InetAddress>();
-		mProto = new NodeList<Integer>();
+		mProto = new NodeList<Proto>();
 		mSrcPort = new NodeList<Integer>();
 		mDstPort = new NodeList<Integer>();
 		mDstIp = new NodeList<InetAddress>();
@@ -36,7 +37,7 @@ public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 		return mSrcIp;
 	}
 
-	public NodeList<Integer> getProtoList() {
+	public NodeList<Proto> getProtoList() {
 		return mProto;
 	}
 
@@ -59,7 +60,7 @@ public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 		Node<InetAddress> srcIp = mSrcIp.add(trans.getSrcIp());
 		addVertex(srcIp);
 		
-		Node<Integer> proto = mProto.add(trans.getProto());
+		Node<Proto> proto = mProto.add(trans.getProto());
 		addVertex(proto);
 		addEdge(srcIp, proto);
 		
