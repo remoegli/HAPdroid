@@ -66,8 +66,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	};
 
-	private int screenWidth;
-	private int screenHeight;
+	private float screenWidth;
+	private float screenHeight;
 	private Texture mTex;
 	private Font mFont;
 	private Graphlet mGraphlet; 
@@ -218,7 +218,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		//TODO: Refactoring?
 		GraphletNode.setFont(mFont);
 		Edge.setFont(mFont);
-		Area.setFont(mFont);
+		Graphlet.setFont(mFont);
 	}
 
 	@Override

@@ -4,7 +4,9 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.scene.Scene;
+import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.input.touch.TouchEvent;
+import org.anddev.andengine.opengl.font.Font;
 import org.jgrapht.graph.DefaultEdge;
 
 import ch.hsr.hapdroid.HAPGraphlet;
@@ -15,10 +17,12 @@ import ch.hsr.hapdroid.transaction.Transaction;
 
 public class Graphlet extends Scene{
 
+	private static Font aFont;
 	private Vector<Area> areas;
 	private Vector<Edge> edges;
-	private final int CAMERA_HEIGHT;
-	private final int AREA_WIDTH;
+	private final float CAMERA_HEIGHT;
+	private final float AREA_WIDTH;
+	private final float AREA_ALPHA = 0.3f;
 	private Area srcIPArea;
 	private Area protoArea;
 	private Area srcPortArea;
@@ -26,7 +30,7 @@ public class Graphlet extends Scene{
 	private Area dstIPArea;
 	private HAPGraphlet hapGraphlet;
 	
-	public Graphlet(int cameraWidth, int cameraHeight){
+	public Graphlet(float cameraWidth, float cameraHeight){
 		super();
 		areas = new Vector<Area>();
 		edges = new Vector<Edge>();
@@ -35,27 +39,46 @@ public class Graphlet extends Scene{
 		
 		createAreas();
 		addTestContent();
-		
+
 	}
 
 	private void createAreas() {
 		//TODO: Remove Coloring?
+		//Labels
+		Text srcIPLabel = new Text( 10, 10, aFont,  "local IP");
+		srcIPLabel.setZIndex(15);
+		this.attachChild(srcIPLabel);
+		Text protoLabel = new Text( 10 + AREA_WIDTH, 10,aFont, "Protocol");
+		protoLabel.setZIndex(15);
+		this.attachChild(protoLabel);
+		Text srcPortLabel = new Text( 10 + AREA_WIDTH * 2, 10,aFont, "local Port");
+		srcPortLabel.setZIndex(15);
+		this.attachChild(srcPortLabel);
+		Text dstPortLabel = new Text( 10 + AREA_WIDTH * 3, 10,aFont, "remote Port");
+		dstPortLabel.setZIndex(15);
+		this.attachChild(dstPortLabel);
+		Text dstIPLabel = new Text( 10 + AREA_WIDTH * 4, 10,aFont, "remote IP");
+		dstIPLabel.setZIndex(15);
+		this.attachChild(dstIPLabel);
+		
+		
+		
 		//Areas
-		srcIPArea = new Area(0, 0, AREA_WIDTH, CAMERA_HEIGHT, "local IP");
+		srcIPArea = new Area(0, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(srcIPArea);
-		srcIPArea.setColor(0, 0.2f, 0.2f, 0.5f);
-		protoArea = new Area(AREA_WIDTH, 0, AREA_WIDTH, CAMERA_HEIGHT, "Protocol");
+		srcIPArea.setColor(0, 0.2f, 0.2f, AREA_ALPHA);
+		protoArea = new Area(AREA_WIDTH, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(protoArea);
-		protoArea.setColor(0.5f, 0, 0, 0.5f);
-		srcPortArea = new Area(AREA_WIDTH*2, 0, AREA_WIDTH, CAMERA_HEIGHT, "local Port");
+		protoArea.setColor(0.5f, 0, 0, AREA_ALPHA);
+		srcPortArea = new Area(AREA_WIDTH*2, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(srcPortArea);
-		srcPortArea.setColor(0, 0.5f, 0, 0.5f);
-		dstPortArea = new Area(AREA_WIDTH*3, 0, AREA_WIDTH, CAMERA_HEIGHT, "remote Port");
+		srcPortArea.setColor(0, 0.5f, 0, AREA_ALPHA);
+		dstPortArea = new Area(AREA_WIDTH*3, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(dstPortArea);
-		dstPortArea.setColor(0, 0, 0.5f, 0.5f);
-		dstIPArea = new Area(AREA_WIDTH*4, 0, AREA_WIDTH, CAMERA_HEIGHT, "remote IP");
+		dstPortArea.setColor(0, 0, 0.5f, AREA_ALPHA);
+		dstIPArea = new Area(AREA_WIDTH*4, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(dstIPArea);
-		dstIPArea.setColor(0.2f, 0.2f, 0, 0.5f);
+		dstIPArea.setColor(0.2f, 0.2f, 0, AREA_ALPHA);
 		
 		//Attach Areas to Scene and register TouchHandler
 		for(Area area : areas){
@@ -199,6 +222,10 @@ public class Graphlet extends Scene{
 		String[] updateTest = {" 12345 678 3", " 192.168.100.100", " 1", " 20568", " 80", " 195.186.1.111"};
 		this.addTransaction(Transaction.parse(updateTest));
 		
+	}
+
+	public static void setFont(Font mFont) {
+		aFont = mFont;
 	}
 	
 }
