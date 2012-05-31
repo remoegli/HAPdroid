@@ -32,7 +32,7 @@ public class Area extends Rectangle{
 		nodes = new GraphletNodeList();
 		edges = new Vector<Edge>();
 		
-		Text areaLabel = new Text(10, 10, aFont, label);
+		Text areaLabel = new Text(10, -20, aFont, label);
 		this.attachChild(areaLabel);
 		
 	}
