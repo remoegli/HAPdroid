@@ -17,18 +17,15 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private BufferedReader mReader;
 	private InputStream mInputStream;
 	private Message mMessage;
-	private boolean mServerShouldStop;
 	private String mServerName;
 	private Handler mHandler;
 	private int mProgressMessage;
 	private int mShutdownMessage;
-	private boolean mIsReady;
 
 	private static final String LOG_TAG = "NetworkStreamHandlerTask";
 
-	public NetworkStreamHandlerTask(String servername, Handler handler, int progressMsg, int shutdownMsg) {
-		mIsReady = false;
-		
+	public NetworkStreamHandlerTask(String servername, Handler handler,
+			int progressMsg, int shutdownMsg) {
 		mServerName = servername;
 		mHandler = handler;
 		mProgressMessage = progressMsg;
@@ -38,14 +35,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		mServerShouldStop = false;
 		Log.d(LOG_TAG, mServerName + ": Server started");
-	}
-
-	public void stopServer() {
-		mServerShouldStop = true;
-		shutdown();
-		mHandler.sendEmptyMessage(mShutdownMessage);
 	}
 
 	@Override
@@ -58,20 +48,16 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 							+ e.getMessage());
 			e.printStackTrace();
 		}
-		
+
 		String line;
 		Log.d(LOG_TAG, mServerName + ": Start reading lines");
 		try {
-			mIsReady = true;
-			while (!mServerShouldStop) {
-				LocalSocket sk = mServerSocket.accept();
-				mInputStream = sk.getInputStream();
-				mReader = new BufferedReader(
-						new InputStreamReader(mInputStream));
-				while (!mServerShouldStop && (line = mReader.readLine()) != null) {
-					Log.d(LOG_TAG, "line recieved: " + line);
-					publishProgress(line);
-				}
+			LocalSocket sk = mServerSocket.accept();
+			mInputStream = sk.getInputStream();
+			mReader = new BufferedReader(new InputStreamReader(mInputStream));
+			while ((line = mReader.readLine()) != null) {
+				Log.d(LOG_TAG, "line recieved: " + line);
+				publishProgress(line);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -88,7 +74,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 			mMessage = new Message();
 			mMessage.what = mProgressMessage;
 			mMessage.obj = s;
-			if (mHandler != null){
+			if (mHandler != null) {
 				mHandler.sendMessage(mMessage);
 				Log.d(LOG_TAG, "message sent");
 			}
@@ -97,24 +83,13 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 
 	@Override
 	protected void onPostExecute(Void result) {
-		shutdown();
-	}
-
-	private void shutdown() {
-		if (mServerSocket != null) {
-			try {
-				if (mInputStream != null)
-					mInputStream.close();
-				mServerSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Log.d(LOG_TAG, mServerName + ": Server stopped");
+		mHandler.sendEmptyMessage(mShutdownMessage);
+		try {
+			mReader.close();
+			mInputStream.close();
+			mServerSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	}
-
-	public boolean isReady() {
-		return mIsReady;
 	}
 }

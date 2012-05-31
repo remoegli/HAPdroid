@@ -17,8 +17,9 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".HAPdroidActivity"
-            android:label="@string/app_name" >
+            android:name=".HAPdroidGraphletActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,18 +27,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="HAPdroidNonRootActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".HAPdroidGraphletActivity"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoTitleBar" >
-        </activity>
-        <activity
             android:name=".FileImportActivity"
             android:label="@string/import_file_title"
-            android:theme="@android:style/Theme.Light" >
+            android:theme="@style/FileDialog" >
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 

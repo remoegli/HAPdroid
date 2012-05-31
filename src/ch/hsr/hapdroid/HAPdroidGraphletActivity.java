@@ -17,11 +17,11 @@ import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.ui.activity.LayoutGameActivity;
 
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -30,7 +30,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.DisplayMetrics;
-import android.view.Display;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -58,6 +58,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			case RECEIVE_TRANSACTION_TABLE:
 				break;
 			case GENERATE_GRAPHLET:
+				mProgressDialog.dismiss();
 				generateGraphlet();
 				break;
 			}
@@ -99,6 +100,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private OnClickListener mOnClickStart;
 	private OnClickListener mOnClickStop;
 	private Button mBtnImport;
+	private ProgressDialog mProgressDialog;
 
 	/**
 	 * Called when the activity is first created.
@@ -109,6 +111,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		mBtnCaptureStartStop = (Button) findViewById(id.btn_capture_start_stop);
 		mBtnImport = (Button) findViewById(id.btn_file_open);
+		mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(R.string.import_file_message_title);
+        mProgressDialog.setMessage(getResources().getText(R.string.import_file_message));
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(true);
 	}
 
 	private void setOnClickListeners() {
@@ -150,10 +157,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		if (requestCode == PICK_FILE){
 			if (resultCode == RESULT_OK){
 				mService.importFile(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
+				mProgressDialog.show();
 			}
 		}
 	}
-
+	
 	private void switchStartStopButton(boolean isCaptureStarted) {
 		if (isCaptureStarted) {
 			mBtnCaptureStartStop.setText(R.string.capture_stop);
@@ -167,10 +175,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		mServiceIntent = new Intent(this, HAPdroidService.class);
-		bindService(mServiceIntent, mServiceConnection,
-				Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -247,9 +251,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 	@Override
 	public void onLoadComplete() {
-
+		mServiceIntent = new Intent(this, HAPdroidService.class);
+		bindService(mServiceIntent, mServiceConnection,
+				Context.BIND_AUTO_CREATE);
 	}
-
+	
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		return true;
@@ -266,6 +272,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 	
 	private void generateGraphlet(){
+		Log.d(LOG_TAG, "generating graphlet");
 		mGraphlet.update(mService.getGraphlet());
 	}
 	

@@ -35,7 +35,7 @@ public class Timeval implements Comparable<Timeval> {
 
 	//TODO don't use long
 	public byte[] getByteArrayMs() {
-		long ms = Math.round((double)microseconds/1000);
+		long ms = microseconds/1000;
 		ms += seconds*1000;
 		byte[] b = ByteBuffer.allocate(8).putLong(ms).array();
 		Log.d(LOG_TAG, Long.toHexString(ms));

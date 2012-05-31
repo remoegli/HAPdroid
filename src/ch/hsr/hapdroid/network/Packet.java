@@ -32,6 +32,8 @@ public class Packet {
 
 	public static final Packet parsePacket(String packet) {
 		String[] tokens = packet.split(":|-->|,");
+		if (tokens.length != 11)
+			return null;
 		Packet p = new Packet();
 
 		try {
