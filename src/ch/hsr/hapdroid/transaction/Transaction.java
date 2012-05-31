@@ -19,11 +19,11 @@ public class Transaction {
 	private long mPackets;
 	private int mDirection;
 	
-	private Node<InetAddress> mSrcIp;
+	private IPNode mSrcIp;
 	private Node<Proto> mProtocol;
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
-	private Node<InetAddress> mDstIp;
+	private IPNode mDstIp;
 	private List<Flow> mFlows;
 
 	public Transaction() {
@@ -58,7 +58,7 @@ public class Transaction {
 		String[] tokens = dstip.split(SPLIT_STRING);
 		
 		try {
-			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t);
+			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
 			t.setDstIp(n);
 			setSummarized(tokens[0], n);
 		} catch (UnknownHostException e) {
@@ -92,7 +92,7 @@ public class Transaction {
 		String[] tokens = srcip.split(SPLIT_STRING);
 		
 		try {
-			Node<InetAddress> n = new Node<InetAddress>(Inet4Address.getByName(tokens[1]), t);
+			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
 			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -104,7 +104,7 @@ public class Transaction {
 			n.setSummarized(true);
 	}
 
-	private void setSrcIp(Node<InetAddress> node) {
+	private void setSrcIp(IPNode node) {
 		this.mSrcIp = node;
 	}
 
@@ -114,7 +114,9 @@ public class Transaction {
 				mProtocol.toString() + ", " +
 				mSourcePort.toString() + ", " +
 				mDstPort.toString() + ", " +
-				mDstIp.toString() + "]";
+				mDstIp.toString() + "," +
+				Long.toString(mBytes) + "," +
+				Long.toString(mPackets) + "]";
 		return result.toString();
 	}
 
@@ -150,7 +152,7 @@ public class Transaction {
 		return mDstIp;
 	}
 
-	public void setDstIp(Node<InetAddress> mDstIp) {
+	public void setDstIp(IPNode mDstIp) {
 		this.mDstIp = mDstIp;
 	}
 
@@ -189,7 +191,7 @@ public class Transaction {
 		
 		mPackets = packets;
 		mBytes = bytes;
-		
+		mDirection = flowlist.get(0).getDirection();
 		mFlows = flowlist;
 	}
 	

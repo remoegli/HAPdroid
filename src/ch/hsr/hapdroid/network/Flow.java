@@ -217,6 +217,10 @@ public class Flow implements Comparable<Flow>{
 	public int getPacketCount() {
 		return pkgCount;
 	}
+	
+	public int getDirection() {
+		return direction;
+	}
 
 	public long getByteCount() {
 		return flowSize;
