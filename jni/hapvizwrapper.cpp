@@ -62,6 +62,8 @@ JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions__L
 	env->ReleaseStringUTFChars(ip, local_ip_char);
 	env->ReleaseStringUTFChars(serv, local_server_sk_char);
 	env->ReleaseStringUTFChars(in_file, inf_char);
+
+	return NULL;
 }
 
 JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions___3BLjava_lang_String_2(
@@ -76,6 +78,8 @@ JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions___
 
 	env->ReleaseByteArrayElements(jcflows, data, JNI_ABORT);
 	env->ReleaseStringUTFChars(jserv, local_server_sk_char);
+
+	return NULL;
 }
 
 /**
@@ -172,12 +176,10 @@ int init_srv_conn(const char* srvname) {
 		err = errno;
 		LOGE("connect() failed: %s (%s)", strerror(err), err);
 		close(sk);
-		errno = err;
 		return -1;
 	}
 
 	LOGD("Connecting to Java LocalSocketServer succeed");
-
 	return sk;
 }
 
@@ -197,6 +199,10 @@ void read_stream(std::istream & ins, unsigned int flowcount, const string srvnam
 
 	LOGD("Creating local server connection");
 	int sock_fd = init_srv_conn(srvname.c_str());
+	if (sock_fd == -1){
+		LOGE("Failed to create local server connection");
+		return;
+	}
 	fdostream out(sock_fd);
 
 	CRoleMembership roleMembership; // Manages groups of hosts having same role membership set
@@ -204,7 +210,7 @@ void read_stream(std::istream & ins, unsigned int flowcount, const string srvnam
 	import.prepare_graphlet(graphlet, roleMembership);
 	LOGD("Write transactions");
 	graphlet->write_transactions(out);
-	cout.flush();
+	out.flush();
 
 	delete graphlet;
 	close(sock_fd);

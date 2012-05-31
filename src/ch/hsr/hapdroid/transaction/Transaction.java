@@ -3,6 +3,9 @@ package ch.hsr.hapdroid.transaction;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
+
+import ch.hsr.hapdroid.network.Flow;
 
 import android.util.Log;
 
@@ -20,6 +23,7 @@ public class Transaction {
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
 	private Node<InetAddress> mDstIp;
+	private List<Flow> mFlows;
 
 	public Transaction() {
 	}
@@ -36,14 +40,14 @@ public class Transaction {
 			}
 		}
 		
-		setTransactionData(trans[0],t);
 		setSrcIpData(trans[1], t);
 		setProtoData(trans[2], t);
 		setSrcPortData(trans[3], t);
 		setDstPortData(trans[4], t);
 		setDstIpData(trans[5], t);
 
-		if (t.getBytes() == 0)
+		//ignore local internal captured packages
+		if (t.getProto().getValue().intValue() == 0)
 			return null;
 		
 		return t;
@@ -101,14 +105,6 @@ public class Transaction {
 
 	private void setSrcIp(Node<InetAddress> node) {
 		this.mSrcIp = node;
-	}
-
-	private static void setTransactionData(String trans, Transaction t) {
-		String[] tokens = trans.split(SPLIT_STRING);
-		
-		t.setBytes(Long.parseLong(tokens[1]));
-		t.setPackets(Long.parseLong(tokens[2]));
-		t.setDirection(Integer.parseInt(tokens[3]));
 	}
 
 	@Override
@@ -179,5 +175,24 @@ public class Transaction {
 
 	public void setDirection(int mDirection) {
 		this.mDirection = mDirection;
+	}
+
+	public void setFlows(List<Flow> flowlist) {
+		long packets = 0;
+		long bytes = 0;
+		
+		for (Flow f : flowlist){
+			packets += f.getPacketCount();
+			bytes += f.getPayloadCount();
+		}
+		
+		mPackets = packets;
+		mBytes = bytes;
+		
+		mFlows = flowlist;
+	}
+	
+	public List<Flow> getFlows() {
+		return mFlows;
 	}
 }

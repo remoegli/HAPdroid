@@ -147,10 +147,10 @@ public class HAPdroidService extends Service {
 
 	private void handleTransaction(String s) {
 		Log.d(LOG_TAG, "partial transaction recieved: " + s);
-		if (s.length() > 1 && s.charAt(0) == 't') {
+		if (s.length() > 0 && s.charAt(0) == 't') {
 			parseTransaction();
 		}
-		if (s.length() > 1 && s.charAt(0) == '-') {
+		if (s.length() > 0 && s.charAt(0) == '-') {
 			parseTransaction();
 			return;
 		}
@@ -160,8 +160,11 @@ public class HAPdroidService extends Service {
 
 	private void parseTransaction() {
 		Transaction t = Transaction.parse(mTransactionString);
-		if (t != null)
+		if (t != null){
+			List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
+			t.setFlows(flowlist);
 			Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
+		}
 		mHAPGraphlet.add(t);
 		resetTransactionString();
 	}
@@ -253,10 +256,6 @@ public class HAPdroidService extends Service {
 				SERVER_TRANSACTIONS);
 	}
 	
-	public List<Flow> desummarizeTransaction(Transaction t){
-		return mFlowTable.getFlowsForTransaction(t);
-	}
-
 	protected void finishGettingTransactions() {
 		if (mCallbackHandler != null)
 			mCallbackHandler

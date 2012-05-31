@@ -3,13 +3,13 @@ package ch.hsr.hapdroid;
 import java.net.InetAddress;
 
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.Pseudograph;
 
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 import ch.hsr.hapdroid.transaction.Transaction;
 
-public class HAPGraphlet extends SimpleGraph<Node<?>, DefaultEdge>{
+public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mSrcIp;
 	private NodeList<Integer> mProto;
 	private NodeList<Integer> mSrcPort;

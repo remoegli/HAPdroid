@@ -1080,7 +1080,6 @@ void CGraphlet::write_transactions(std::ostream & outs) {
 				iterProtEport != hm_prot_localPort_11->end(); iterProtEport++) {
 			if (iterIpProt->second.valueA.proto
 					== iterProtEport->second.valueA.proto) {
-//				outs << "equal protocol (single port)" << endl;
 				for (iterEport2 = hm_localPort_remotePort_11->begin();
 						iterEport2 != hm_localPort_remotePort_11->end();
 						iterEport2++) {
@@ -1101,7 +1100,6 @@ void CGraphlet::write_transactions(std::ostream & outs) {
 				iterProtEport != hm_prot_localPort_1n->end(); iterProtEport++) {
 			if (iterIpProt->second.valueA.proto
 					== iterProtEport->second.valueA.proto) {
-//				outs << "equal protocol (summarized port)" << endl;
 				for (iterEport2 = hm_localPort_remotePort_n1->begin();
 						iterEport2 != hm_localPort_remotePort_n1->end();
 						iterEport2++) {
@@ -1127,7 +1125,6 @@ void CGraphlet::iterateSingleRemotePort(HashMapEdge & ip_proto, HashMapEdge & pr
 	if (proto_localPort.valueB.port1 != localPort_remotePort.valueB.port1)
 		return;
 
-//	outs << "equal local port (single remote)" << endl;
 	for (iterEportIp = hm_remotePort_remoteIp_11->begin();
 			iterEportIp != hm_remotePort_remoteIp_11->end(); iterEportIp++) {
 		if (iterEportIp->second.valueB.port1
@@ -1150,7 +1147,6 @@ void CGraphlet::iterateSumRemotePort(HashMapEdge & ip_proto, HashMapEdge & proto
 	if (proto_localPort.valueB.port1 != localPort_remotePort.valueB.port1)
 		return;
 
-//	outs << "equal local port (summarized remote)" << endl;
 	for (iterEportIp = hm_remotePort_remoteIp_n1->begin();
 			iterEportIp != hm_remotePort_remoteIp_n1->end(); iterEportIp++) {
 		if (iterEportIp->second.valueB.port1
@@ -1177,10 +1173,8 @@ void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, Hash
 		return;
 	}
 
-	outs << 't' << DISCR << (srcip.valueA.bytes & 0xffff)
-		<< DISCR << (remote.valueB.packets & 0xffff)
-		<< DISCR << (remote.valueA.rolnum_clients & 0xffff) << endl
-		<< "SrcIp" << DISCR << srcip.ip.toNumericString() << endl
+	outs << 't' << endl
+		<< "SrcIp" << DISCR << srcip.ip.toString() << endl
 		<< "Proto" << DISCR << (srcip.valueA.proto & 0xff)<< endl;
 
 	string localport_des = "SrcPort";
@@ -1196,16 +1190,17 @@ void CGraphlet::print_transaction(HashMapEdge & srcip, HashMapEdge & local, Hash
 		<< remoteport_des << DISCR << (remote.valueB.port1 & 0xffff) << endl;
 
 	string remoteip_des = "DstIp";
-	if (sum_dst)
-		remoteip_des = "sDstIp";
-	outs
-		<< remoteip_des << DISCR << remote.ip.toNumericString() << endl;
-
 	if (sum_dst){
+		remoteip_des = "sDstIp";
+
 		uint32_t role_num = ((remote.valueA.rolnum_clients >> ROLE_SHIFT3) & ROLE_NR_BIT_MASK);
 		uint32_t client_count = remote.valueA.rolnum_clients & CLIENT_COUNT_BIT_MASK;
-		outs << DISCR << client_count << DISCR << role_num;
+		outs << remoteip_des << DISCR << client_count << endl;
+	} else {
+	outs
+		<< remoteip_des << DISCR << remote.ip.toString() << endl;
 	}
+
 	outs << endl;
 }
 
