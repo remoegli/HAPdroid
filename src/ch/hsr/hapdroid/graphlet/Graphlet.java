@@ -4,14 +4,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.Font;
 import org.jgrapht.graph.DefaultEdge;
 
 import ch.hsr.hapdroid.HAPGraphlet;
 import ch.hsr.hapdroid.graphlet.edge.Edge;
-import ch.hsr.hapdroid.graphlet.edge.EdgeType;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Transaction;
 
@@ -22,7 +20,7 @@ public class Graphlet extends Scene{
 	private Vector<Edge> edges;
 	private final float CAMERA_HEIGHT;
 	private final float AREA_WIDTH;
-	private final float AREA_ALPHA = 0.3f;
+	private final float AREA_ALPHA = 0.2f;
 	private Area srcIPArea;
 	private Area protoArea;
 	private Area srcPortArea;
@@ -38,30 +36,15 @@ public class Graphlet extends Scene{
 		AREA_WIDTH = cameraWidth/5;
 		
 		createAreas();
-		addTestContent();
+//		addTestContent();
 
 	}
 
 	private void createAreas() {
 		//TODO: Remove Coloring?
-		//Labels
-		Text srcIPLabel = new Text( 10, 10, aFont,  "local IP");
-		srcIPLabel.setZIndex(15);
-		this.attachChild(srcIPLabel);
-		Text protoLabel = new Text( 10 + AREA_WIDTH, 10,aFont, "Protocol");
-		protoLabel.setZIndex(15);
-		this.attachChild(protoLabel);
-		Text srcPortLabel = new Text( 10 + AREA_WIDTH * 2, 10,aFont, "local Port");
-		srcPortLabel.setZIndex(15);
-		this.attachChild(srcPortLabel);
-		Text dstPortLabel = new Text( 10 + AREA_WIDTH * 3, 10,aFont, "remote Port");
-		dstPortLabel.setZIndex(15);
-		this.attachChild(dstPortLabel);
-		Text dstIPLabel = new Text( 10 + AREA_WIDTH * 4, 10,aFont, "remote IP");
-		dstIPLabel.setZIndex(15);
-		this.attachChild(dstIPLabel);
-		
-		
+		AreaLabels areaLabels = new AreaLabels(AREA_WIDTH, aFont);
+		areaLabels.setZIndex(15);
+		this.attachChild(areaLabels);
 		
 		//Areas
 		srcIPArea = new Area(0, 0, AREA_WIDTH, CAMERA_HEIGHT);
@@ -86,6 +69,7 @@ public class Graphlet extends Scene{
 			this.attachChild(area);
 			this.registerTouchArea(area);
 		}
+		this.sortChildren();
 	}
 	
 	private void createEdge(GraphletNode left, GraphletNode right, String label){
@@ -157,20 +141,7 @@ public class Graphlet extends Scene{
 		if(!(dstPortNode == null && dstIPNode == null)){
 			createEdge(dstPortArea.getNode(dstPort), dstIPArea.getNode(dstIP), "[flows]([pkg/flow])");
 		}
-		//		
-//		if(!(!(srcIP == null) && !(proto==null))){
-//			createEdge(srcIPArea.getNode(node), protoNode, "update");
-//		}
-//		if(!(!proto && srcPort)){
-//			createEdge(protoNode, srcPortNode, "update");
-//		}
-//		if(!(!srcPort && !dstPort)){
-//			createEdge(srcPortNode, dstPortNode, trans.getBytes() + "(" + trans.getPackets() + ")");
-//		}
-//		if(!(!dstPort && !dstIP)){
-//			createEdge(dstPortNode, dstIPNode, "[flows]([pkg/flow])");
-//		}
-//		
+		
 		refreshEdges();
 	}
 
@@ -207,25 +178,27 @@ public class Graphlet extends Scene{
 //	return returnNode;
 //	}		
 	
+	public static void setFont(Font mFont) {
+		aFont = mFont;
+	}
+
 	private void addTestContent(){
 		HAPGraphlet testGraphlet = new HAPGraphlet();
 		//bytes packets direction srcip proto srcport dstport dstip
-		String[] sArray1 = {" 12345 678 3", " 192.168.100.100", " 1", " 65128", " 80", " 69.171.234.48"};
-		String[] sArray2 = {" 345 78 2", " 192.168.100.100", " 1", " 65132", " 80", " 212.35.35.35"};
-		String[] sArray3 = {" 2345 142 1", " 192.168.100.100", " 2", " 32458", " 123", " 195.186.1.111"};
+		String[] sArray1 = {" 12345 678 3", " 192.168.100.100", " 6", " 65128", " 80", " 69.171.234.48"};
+		String[] sArray2 = {" 345 78 2", " 192.168.100.100", " 6", " 65132", " 80", " 212.35.35.35"};
+		String[] sArray3 = {" 2345 142 1", " 192.168.100.100", " 17", " 32458", " 123", " 195.186.1.111"};
 		testGraphlet.add(Transaction.parse(sArray1));
 		testGraphlet.add(Transaction.parse(sArray2));
 		testGraphlet.add(Transaction.parse(sArray3));
 		
 		this.update(testGraphlet);
 		
-		String[] updateTest = {" 12345 678 3", " 192.168.100.100", " 1", " 20568", " 80", " 195.186.1.111"};
+		String[] updateTest = {" 12345 678 3", " 192.168.100.100", " 17", " 20568", " 80", " 195.186.1.111"};
 		this.addTransaction(Transaction.parse(updateTest));
 		
-	}
-
-	public static void setFont(Font mFont) {
-		aFont = mFont;
+		String[] updateTest2 = {" 654 321 4", " 192.168.100.100", " 1", " 10423", " 1", " 195.186.1.111"};
+		this.addTransaction(Transaction.parse(updateTest2));
 	}
 	
 }

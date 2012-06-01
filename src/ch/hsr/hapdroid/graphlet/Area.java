@@ -11,7 +11,7 @@ import ch.hsr.hapdroid.transaction.NodeList;
 
 public class Area extends Rectangle{
 	
-	private static final String LOGTAG = "hapdroid.Area";
+//	private static final String LOGTAG = "hapdroid.Area";
 	private static float NODESPACING = 10;
 	private boolean mGrabbed = false;
 	private float firstTouchY;
