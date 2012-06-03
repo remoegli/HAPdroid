@@ -1,7 +1,7 @@
 package ch.hsr.hapdroid;
 
 import org.anddev.andengine.engine.Engine;
-import org.anddev.andengine.engine.camera.Camera;
+import org.anddev.andengine.engine.camera.ZoomCamera;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -9,7 +9,15 @@ import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.util.FPSLogger;
+import org.anddev.andengine.extension.input.touch.controller.MultiTouch;
+import org.anddev.andengine.extension.input.touch.controller.MultiTouchController;
+import org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector;
+import org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
+import org.anddev.andengine.extension.input.touch.exception.MultiTouchException;
 import org.anddev.andengine.input.touch.TouchEvent;
+import org.anddev.andengine.input.touch.detector.ScrollDetector;
+import org.anddev.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
+import org.anddev.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.anddev.andengine.opengl.font.Font;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
@@ -41,7 +49,7 @@ import ch.hsr.hapdroid.graphlet.edge.Edge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 
 public class HAPdroidGraphletActivity extends LayoutGameActivity implements
-		IOnSceneTouchListener {
+		IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
 	public static final int RECEIVE_NETWORK_FLOW = 0;
 	public static final int RECEIVE_FLOW_TABLE = 1;
@@ -71,7 +79,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Texture mTex;
 	private Font mFont;
 	private Graphlet mGraphlet; 
-	private Camera mCamera;
+	private ZoomCamera mZoomCamera;
+	private SurfaceScrollDetector mScrollDetector;
+	private PinchZoomDetector mPinchZoomDetector;
+	private float mPinchZoomStartedCameraZoomFactor;
 	
 	private Intent mServiceIntent;
 	private boolean mBound;
@@ -216,9 +227,23 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
         Log.v(LOG_TAG, "Screen width/height: " + screenWidth + "/" + screenHeight);
         
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
-		mCamera = new Camera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
-		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, mCamera);
+		mZoomCamera = new ZoomCamera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
+		mZoomCamera.setBoundsEnabled(true);
+		mZoomCamera.setBounds(0, screenWidth, 0, screenHeight);
+		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, mZoomCamera);
 		Engine myEngine = new Engine(pEngineOptions);
+		
+		try {
+			if(MultiTouch.isSupported(this)) {
+				myEngine.setTouchController(new MultiTouchController());
+			} else {
+				Toast.makeText(this, "Sorry your device does NOT support MultiTouch!\n\n(No PinchZoom is possible!)", Toast.LENGTH_LONG).show();
+			}
+		} catch (final MultiTouchException e) {
+			Toast.makeText(this, "Sorry your Android Version does NOT support MultiTouch!\n\n(No PinchZoom is possible!)", Toast.LENGTH_LONG).show();
+		}
+
+		
 		return myEngine;
 	}
 
@@ -239,8 +264,20 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mGraphlet = new Graphlet(screenWidth, screenHeight);
 		mGraphlet.setOnSceneTouchListener(this);
 		mGraphlet.setTouchAreaBindingEnabled(true);
+//		mGraphlet.setOnAreaTouchTraversalFrontToBack();
 		mGraphlet.setBackground(new ColorBackground(1f, 1f, 1f));
 	
+		this.mScrollDetector = new SurfaceScrollDetector(this);
+		if(MultiTouch.isSupportedByAndroidVersion()) {
+			try {
+				this.mPinchZoomDetector = new PinchZoomDetector(this);
+			} catch (final MultiTouchException e) {
+				this.mPinchZoomDetector = null;
+			}
+		} else {
+			this.mPinchZoomDetector = null;
+		}
+		
 		this.getEngine().getTextureManager().loadTexture(mTex);
 		this.getEngine().getFontManager().loadFont(mFont);
 
@@ -254,11 +291,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				Context.BIND_AUTO_CREATE);
 	}
 	
-	@Override
-	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-		return true;
-	}
-
 	@Override
 	protected int getLayoutID() {
 		return R.layout.hud;
@@ -274,6 +306,58 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mGraphlet.update(mService.getGraphlet());
 		mTxtStart.setText(mService.getStartTime());
 		mTxtEnd.setText(mService.getEndTime());
+	}
+
+	@Override
+	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+		if(this.mPinchZoomDetector != null) {
+			this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
+
+			if(this.mPinchZoomDetector.isZooming()) {
+				this.mScrollDetector.setEnabled(false);
+			} else {
+				if(pSceneTouchEvent.isActionDown()) {
+					this.mScrollDetector.setEnabled(true);
+				}
+				this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+			}
+		} else {
+			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+		}
+
+		return true;
+	}
+
+	@Override
+	public void onScroll(ScrollDetector pScollDetector, TouchEvent pTouchEvent,
+			float pDistanceX, float pDistanceY) {
+		final float zoomFactor = this.mZoomCamera.getZoomFactor();
+		this.mZoomCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void onPinchZoomStarted(PinchZoomDetector pPinchZoomDetector,
+			TouchEvent pSceneTouchEvent) {
+		// TODO Auto-generated method stub
+		this.mPinchZoomStartedCameraZoomFactor = this.mZoomCamera.getZoomFactor();
+	}
+
+	@Override
+	public void onPinchZoom(PinchZoomDetector pPinchZoomDetector,
+			TouchEvent pTouchEvent, float pZoomFactor) {
+		//Prevents from zooming out too much
+		if((this.mPinchZoomStartedCameraZoomFactor * pZoomFactor) >= 1.0f){
+			this.mZoomCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		}
+	}
+
+	@Override
+	public void onPinchZoomFinished(PinchZoomDetector pPinchZoomDetector,
+			TouchEvent pTouchEvent, float pZoomFactor) {
+		// TODO Auto-generated method stub
+		if((this.mPinchZoomStartedCameraZoomFactor * pZoomFactor) >= 1.0f){
+			this.mZoomCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		}
 	}
 	
 }
