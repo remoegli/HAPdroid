@@ -1,5 +1,6 @@
 package ch.hsr.hapdroid.graphlet;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.primitive.Rectangle;
@@ -17,13 +18,13 @@ public class Area extends Rectangle{
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
-	private GraphletNodeList nodes;
+	private Vector<GraphletNode> nodes;
 	private Vector<Edge> edges;
 	
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
-		nodes = new GraphletNodeList();
+		nodes = new Vector<GraphletNode>();
 		edges = new Vector<Edge>();
 	}
 
@@ -36,22 +37,25 @@ public class Area extends Rectangle{
 
 	/**
 	 *
-	 * must return null so the graphlet can get the existing node
-	 *
+	 * 
 	 * @param node
 	 * @return
 	 */
-	public GraphletNode addNode(GraphletNode node){
-		if(nodes.add(node)){
-			this.attachChild(node);
-			updateNodePositions();
-			return node;
+	private void addNode(GraphletNode node){
+		nodes.add(node);
+		this.attachChild(node);
+		updateNodePositions();
+	}
+	
+	public GraphletNode getNode(GraphletNode node){
+		if(nodes.indexOf(node)>-1){
+			return nodes.get(nodes.indexOf(node));
 		}
 		return null;
 	}
 	
-	public GraphletNode getNode(GraphletNode node){
-		return nodes.getNode(node);
+	public Iterator<GraphletNode> getNodeIterator(){
+		return nodes.iterator();
 	}
 	
 	public void addEdge(Edge edge){
