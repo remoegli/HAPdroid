@@ -18,13 +18,13 @@ public class Area extends Rectangle{
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
-	private GraphletNodeList nodes;
+	private Vector<GraphletNode> nodes;
 	private Vector<Edge> edges;
 	
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
-		nodes = new GraphletNodeList();
+		nodes = new Vector<GraphletNode>();
 		edges = new Vector<Edge>();
 	}
 
@@ -48,7 +48,10 @@ public class Area extends Rectangle{
 	}
 	
 	public GraphletNode getNode(GraphletNode node){
-		return nodes.getNode(node);
+		if(nodes.indexOf(node)>-1){
+			return nodes.get(nodes.indexOf(node));
+		}
+		return null;
 	}
 	
 	public Iterator<GraphletNode> getNodeIterator(){

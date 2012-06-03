@@ -4,6 +4,9 @@ import android.graphics.Color;
 
 public enum EdgeType {
     
+	//Default Edges
+	DEFAULT	(false, false, Color.BLACK),
+	//Directed Edges
 	OUT_FLOW	(false, true, Color.RED),
     IN_FLOW	(true, false, Color.RED),
     BI_FLOW	(true, true, Color.BLACK),
