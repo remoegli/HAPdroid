@@ -12,16 +12,18 @@
         
     <string name="notification_title">HAPdroid</string>
     <string name="notification_message">Capturing network Traffic</string>
+    <string name="source_wlan">wlan</string>
+    <string name="source_mobile">mobile</string>
     
-    <string name="capture_toast">Capturing tcpdump, please wait.</string>
+    <string name="capture_nothing">no flows recieved</string>
     <string name="capture_start">Start Capture</string>
     <string name="capture_stop">Stop Capture</string>
     <string name="show_graphlet">Graphlet</string>
     <string name="settings">Settings</string>
     <string name="file_open">Open…</string>
     <string name="import_file_title">Import File</string>
-    <string name="import_file_message">Please wait while the file is loading</string>
-    <string name="import_file_message_title"></string>
+    <string name="load_graphlet_message">Please wait while the graphlet is generating</string>
+    <string name="load_graphlet_message_title"></string>
     <string name="starttime">Starttime</string>
     <string name="endtime">Endtime</string>
 </resources>

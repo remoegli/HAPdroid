@@ -1,14 +1,13 @@
 package ch.hsr.hapdroid.transaction;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import android.util.Log;
+import ch.hsr.hapdroid.network.CaptureSource;
 import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.Proto;
-
-import android.util.Log;
 
 
 public class Transaction {
@@ -19,7 +18,7 @@ public class Transaction {
 	private long mPackets;
 	private int mDirection;
 	
-	private IPNode mSrcIp;
+	private SourceIPNode mSrcIp;
 	private Node<Proto> mProtocol;
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
@@ -92,7 +91,7 @@ public class Transaction {
 		String[] tokens = srcip.split(SPLIT_STRING);
 		
 		try {
-			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
+			SourceIPNode n = new SourceIPNode(Inet4Address.getByName(tokens[1]), t);
 			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -104,7 +103,7 @@ public class Transaction {
 			n.setSummarized(true);
 	}
 
-	private void setSrcIp(IPNode node) {
+	private void setSrcIp(SourceIPNode node) {
 		this.mSrcIp = node;
 	}
 
@@ -120,7 +119,7 @@ public class Transaction {
 		return result.toString();
 	}
 
-	public Node<InetAddress> getSrcIp() {
+	public SourceIPNode getSrcIp() {
 		return mSrcIp;
 	}
 
@@ -148,7 +147,7 @@ public class Transaction {
 		this.mDstPort = mDstPort;
 	}
 
-	public Node<InetAddress> getDstIp() {
+	public IPNode getDstIp() {
 		return mDstIp;
 	}
 
@@ -197,5 +196,12 @@ public class Transaction {
 	
 	public List<Flow> getFlows() {
 		return mFlows;
+	}
+
+	public CaptureSource getCaptureSource() {
+		if (!mFlows.isEmpty())
+			return mFlows.get(0).getCaptureSource();
+		
+		return CaptureSource.UNKNOWN;
 	}
 }

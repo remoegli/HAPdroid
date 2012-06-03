@@ -1,7 +1,11 @@
 package ch.hsr.hapdroid.network;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,11 +17,30 @@ public class FlowTable {
 	private List<Flow> mFlowList;
 	private Timeval mStartTime;
 	private Timeval mEndTime;
+	private ArrayList<InetAddress> mLocalIpAddresses;
 	
 	public FlowTable() {
 		mFlowList = new ArrayList<Flow>();
+		mLocalIpAddresses = new ArrayList<InetAddress>();
+		getLocalIpAddresses();
 	}
 
+	public void getLocalIpAddresses() {
+	    try {
+	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+	            NetworkInterface intf = en.nextElement();
+	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+	                InetAddress inetAddress = enumIpAddr.nextElement();
+	                if (!inetAddress.isLoopbackAddress()) {
+	                    mLocalIpAddresses.add(inetAddress);
+	                }
+	            }
+	        }
+	    } catch (SocketException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
 	public boolean add(Packet packet) {
 		boolean toreturn = false;
 		Flow f = getFlowFor(packet);
@@ -37,7 +60,7 @@ public class FlowTable {
 
 	private void setStartTime(Flow f) {
 		if(mStartTime == null)
-			mStartTime = new Timeval(f.getStartTime());
+			mStartTime = f.getStartTime();
 	}
 
 	private void setEndTime(Flow f) {
@@ -59,11 +82,25 @@ public class FlowTable {
 	}
 
 	private Flow createFlowFrom(Packet packet) {
+		if (isLocalIp(packet.dst_addr)){
+			packet.reverse();
+		}
 		Flow f = new Flow(packet);
 		mFlowList.add(f);
 		return f;
 	}
 	
+	private boolean isLocalIp(InetAddress dst_addr) {
+		if (dst_addr.isAnyLocalAddress())
+			return true;
+		
+		for (InetAddress ip : mLocalIpAddresses){
+			if (ip.equals(dst_addr))
+				return true;
+		}
+		return false;
+	}
+
 	public byte[] toByteArray(){
 		byte[] result = new byte[mFlowList.size()*Flow.SIZE_BYTE];
 		Collections.sort(mFlowList);
@@ -127,5 +164,9 @@ public class FlowTable {
 		}
 		
 		return flowlist;
+	}
+
+	public boolean isEmpty() {
+		return mFlowList.isEmpty();
 	}
 }

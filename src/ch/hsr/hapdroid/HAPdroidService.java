@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
+import ch.hsr.hapdroid.network.CaptureSource;
 import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.FlowTable;
 import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
@@ -54,62 +55,10 @@ public class HAPdroidService extends Service {
 			}
 		}
 	};
-	private Result mNetworkResult = new Result() {
-
-
-		@Override
-		public void processError(String line) throws Exception {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void process(String line) throws Exception {
-			mCurrentPacket = Packet.parsePacket(line);
-			handlePacket(mCurrentPacket);
-		}
-
-		@Override
-		public void onFailure(Exception ex) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onComplete(int diag) {
-			// TODO Auto-generated method stub
-		}
-	};
-	private Result mExecutableResult = new Result() {
-
-		@Override
-		public void processError(String line) throws Exception {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void process(String line) throws Exception {
-			Packet p = Packet.parsePacket(line);
-			if (p == null)
-				return;
-
-			mFlowTable.add(p);
-		}
-
-		@Override
-		public void onFailure(Exception ex) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onComplete(int diag) {
-			//because we cant start the transaction server outside the UI thread
-			//we use the handler to execute the UI code
-			mHandler.sendEmptyMessage(RECIEVE_PACKET_FINISH);
-		}
-	};
+	private NetworkResult mWlanResult;
+	private NetworkResult mMobileResult;
+	private NetworkResult mExecutableResult; 
+	
 	private HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mCallbackHandler;
 	private FlowTable mFlowTable;
@@ -182,8 +131,12 @@ public class HAPdroidService extends Service {
 
 		mHasRoot = RootTools.isRootAvailable();
 		RootTools.useRoot = mHasRoot;
+
 		mFlowTable = new FlowTable();
 		mHAPGraphlet = new HAPGraphlet();
+		mWlanResult = new NetworkResult(CaptureSource.WLAN);
+		mMobileResult = new NetworkResult(CaptureSource.MOBILE);
+		mExecutableResult = new NetworkResult(CaptureSource.PCAP);
 		resetTransactionString();
 
 		installBinary();
@@ -208,8 +161,9 @@ public class HAPdroidService extends Service {
 				"HAPdroid Network Capture", System.currentTimeMillis());
 
 		Intent notificationIntent = new Intent(this,
-				HAPdroidGraphletActivity.class);
+				SplashActivity.class);
 		notificationIntent.setAction(Intent.ACTION_MAIN);
+		notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, 0);
 
@@ -317,7 +271,7 @@ public class HAPdroidService extends Service {
 			public void run() {
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_MOBILE_CMD,
-							mNetworkResult, -1);
+							mMobileResult, -1);
 					Log.d(LOG_TAG, "Mobile capture started");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -334,7 +288,7 @@ public class HAPdroidService extends Service {
 				// TODO Auto-generated method stub
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_WLAN_CMD,
-							mNetworkResult, -1);
+							mWlanResult, -1);
 					Log.d(LOG_TAG, "WLAN capture started");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -390,4 +344,40 @@ public class HAPdroidService extends Service {
 		return mFlowTable.getEndTime().toString();
 	}
 
+	private class NetworkResult extends Result {
+
+		private CaptureSource mSource;
+
+		public NetworkResult(CaptureSource source) {
+			mSource = source;
+		}
+		
+		@Override
+		public void processError(String line) throws Exception {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void process(String line) throws Exception {
+			mCurrentPacket = Packet.parsePacket(line);
+			mCurrentPacket.source = mSource;
+			handlePacket(mCurrentPacket);
+		}
+
+		@Override
+		public void onFailure(Exception ex) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onComplete(int diag) {
+			mHandler.sendEmptyMessage(RECIEVE_PACKET_FINISH);
+		}
+	}
+
+	public boolean hasPacketsCaptured() {
+		return !mFlowTable.isEmpty();
+	}
 }

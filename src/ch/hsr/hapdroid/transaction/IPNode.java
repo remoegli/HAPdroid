@@ -13,8 +13,6 @@ public class IPNode extends Node<InetAddress>{
 		if (isSummarized()){
 			byte[] address = ip.getAddress();
 			return Byte.toString(address[3]);
-		} else if (ip.isAnyLocalAddress()){
-			return "localhost";
 		}
 		return super.toString().replace('/', ' ');
 	}
