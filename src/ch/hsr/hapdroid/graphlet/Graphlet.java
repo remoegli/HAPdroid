@@ -41,7 +41,6 @@ public class Graphlet extends Scene{
 	}
 
 	private void createAreas() {
-		//TODO: Remove Coloring?
 		AreaLabels areaLabels = new AreaLabels(AREA_WIDTH, aFont);
 		areaLabels.setZIndex(15);
 		this.attachChild(areaLabels);
@@ -167,22 +166,12 @@ public class Graphlet extends Scene{
 		this.sortChildren();
 	}
 
-//	private GraphletNode findNode(Node<?> node){
-//	GraphletNode returnNode = null;
-//	for(GraphletNode graphletNode : nodes){
-//		if(node.equals(graphletNode.getNode())){
-//			returnNode = graphletNode;
-//			break;
-//		}
-//	}
-//	return returnNode;
-//	}		
-	
 	public static void setFont(Font mFont) {
 		aFont = mFont;
 	}
 
-	private void addTestContent(){
+	//TODO: Remove or move to test
+	void addTestContent(){
 		HAPGraphlet testGraphlet = new HAPGraphlet();
 		//bytes packets direction srcip proto srcport dstport dstip
 		String[] sArray1 = {" 12345 678 3", " 192.168.100.100", " 6", " 65128", " 80", " 69.171.234.48"};
