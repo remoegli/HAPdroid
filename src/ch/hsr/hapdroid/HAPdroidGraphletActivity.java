@@ -217,6 +217,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
         
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(screenWidth, screenHeight);
 		mZoomCamera = new ZoomCamera(0, 0, screenWidth, screenHeight); //floats pX, pY, pWidth, pHeight
+		mZoomCamera.setBoundsEnabled(true);
+		mZoomCamera.setBounds(0, screenWidth, 0, screenHeight);
 		EngineOptions pEngineOptions = new EngineOptions(false, ScreenOrientation.LANDSCAPE, pResolutionPolicy, mZoomCamera);
 		Engine myEngine = new Engine(pEngineOptions);
 		
@@ -318,7 +320,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	public void onScroll(ScrollDetector pScollDetector, TouchEvent pTouchEvent,
 			float pDistanceX, float pDistanceY) {
-		// TODO Auto-generated method stub
 		final float zoomFactor = this.mZoomCamera.getZoomFactor();
 		this.mZoomCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
 	}
@@ -333,8 +334,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	public void onPinchZoom(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pTouchEvent, float pZoomFactor) {
-		// TODO Auto-generated method stub
-		Log.v(LOG_TAG, "PinchZoomStarted: " + mPinchZoomStartedCameraZoomFactor + " + ZoomFactor: " + pZoomFactor + " Multiplacation: " + (this.mPinchZoomStartedCameraZoomFactor * pZoomFactor));
+		//Prevents from zooming out too much
 		if((this.mPinchZoomStartedCameraZoomFactor * pZoomFactor) >= 1.0f){
 			this.mZoomCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
 		}
