@@ -115,6 +115,7 @@ public class Graphlet extends Scene{
 			for(DefaultEdge edge : edges){
 				GraphletNode rightNode = right.getNode(new GraphletNode(hapGraphlet.getEdgeTarget(edge)));
 				if(rightNode != null){
+					Log.v(LOG_TAG, "creating edge for node: " + leftNode.getNode().toString() + "/" + rightNode.getNode().toString());
 					createEdge(leftNode, rightNode, "-");
 				}
 			}
