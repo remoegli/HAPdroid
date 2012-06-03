@@ -21,7 +21,10 @@ public class GraphletNodeList extends Vector<GraphletNode>{
 	}
 
 	public GraphletNode getNode(GraphletNode node) {
-		return get(indexOf(node));
+		if(indexOf(node)>-1){
+			return get(indexOf(node));
+		}
+		return null;
 	}
 
 }
