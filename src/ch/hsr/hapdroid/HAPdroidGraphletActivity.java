@@ -56,7 +56,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public static final int RECEIVE_TRANSACTION_TABLE = 2;
 	public static final int GENERATE_GRAPHLET = 3;
 	public static final int PICK_FILE = 0;
-	private static final String LOG_TAG = "MyActivity";
+	private static final String LOG_TAG = "HAPdroidGraphletActivity";
 	
 	private Handler mHandler = new Handler() {
 		@Override
