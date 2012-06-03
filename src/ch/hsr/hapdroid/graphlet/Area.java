@@ -37,18 +37,14 @@ public class Area extends Rectangle{
 
 	/**
 	 *
-	 * must return null so the graphlet can get the existing node
-	 *
+	 * 
 	 * @param node
 	 * @return
 	 */
-	public GraphletNode addNode(GraphletNode node){
-		if(nodes.add(node)){
-			this.attachChild(node);
-			updateNodePositions();
-			return node;
-		}
-		return null;
+	private void addNode(GraphletNode node){
+		nodes.add(node);
+		this.attachChild(node);
+		updateNodePositions();
 	}
 	
 	public GraphletNode getNode(GraphletNode node){
