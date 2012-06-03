@@ -1,5 +1,6 @@
 package ch.hsr.hapdroid.graphlet;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.anddev.andengine.entity.primitive.Rectangle;
@@ -52,6 +53,10 @@ public class Area extends Rectangle{
 	
 	public GraphletNode getNode(GraphletNode node){
 		return nodes.getNode(node);
+	}
+	
+	public Iterator<GraphletNode> getNodeIterator(){
+		return nodes.iterator();
 	}
 	
 	public void addEdge(Edge edge){
