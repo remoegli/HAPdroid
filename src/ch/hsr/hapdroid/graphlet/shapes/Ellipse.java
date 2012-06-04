@@ -8,7 +8,6 @@ import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.entity.shape.IShape;
 import org.anddev.andengine.entity.shape.Shape;
-import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.buffer.BufferObjectManager;
 import org.anddev.andengine.opengl.util.GLHelper;
 
@@ -21,9 +20,6 @@ public class Ellipse extends Shape {
 	private float lineWidth;
 	private float height;
 	private float width;
-	//test
-	private boolean mGrabbed = false;
-
 	private Rectangle collisionRectangle;
 
 	public Ellipse(float pX, float pY, float radius) {
@@ -157,29 +153,4 @@ public class Ellipse extends Shape {
 		this.collisionRectangle.setWidth(width);
 		this.updateVertexBuffer();
 	}
-
-	// Test
-	@Override
-	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,	final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-		switch (pSceneTouchEvent.getAction()) {
-		case TouchEvent.ACTION_DOWN:
-			this.setScale(1.25f);
-			this.mGrabbed = true;
-			break;
-		case TouchEvent.ACTION_MOVE:
-			if (this.mGrabbed) {
-				this.setPosition(pSceneTouchEvent.getX() - width / 2,
-						pSceneTouchEvent.getY() - height / 2);
-			}
-			break;
-		case TouchEvent.ACTION_UP:
-			if (this.mGrabbed) {
-				this.mGrabbed = false;
-				this.setScale(1.0f);
-			}
-			break;
-		}
-		return true;
-	}
-
 }
