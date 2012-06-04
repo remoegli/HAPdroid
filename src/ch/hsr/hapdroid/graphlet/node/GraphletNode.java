@@ -10,7 +10,6 @@ import ch.hsr.hapdroid.transaction.Node;
 
 public class GraphletNode extends BaseRectangle{
 
-	private static final String LOGTAG = "hapdroid.GraphletNode";
 	private static Font aFont  = Graphlet.getFont();
 	private Node<?> mNode;
 	private static final int NODE_HEIGHT = 30;
