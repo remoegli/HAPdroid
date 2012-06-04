@@ -2,6 +2,7 @@ package ch.hsr.hapdroid.transaction;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.util.Log;
@@ -26,6 +27,7 @@ public class Transaction {
 	private List<Flow> mFlows;
 
 	public Transaction() {
+		mFlows = new ArrayList<Flow>();
 	}
 
 	public static Transaction parse(String[] trans){

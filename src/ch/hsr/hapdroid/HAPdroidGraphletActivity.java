@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -44,8 +45,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
+import ch.hsr.hapdroid.graphlet.AreaLabels;
 import ch.hsr.hapdroid.graphlet.Graphlet;
-import ch.hsr.hapdroid.graphlet.edge.Edge;
+import ch.hsr.hapdroid.graphlet.edge.BaseEdge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 
 public class HAPdroidGraphletActivity extends LayoutGameActivity implements
@@ -251,17 +253,13 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public void onLoadResources() {
 		mTex = new BitmapTextureAtlas(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mFont = new Font(mTex, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 15, true, Color.BLACK);
-		//TODO: Refactoring?
-		GraphletNode.setFont(mFont);
-		Edge.setFont(mFont);
-		Graphlet.setFont(mFont);
 	}
 
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		
-		mGraphlet = new Graphlet(screenWidth, screenHeight);
+		mGraphlet = new Graphlet(screenWidth, screenHeight, mFont);
 		mGraphlet.setOnSceneTouchListener(this);
 		mGraphlet.setTouchAreaBindingEnabled(true);
 //		mGraphlet.setOnAreaTouchTraversalFrontToBack();
@@ -338,14 +336,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	public void onPinchZoomStarted(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pSceneTouchEvent) {
-		// TODO Auto-generated method stub
 		this.mPinchZoomStartedCameraZoomFactor = this.mZoomCamera.getZoomFactor();
 	}
 
 	@Override
 	public void onPinchZoom(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pTouchEvent, float pZoomFactor) {
-		//Prevents from zooming out too much
 		if((this.mPinchZoomStartedCameraZoomFactor * pZoomFactor) >= 1.0f){
 			this.mZoomCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
 		}
@@ -354,7 +350,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	@Override
 	public void onPinchZoomFinished(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pTouchEvent, float pZoomFactor) {
-		// TODO Auto-generated method stub
 		if((this.mPinchZoomStartedCameraZoomFactor * pZoomFactor) >= 1.0f){
 			this.mZoomCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
 		}

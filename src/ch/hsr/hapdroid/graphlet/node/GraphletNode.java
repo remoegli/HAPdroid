@@ -5,12 +5,13 @@ import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.opengl.font.Font;
 
+import ch.hsr.hapdroid.graphlet.Graphlet;
 import ch.hsr.hapdroid.transaction.Node;
 
 public class GraphletNode extends BaseRectangle{
 
 	private static final String LOGTAG = "hapdroid.GraphletNode";
-	private static Font aFont;
+	private static Font aFont  = Graphlet.getFont();
 	private Node<?> mNode;
 	private static final int NODE_HEIGHT = 30;
 	
@@ -40,10 +41,6 @@ public class GraphletNode extends BaseRectangle{
 	
 	public Node<?> getNode(){
 		return mNode;
-	}
-	
-	public static void setFont(Font mFont) {
-		aFont = mFont;
 	}
 	
 	@Override
