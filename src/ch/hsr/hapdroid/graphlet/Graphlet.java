@@ -12,7 +12,9 @@ import org.jgrapht.graph.DefaultEdge;
 import android.util.Log;
 
 import ch.hsr.hapdroid.HAPGraphlet;
-import ch.hsr.hapdroid.graphlet.edge.Edge;
+import ch.hsr.hapdroid.graphlet.edge.BaseEdge;
+import ch.hsr.hapdroid.graphlet.edge.DirectedEdge;
+import ch.hsr.hapdroid.graphlet.edge.LabeledEdge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Transaction;
 
@@ -21,7 +23,7 @@ public class Graphlet extends Scene{
 	private static final String LOG_TAG = "HAPdroid.Graphlet";
 	private static Font aFont;
 	private Vector<Area> areas;
-	private Vector<Edge> edges;
+	private Vector<BaseEdge> edges;
 	private final float CAMERA_HEIGHT;
 	private final float AREA_WIDTH;
 	private final float AREA_ALPHA = 0.2f;
@@ -32,20 +34,23 @@ public class Graphlet extends Scene{
 	private Area dstIPArea;
 	private HAPGraphlet hapGraphlet;
 	
-	public Graphlet(float cameraWidth, float cameraHeight){
+	public Graphlet(float cameraWidth, float cameraHeight, Font mFont){
 		super();
 		areas = new Vector<Area>();
-		edges = new Vector<Edge>();
+		edges = new Vector<BaseEdge>();
 		CAMERA_HEIGHT = cameraHeight;
 		AREA_WIDTH = cameraWidth/5;
-		
+		aFont = mFont;
 		createAreas();
 		addTestContent();
-
+	}
+	
+	public static Font getFont(){
+		return aFont;
 	}
 
 	private void createAreas() {
-		AreaLabels areaLabels = new AreaLabels(AREA_WIDTH, aFont);
+		AreaLabels areaLabels = new AreaLabels(AREA_WIDTH);
 		areaLabels.setZIndex(15);
 		this.attachChild(areaLabels);
 		
@@ -75,16 +80,6 @@ public class Graphlet extends Scene{
 		this.sortChildren();
 	}
 	
-	private void createEdge(GraphletNode left, GraphletNode right, String label){
-		Edge edge = new Edge(left, right, label);
-		edge.setZIndex(5);
-		edges.add(edge);
-		this.attachChild(edge);
-		
-		((Area)left.getParent()).addEdge(edge);
-		((Area)right.getParent()).addEdge(edge);
-	}
-	
 	public void update(HAPGraphlet graphlet) {
 		Log.v(LOG_TAG, "updating Graphlet");
 		hapGraphlet = graphlet;
@@ -98,15 +93,16 @@ public class Graphlet extends Scene{
 		dstIPArea.addAllNodes(graphlet.getDstIpList());
 		
 		Log.v(LOG_TAG, "drawing Edges");
-		findEdges(srcIPArea, protoArea);
-		findEdges(protoArea, srcPortArea);
-		findEdges(srcPortArea, dstPortArea);
-		findEdges(dstPortArea, dstIPArea);
+		findEdges(srcIPArea, protoArea, BaseEdge.class);
+		findEdges(protoArea, srcPortArea, BaseEdge.class);
+		findEdges(srcPortArea, dstPortArea, DirectedEdge.class);
+		findEdges(dstPortArea, dstIPArea, LabeledEdge.class);
 		
 		refreshEdges();
 	}
-	
-	private void findEdges(Area left, Area right) {
+
+	//TODO: Review
+	private void findEdges(Area left, Area right, Class<?> edgetype) {
 		Iterator<GraphletNode> iterator = left.getNodeIterator();
 		while(iterator.hasNext()){
 			GraphletNode leftNode = iterator.next();
@@ -116,12 +112,34 @@ public class Graphlet extends Scene{
 				GraphletNode rightNode = right.getNode(new GraphletNode(hapGraphlet.getEdgeTarget(edge)));
 				if(rightNode != null){
 					Log.v(LOG_TAG, "creating edge for node: " + leftNode.getNode().toString() + "/" + rightNode.getNode().toString());
-					createEdge(leftNode, rightNode, "-");
+					createEdge(leftNode, rightNode, edgetype);
 				}
 			}
 		}
 	}
 
+	//TODO: Review
+	private void createEdge(GraphletNode left, GraphletNode right, Class<?> edgetype){
+		BaseEdge edge;
+		if(edgetype.equals(DirectedEdge.class)){
+			Log.v(LOG_TAG, "creating a DirectedEdge");
+			edge = new DirectedEdge(left, right, left.getNode().getTransaction());
+		} else if(edgetype.equals(LabeledEdge.class)){
+			Log.v(LOG_TAG, "creating a LabeledEdge");
+			edge = new LabeledEdge(left, right, left.getNode().getTransaction());
+		} else{
+			Log.v(LOG_TAG, "creating a BaseEdge");
+			edge = new BaseEdge(left, right);
+		}
+		
+		edge.setZIndex(5);
+		edges.add(edge);
+		this.attachChild(edge);
+		
+		((Area)left.getParent()).addEdge(edge);
+		((Area)right.getParent()).addEdge(edge);
+	}
+	
 	private void refreshEdges(){
 		for(Area area : areas){
 			area.updateEdges();
@@ -130,7 +148,7 @@ public class Graphlet extends Scene{
 	}
 
 	private void clear(){
-		for(Edge edge : edges){
+		for(BaseEdge edge : edges){
 			this.detachChild(edge);
 		}
 		edges.clear();
@@ -140,57 +158,23 @@ public class Graphlet extends Scene{
 		}
 	}
 
-	public static void setFont(Font mFont) {
-		aFont = mFont;
-	}
-
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		return true;
 	}
 
 	//TODO: Remove or move to test
-	
-	
-//	public void addTransaction(Transaction trans){
-//		hapGraphlet.add(trans);
-//		
-//		GraphletNode srcIP = new GraphletNode(trans.getSrcIp());
-//		GraphletNode srcIPNode = srcIPArea.addNode(srcIP);
-//		GraphletNode proto = new GraphletNode(trans.getProto());
-//		GraphletNode protoNode = protoArea.addNode(proto);
-//		GraphletNode srcPort = new GraphletNode(trans.getSrcPort());
-//		GraphletNode srcPortNode = srcPortArea.addNode(srcPort);
-//		GraphletNode dstPort = new GraphletNode(trans.getDstPort());
-//		GraphletNode dstPortNode = dstPortArea.addNode(dstPort);
-//		GraphletNode dstIP = new GraphletNode(trans.getDstIp());
-//		GraphletNode dstIPNode = dstIPArea.addNode(dstIP);
-//
-//		if(!(srcIPNode == null && protoNode == null)){
-//			createEdge(srcIPArea.getNode(srcIP), protoArea.getNode(proto));
-//		}
-//		if(!(protoNode == null && srcPortNode == null)){
-//			createEdge(protoArea.getNode(proto), srcPortArea.getNode(srcPort));
-//		}
-//		if(!(srcPortNode == null && dstPortNode == null)){
-//			createEdge(srcPortArea.getNode(srcPort), dstPortArea.getNode(dstPort), trans.getDirection(), trans.getBytes() + "(" + trans.getPackets() + ")");
-//		}
-//		if(!(dstPortNode == null && dstIPNode == null)){
-//			//createEdge(dstPortArea.getNode(dstPort), dstIPArea.getNode(dstIP), trans.getDirection(), "[flows]([pkg/flow])");
-//			createEdge(dstPortArea.getNode(dstPort), dstIPArea.getNode(dstIP), trans.getDirection(), "[flows]([pkg/flow])");
-//		}
-//		
-//		refreshEdges();
-//	}
-	
 	void addTestContent(){
 		HAPGraphlet testGraphlet = new HAPGraphlet();
 		//bytes packets direction srcip proto srcport dstport dstip
+		//TODO: transaction opitons are not recognized?
 		String[] sArray1 = {" 12345 678 3", " 192.168.100.100", " 6", " 65128", " 80", " 69.171.234.48"};
 		String[] sArray2 = {" 345 78 2", " 192.168.100.100", " 6", " 65132", " 80", " 212.35.35.35"};
 		String[] sArray3 = {" 2345 142 1", " 192.168.100.100", " 17", " 32458", " 123", " 195.186.1.111"};
 		testGraphlet.add(Transaction.parse(sArray1));
 		testGraphlet.add(Transaction.parse(sArray2));
-		testGraphlet.add(Transaction.parse(sArray3));
+		Transaction outflow = Transaction.parse(sArray3);
+		outflow.setDirection(1);
+		testGraphlet.add(outflow);
 		
 		this.update(testGraphlet);
 		

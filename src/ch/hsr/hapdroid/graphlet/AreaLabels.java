@@ -6,7 +6,9 @@ import org.anddev.andengine.opengl.font.Font;
 
 public class AreaLabels extends Rectangle {
 
-	public AreaLabels(float areaWidth, Font aFont) {
+	private static Font aFont = Graphlet.getFont();
+	
+	public AreaLabels(float areaWidth) {
 		super(0, 0, areaWidth * 5, aFont.getLineHeight() * 2);
 		this.setColor(1.0f, 1.0f, 1.0f, 0.8f);
 		float textY = aFont.getLineHeight() / 2;

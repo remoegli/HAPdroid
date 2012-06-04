@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.input.touch.TouchEvent;
-import ch.hsr.hapdroid.graphlet.edge.Edge;
+import ch.hsr.hapdroid.graphlet.edge.BaseEdge;
 import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
@@ -19,13 +19,13 @@ public class Area extends Rectangle{
 	private float initialY;
 	private final float initHeight;
 	private Vector<GraphletNode> nodes;
-	private Vector<Edge> edges;
+	private Vector<BaseEdge> edges;
 	
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
 		nodes = new Vector<GraphletNode>();
-		edges = new Vector<Edge>();
+		edges = new Vector<BaseEdge>();
 	}
 
 	public void addAllNodes(NodeList<?> nodeList) {
@@ -58,12 +58,12 @@ public class Area extends Rectangle{
 		return nodes.iterator();
 	}
 	
-	public void addEdge(Edge edge){
+	public void addEdge(BaseEdge edge){
 		edges.add(edge);
 	}
 
 	public void updateEdges(){
-		for(Edge edge : edges){
+		for(BaseEdge edge : edges){
 			edge.update();
 		}
 	}
