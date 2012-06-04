@@ -26,6 +26,10 @@ public class Node<V>{
 		return value;
 	}
 	
+	protected void setValue(V value){
+		this.value = value;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -40,7 +44,7 @@ public class Node<V>{
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof Node<?>){
+		if(o instanceof Node<?> && isSummarized()){
 			Node<?> n = (Node<?>) o;
 			return n.getValue().equals(getValue());
 		}

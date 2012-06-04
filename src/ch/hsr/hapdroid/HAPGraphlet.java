@@ -6,6 +6,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Pseudograph;
 
 import ch.hsr.hapdroid.network.Proto;
+import ch.hsr.hapdroid.transaction.DuplicateNodeList;
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 import ch.hsr.hapdroid.transaction.Transaction;
@@ -28,8 +29,8 @@ public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 		
 		mSrcIp = new NodeList<InetAddress>();
 		mProto = new NodeList<Proto>();
-		mSrcPort = new NodeList<Integer>();
-		mDstPort = new NodeList<Integer>();
+		mSrcPort = new DuplicateNodeList<Integer>();
+		mDstPort = new DuplicateNodeList<Integer>();
 		mDstIp = new NodeList<InetAddress>();
 	}
 	

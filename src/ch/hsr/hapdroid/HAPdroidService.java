@@ -89,13 +89,11 @@ public class HAPdroidService extends Service {
 		Message msg = new Message();
 		msg.what = HAPdroidGraphletActivity.RECEIVE_NETWORK_FLOW;
 		msg.obj = p;
-		Log.d(LOG_TAG, "package recieved: " + p.toString());
 		if (mCallbackHandler != null)
 			mCallbackHandler.sendMessage(msg);
 	}
 
 	private void handleTransaction(String s) {
-		Log.d(LOG_TAG, "partial transaction recieved: " + s);
 		if (s.length() > 0 && s.charAt(0) == 't') {
 			parseTransaction();
 		}
@@ -125,7 +123,6 @@ public class HAPdroidService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.d(LOG_TAG, "Service onCreate()");
 		super.onCreate();
 		RootTools.debugMode = true;
 
@@ -174,13 +171,11 @@ public class HAPdroidService extends Service {
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		Log.d(LOG_TAG, "Service onBind()");
 		return mBinder;
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		Log.d(LOG_TAG, "Service onUnbind()");
 		setCallbackHandler(null);
 		return super.onUnbind(intent);
 	}
@@ -192,13 +187,11 @@ public class HAPdroidService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.d(LOG_TAG, "Service onDestroy()");
 		super.onDestroy();
 	}
 
 	public void setCallbackHandler(Handler aHandler) {
 		mCallbackHandler = aHandler;
-		Log.d(LOG_TAG, "CallbackHandler set");
 	}
 
 	public HAPGraphlet getGraphlet() {
@@ -215,6 +208,7 @@ public class HAPdroidService extends Service {
 		if (mCallbackHandler != null)
 			mCallbackHandler
 				.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
+		Log.d(LOG_TAG, mHAPGraphlet.toString());
 	}
 
 	private void startTransactionServer() {

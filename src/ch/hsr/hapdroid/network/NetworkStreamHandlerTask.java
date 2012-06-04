@@ -56,7 +56,6 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 			mInputStream = sk.getInputStream();
 			mReader = new BufferedReader(new InputStreamReader(mInputStream));
 			while ((line = mReader.readLine()) != null) {
-				Log.d(LOG_TAG, "line recieved: " + line);
 				publishProgress(line);
 			}
 		} catch (IOException e) {
@@ -70,13 +69,11 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	@Override
 	protected void onProgressUpdate(String... values) {
 		for (String s : values) {
-			Log.d(LOG_TAG, "publishing message: " + s);
 			mMessage = new Message();
 			mMessage.what = mProgressMessage;
 			mMessage.obj = s;
 			if (mHandler != null) {
 				mHandler.sendMessage(mMessage);
-				Log.d(LOG_TAG, "message sent");
 			}
 		}
 	}
