@@ -31,6 +31,9 @@ public class SplashActivity extends BaseGameActivity {
 	private static final float SPLASH_SCALE_TO = 1f;
 	private Intent intent;
    
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Engine onLoadEngine() {
 		this.mSplashTextureAtlasSource = new AssetBitmapTextureAtlasSource(this, "gfx/splash.png");
@@ -42,6 +45,9 @@ public class SplashActivity extends BaseGameActivity {
 		return new Engine(new EngineOptions(false, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(width, height), this.mCamera));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onLoadResources() {
 		final BitmapTextureAtlas loadingScreenBitmapTextureAtlas = BitmapTextureAtlasFactory.createForTextureAtlasSourceSize(BitmapTextureFormat.RGBA_8888, this.mSplashTextureAtlasSource, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -49,6 +55,9 @@ public class SplashActivity extends BaseGameActivity {
 		this.getEngine().getTextureManager().loadTexture(loadingScreenBitmapTextureAtlas);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Scene onLoadScene() {
 		final SplashScene splashScene = new SplashScene(this.mCamera, this.mLoadingScreenTextureRegion, SPLASH_DURATION, SPLASH_SCALE_FROM, SPLASH_SCALE_TO);
@@ -71,6 +80,9 @@ public class SplashActivity extends BaseGameActivity {
 		return splashScene;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onLoadComplete() {
 	}

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -32,8 +31,6 @@ import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.ui.activity.LayoutGameActivity;
 
-import com.ipaulpro.afilechooser.utils.FileUtils;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -52,6 +49,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,16 +58,30 @@ import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
 import ch.hsr.hapdroid.graphlet.Graphlet;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
+
 public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		IOnSceneTouchListener, IScrollDetectorListener,
 		IPinchZoomDetectorListener {
 
+	/**
+	 * Message identifier for receiving network flow
+	 */
 	public static final int RECEIVE_NETWORK_FLOW = 0;
+	/**
+	 * Message identifier for receiving flow table
+	 */
 	public static final int RECEIVE_FLOW_TABLE = 1;
+	/**
+	 * Message identifier for receiving transaction table
+	 */
 	public static final int RECEIVE_TRANSACTION_TABLE = 2;
+	/**
+	 * Message identifier for generating graphlet
+	 */
 	public static final int GENERATE_GRAPHLET = 3;
-	public static final int PICK_FILE = 0;
 
+	private static final int PICK_FILE = 0;
 	private static final Pattern IP_ADDRESS = Pattern
 			.compile("((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
 					+ "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
@@ -97,6 +109,23 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	};
 
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
+	
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			HAPdroidBinder binder = (HAPdroidBinder) service;
+			mService = binder.getService();
+			mBound = true;
+	
+			mService.setCallbackHandler(mHandler);
+			setOnClickListeners();
+		}
+	
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			mBound = false;
+		}
+	};
 	private float screenWidth;
 	private float screenHeight;
 	private Texture mTex;
@@ -110,23 +139,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Intent mServiceIntent;
 	private boolean mBound;
 	private HAPdroidService mService;
-	private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			HAPdroidBinder binder = (HAPdroidBinder) service;
-			mService = binder.getService();
-			mBound = true;
-
-			mService.setCallbackHandler(mHandler);
-			setOnClickListeners();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
-		}
-	};
 	private Button mBtnCaptureStartStop;
 	private OnClickListener mOnClickStart;
 	private OnClickListener mOnClickStop;
@@ -143,7 +155,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private String mFilePath;
 
 	/**
-	 * Called when the activity is first created.
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -166,6 +178,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private AlertDialog createIPInputDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		mIPEditText = new EditText(getApplicationContext());
+		mIPEditText.setInputType(EditorInfo.TYPE_CLASS_PHONE);
 		mWrongIPToast = Toast.makeText(getApplicationContext(),
 				R.string.input_ip_wrong, Toast.LENGTH_SHORT);
 		builder.setMessage(R.string.input_ip)
@@ -192,7 +205,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return builder.create();
 	}
 
-	protected boolean correctIPFormat() {
+	private boolean correctIPFormat() {
 		return IP_ADDRESS.matcher(mIPEditText.getText()).matches();
 	}
 
@@ -254,7 +267,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 			@Override
 			public void onClick(View v) {
-				;
 				File file = new File(Environment.getExternalStorageDirectory(),
 						SAVE_FILENAME);
 				FileOutputStream fos;
@@ -279,7 +291,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		switchSaveButton();
 	}
 
-	protected void makeSaveToast(File file) {
+	private void makeSaveToast(File file) {
 		String msg = getResources().getString(R.string.file_save_successfull);
 		Toast toast = Toast.makeText(this, " " + msg + file.getAbsolutePath(),
 				Toast.LENGTH_LONG);
@@ -290,6 +302,22 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mBtnExport.setEnabled(!mService.getFlowTable().isEmpty());
 	}
 
+	private void switchStartStopButton() {
+		boolean isCaptureStarted = mService.isCaptureRunning();
+		if (isCaptureStarted) {
+			mBtnCaptureStartStop.setText(R.string.capture_stop);
+			mBtnCaptureStartStop.setOnClickListener(mOnClickStop);
+			mBtnImport.setEnabled(false);
+		} else {
+			mBtnCaptureStartStop.setText(R.string.capture_start);
+			mBtnCaptureStartStop.setOnClickListener(mOnClickStart);
+			mBtnImport.setEnabled(true);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICK_FILE) {
@@ -328,24 +356,17 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return ext;
 	}
 
-	private void switchStartStopButton() {
-		boolean isCaptureStarted = mService.isCaptureRunning();
-		if (isCaptureStarted) {
-			mBtnCaptureStartStop.setText(R.string.capture_stop);
-			mBtnCaptureStartStop.setOnClickListener(mOnClickStop);
-			mBtnImport.setEnabled(false);
-		} else {
-			mBtnCaptureStartStop.setText(R.string.capture_start);
-			mBtnCaptureStartStop.setOnClickListener(mOnClickStart);
-			mBtnImport.setEnabled(true);
-		}
+	private void generateGraphlet() {
+		Log.d(LOG_TAG, "generating graphlet");
+		mGraphlet.update(mService.getGraphlet());
+		mTxtStart.setText(mService.getStartTime());
+		mTxtEnd.setText(mService.getEndTime());
+		switchSaveButton();
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -356,6 +377,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Engine onLoadEngine() {
 
 		Bundle bundle = getIntent().getExtras();
@@ -405,6 +430,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return myEngine;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onLoadResources() {
 		mTex = new BitmapTextureAtlas(1024, 1024,
@@ -413,6 +441,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				Typeface.NORMAL), 15, true, Color.BLACK);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -440,6 +471,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return mGraphlet;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onLoadComplete() {
 		mServiceIntent = new Intent(this, HAPdroidService.class);
@@ -447,24 +481,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				Context.BIND_AUTO_CREATE);
 	}
 
-	@Override
-	protected int getLayoutID() {
-		return R.layout.hud;
-	}
-
-	@Override
-	protected int getRenderSurfaceViewID() {
-		return R.id.view_graphlet;
-	}
-
-	private void generateGraphlet() {
-		Log.d(LOG_TAG, "generating graphlet");
-		mGraphlet.update(mService.getGraphlet());
-		mTxtStart.setText(mService.getStartTime());
-		mTxtEnd.setText(mService.getEndTime());
-		switchSaveButton();
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		if (this.mPinchZoomDetector != null) {
@@ -485,6 +504,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onScroll(ScrollDetector pScollDetector, TouchEvent pTouchEvent,
 			float pDistanceX, float pDistanceY) {
@@ -493,6 +515,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				/ zoomFactor);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPinchZoomStarted(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pSceneTouchEvent) {
@@ -500,6 +525,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				.getZoomFactor();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPinchZoom(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pTouchEvent, float pZoomFactor) {
@@ -510,6 +538,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPinchZoomFinished(PinchZoomDetector pPinchZoomDetector,
 			TouchEvent pTouchEvent, float pZoomFactor) {
@@ -518,6 +549,22 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 					.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor
 							* pZoomFactor);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected int getLayoutID() {
+		return R.layout.hud;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected int getRenderSurfaceViewID() {
+		return R.id.view_graphlet;
 	}
 
 }
