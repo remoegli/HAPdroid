@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
+    
     <org.anddev.andengine.opengl.view.RenderSurfaceView
         android:id="@+id/view_graphlet"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_centerInParent="true"
         android:gravity="center" />
-
+    
     <LinearLayout
         android:id="@+id/timeline"
         android:layout_width="fill_parent"
@@ -31,6 +31,14 @@
         android:text="@string/file_open" />
 
     <Button
+        android:id="@+id/btn_file_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/btn_file_open"
+        android:text="@string/file_save" />
+
+    <Button
         android:id="@+id/btn_capture_start_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,9 +50,9 @@
         android:id="@+id/text_starttime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/btn_file_open"
-        android:layout_alignBottom="@id/btn_file_open"
-        android:layout_toRightOf="@id/btn_file_open"
+        android:layout_alignBaseline="@+id/btn_file_save"
+        android:layout_alignBottom="@+id/btn_file_save"
+        android:layout_toRightOf="@+id/btn_file_save"
         android:text="@string/starttime"
         android:textColor="#000" />
 

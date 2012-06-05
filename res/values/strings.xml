@@ -21,9 +21,11 @@
     <string name="show_graphlet">Graphlet</string>
     <string name="settings">Settings</string>
     <string name="file_open">Open…</string>
-    <string name="import_file_title">Import File</string>
+    <string name="file_save">Save</string>
+    <string name="import_file_title">Choose File from SD</string>
     <string name="load_graphlet_message">Please wait while the graphlet is generating</string>
     <string name="load_graphlet_message_title"></string>
     <string name="starttime">Starttime</string>
     <string name="endtime">Endtime</string>
+    <string name="wrong_file_message">File extension not supported for import</string>
 </resources>

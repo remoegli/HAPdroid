@@ -1,6 +1,7 @@
 package ch.hsr.hapdroid;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import android.app.Notification;
@@ -21,6 +22,7 @@ import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
 import ch.hsr.hapdroid.transaction.Transaction;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.stericson.RootTools.RootTools;
 import com.stericson.RootTools.RootTools.Result;
 
@@ -78,6 +80,8 @@ public class HAPdroidService extends Service {
 	private static final String LOG_TAG = "HAPdroidService";
 	private static final String SERVER_TRANSACTIONS = "LocalServTrans";
 	private static final int NOTIFICATION_ID = 42;
+	private static final Object FILE_EXTENSION_CFLOW = ".gz";
+	private static final Object FILE_EXTENSION_PCAP = ".pcap";
 
 	private void handlePacket(Packet p) {
 		if (p == null)
@@ -311,8 +315,30 @@ public class HAPdroidService extends Service {
 		return mCaptureRunning;
 	}
 
-	public void importFile(CharSequence filePath) {
-		startExecutableCapture("-p " + filePath);
+	public void importFile(String filePath) throws UnsupportedEncodingException{
+		if (isPcap(filePath)){
+			startExecutableCapture("-p " + filePath);
+		} else if (isCflow(filePath)){
+			
+		} else
+			throw new UnsupportedEncodingException();
+			
+	}
+
+	private boolean isCflow(String filePath) {
+		String ext = getFileExtension(filePath);
+		return ext.equals(FILE_EXTENSION_CFLOW);
+	}
+
+	private boolean isPcap(String filePath) {
+		String ext = getFileExtension(filePath);
+		return ext.equals(FILE_EXTENSION_PCAP);
+	}
+	
+	private String getFileExtension(String filePath) {
+		String ext = FileUtils.getExtension(filePath);
+		Log.d(LOG_TAG, "File extension: " + ext);
+		return ext;
 	}
 
 	public String getStartTime() {

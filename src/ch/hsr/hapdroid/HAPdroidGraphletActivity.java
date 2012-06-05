@@ -1,5 +1,7 @@
 package ch.hsr.hapdroid;
 
+import java.io.UnsupportedEncodingException;
+
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.ZoomCamera;
 import org.anddev.andengine.engine.options.EngineOptions;
@@ -24,6 +26,7 @@ import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.ui.activity.LayoutGameActivity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -107,9 +110,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private OnClickListener mOnClickStop;
 	private Button mBtnImport;
 	private ProgressDialog mProgressDialog;
+	private AlertDialog mWrongFileDialog;
 	private TextView mTxtStart;
 	private TextView mTxtEnd;
 	private Toast mToast;
+	private Button mBtnExport;
 
 	/**
 	 * Called when the activity is first created.
@@ -120,17 +125,32 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		mBtnCaptureStartStop = (Button) findViewById(id.btn_capture_start_stop);
 		mBtnImport = (Button) findViewById(id.btn_file_open);
+		mBtnExport = (Button) findViewById(R.id.btn_file_save);
 		mTxtStart = (TextView) findViewById(R.id.text_starttime);
 		mTxtEnd = (TextView) findViewById(R.id.text_endtime);
 		
 		mToast = Toast.makeText(this, 
 				R.string.capture_nothing, Toast.LENGTH_SHORT);
 		
-		mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(R.string.load_graphlet_message_title);
-        mProgressDialog.setMessage(getResources().getText(R.string.load_graphlet_message));
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setCancelable(true);
+		mProgressDialog = createProgressDialog();
+		mWrongFileDialog = createWrongFileDialog();
+	}
+
+	private AlertDialog createWrongFileDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.wrong_file_message)
+		       .setCancelable(true);
+		return builder.create();
+	}
+
+	private ProgressDialog createProgressDialog() {
+		ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setTitle(R.string.load_graphlet_message_title);
+        dialog.setMessage(getResources().getText(R.string.load_graphlet_message));
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(true);
+        
+        return dialog;
 	}
 
 	private void setOnClickListeners() {
@@ -139,7 +159,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			public void onClick(View v) {
 				startService(mServiceIntent);
 				mService.startNetworkCapture();
-				switchStartStopButton(true);
+				switchStartStopButton();
 			}
 		};
 
@@ -155,7 +175,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 					mService.stopForeground(true);
 					mToast.show();
 				}
-				switchStartStopButton(false);
+				switchStartStopButton();
 			}
 		};
 
@@ -169,20 +189,35 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				startActivityForResult(intent, PICK_FILE);
 			}
 		});
-		switchStartStopButton(mService.isCaptureRunning());
+		switchStartStopButton();
+		switchSaveButton();
 	}
 	
+	private void switchSaveButton() {
+		mBtnExport.setEnabled(!mService.getFlowTable().isEmpty());
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICK_FILE){
 			if (resultCode == RESULT_OK){
-				mService.importFile(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
 				mProgressDialog.show();
+				handleFileImport(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
 			}
 		}
 	}
 	
-	private void switchStartStopButton(boolean isCaptureStarted) {
+	private void handleFileImport(CharSequence file) {
+		try {
+			mService.importFile(file.toString());
+		} catch (UnsupportedEncodingException e) {
+			mProgressDialog.hide();
+			mWrongFileDialog.show();
+		}
+	}
+
+	private void switchStartStopButton() {
+		boolean isCaptureStarted = mService.isCaptureRunning();
 		if (isCaptureStarted) {
 			mBtnCaptureStartStop.setText(R.string.capture_stop);
 			mBtnCaptureStartStop.setOnClickListener(mOnClickStop);
@@ -300,6 +335,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mGraphlet.update(mService.getGraphlet());
 		mTxtStart.setText(mService.getStartTime());
 		mTxtEnd.setText(mService.getEndTime());
+		switchSaveButton();
 	}
 
 	@Override
