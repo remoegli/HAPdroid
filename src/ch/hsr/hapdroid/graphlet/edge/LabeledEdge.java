@@ -31,7 +31,7 @@ public class LabeledEdge extends BaseEdge {
 	protected Text getText(){
 		String packetsperflow;
 		if(transaction.getFlows().size() > 0){
-			packetsperflow = Float.toString(transaction.getPackets()/transaction.getFlows().size());
+			packetsperflow = Float.toString(((float)transaction.getPackets())/transaction.getFlows().size());
 		} else {
 			packetsperflow = "-";
 		}

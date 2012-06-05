@@ -1,32 +1,43 @@
 package ch.hsr.hapdroid.transaction;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 public class NodeList<T> implements Iterable<Node<T>>{
-	private Map<T, Node<T>> mNodeList;
+	private List<Node<T>> mNodeList;
 	
 	public NodeList() {
-		mNodeList = new HashMap<T, Node<T>>();
+		mNodeList = new ArrayList<Node<T>>();
 	}
 
 	public Node<T> add(Node<T> node) {
-		Node<T> n = mNodeList.get(node.getValue());
-		if(n == null){
-			mNodeList.put(node.getValue(), node);
+		Node<T> n = get(node);
+		if (n == null){
+			mNodeList.add(node);
 			n = node;
 		}
-		else{
-			n.addNode(node);
-		}
-		
 		return n;
+	}
+	
+	private Node<T> get(Node<T> node) {
+		if (!isSummarized(node))
+			return null;
+		
+		for (Node<T> n : mNodeList){
+			if (n.equals(node))
+				return n;
+		}
+		return null;
+	}
+
+	protected boolean isSummarized(Node<T> node) {
+		return node.isSummarized();
 	}
 
 	@Override
 	public Iterator<Node<T>> iterator() {
-		return mNodeList.values().iterator();
+		return mNodeList.iterator();
 	}
 
 	public void clear() {

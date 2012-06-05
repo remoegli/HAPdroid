@@ -20,7 +20,7 @@ public class Transaction {
 	private int mDirection;
 	
 	private SourceIPNode mSrcIp;
-	private Node<Proto> mProtocol;
+	private ProtoNode mProtocol;
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
 	private IPNode mDstIp;
@@ -60,9 +60,17 @@ public class Transaction {
 		
 		try {
 			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
-			t.setDstIp(n);
 			setSummarized(tokens[0], n);
+			t.setDstIp(n);
 		} catch (UnknownHostException e) {
+			try {
+				IPNode n = new IPNode(Inet4Address.getByName("255.255.255." +tokens[0]), t);
+				setSummarized(tokens[0], n);
+				t.setDstIp(n);
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 	}
@@ -86,7 +94,7 @@ public class Transaction {
 	private static void setProtoData(String proto, Transaction t) {
 		String[] tokens = proto.split(SPLIT_STRING);
 		Proto p = Proto.get(Integer.valueOf(tokens[1]));
-		t.setProto(new Node<Proto>(p, t));
+		t.setProto(new ProtoNode(p, t));
 	}
 	
 	private static void setSrcIpData(String srcip, Transaction t) {
@@ -121,15 +129,26 @@ public class Transaction {
 		return result.toString();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Transaction){
+			Transaction other = (Transaction) o;
+			return 	other.getDirection() == getDirection() &&
+					other.getPackets() == getPackets() &&
+					other.getBytes() == getBytes();
+		} else
+			return super.equals(o);
+	}
+	
 	public SourceIPNode getSrcIp() {
 		return mSrcIp;
 	}
 
-	public Node<Proto> getProto() {
+	public ProtoNode getProto() {
 		return mProtocol;
 	}
 
-	public void setProto(Node<Proto> mProtocol) {
+	public void setProto(ProtoNode mProtocol) {
 		this.mProtocol = mProtocol;
 	}
 

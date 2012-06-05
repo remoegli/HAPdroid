@@ -42,16 +42,6 @@ public class Node<V>{
 		mSummarized = b;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof Node<?> && isSummarized()){
-			Node<?> n = (Node<?>) o;
-			return n.getValue().equals(getValue());
-		}
-			
-		return super.equals(o);
-	}
-
 	public boolean isActive() {
 		return active;
 	}

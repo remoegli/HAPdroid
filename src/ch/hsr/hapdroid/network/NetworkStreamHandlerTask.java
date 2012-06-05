@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import ch.hsr.hapdroid.transaction.Transaction;
 
 public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private LocalServerSocket mServerSocket;
@@ -21,6 +22,8 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private Handler mHandler;
 	private int mProgressMessage;
 	private int mShutdownMessage;
+	private String[] mTransactionString;
+	private int mTransactionStringPos;
 
 	private static final String LOG_TAG = "NetworkStreamHandlerTask";
 
@@ -29,7 +32,9 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 		mServerName = servername;
 		mHandler = handler;
 		mProgressMessage = progressMsg;
-		mShutdownMessage = shutdownMsg;
+		mShutdownMessage = shutdownMsg;	
+		resetTransactionString();
+
 	}
 
 	@Override
@@ -56,7 +61,8 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 			mInputStream = sk.getInputStream();
 			mReader = new BufferedReader(new InputStreamReader(mInputStream));
 			while ((line = mReader.readLine()) != null) {
-				publishProgress(line);
+//				publishProgress(line);
+				handleTransaction(line);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -68,14 +74,39 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 
 	@Override
 	protected void onProgressUpdate(String... values) {
+		
 		for (String s : values) {
+		}
+	}
+	
+	private void handleTransaction(String s) {
+		if (s.length() > 0 && s.charAt(0) == 't') {
+			parseTransaction();
+		}
+		if (s.length() > 0 && s.charAt(0) == '-') {
+			parseTransaction();
+			return;
+		}
+
+		mTransactionString[mTransactionStringPos++] = s;
+	}
+
+	private void parseTransaction() {
+		Transaction t = Transaction.parse(mTransactionString);
+		if (t != null){
 			mMessage = new Message();
 			mMessage.what = mProgressMessage;
-			mMessage.obj = s;
+			mMessage.obj = t;
 			if (mHandler != null) {
 				mHandler.sendMessage(mMessage);
 			}
 		}
+		resetTransactionString();
+	}
+
+	private void resetTransactionString() {
+		mTransactionString = new String[7];
+		mTransactionStringPos = 0;
 	}
 
 	@Override

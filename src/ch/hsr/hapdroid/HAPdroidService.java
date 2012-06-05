@@ -39,14 +39,14 @@ public class HAPdroidService extends Service {
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			String s;
+			Transaction t;
 			switch (msg.what) {
 			case RECIEVE_PACKET_FINISH:
 				getTransactions();
 				break;
 			case RECIEVE_TRANSACTION:
-				s = (String) msg.obj;
-				handleTransaction(s);
+				t = (Transaction) msg.obj;
+				handleTransaction(t);
 				break;
 			case RECIEVE_TRANSACTION_FINISH:
 				Log.d(LOG_TAG, "finish getting transactions");
@@ -65,8 +65,6 @@ public class HAPdroidService extends Service {
 	private NetworkStreamHandlerTask mTransactionCapture;
 	private HAPGraphlet mHAPGraphlet;
 	private Notification mNotification;
-	private String[] mTransactionString;
-	private int mTransactionStringPos;
 	private String mFileDir;
 	private Packet mCurrentPacket;
 	private boolean mHasRoot;
@@ -93,32 +91,11 @@ public class HAPdroidService extends Service {
 			mCallbackHandler.sendMessage(msg);
 	}
 
-	private void handleTransaction(String s) {
-		if (s.length() > 0 && s.charAt(0) == 't') {
-			parseTransaction();
-		}
-		if (s.length() > 0 && s.charAt(0) == '-') {
-			parseTransaction();
-			return;
-		}
-
-		mTransactionString[mTransactionStringPos++] = s;
-	}
-
-	private void parseTransaction() {
-		Transaction t = Transaction.parse(mTransactionString);
-		if (t != null){
-			List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
-			t.setFlows(flowlist);
-			Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
-		}
-		mHAPGraphlet.add(t);
-		resetTransactionString();
-	}
-
-	private void resetTransactionString() {
-		mTransactionString = new String[7];
-		mTransactionStringPos = 0;
+	protected void handleTransaction(Transaction t) {
+		List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
+		t.setFlows(flowlist);
+		Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
+		mHAPGraphlet.add(t);		
 	}
 
 	@Override
@@ -134,7 +111,6 @@ public class HAPdroidService extends Service {
 		mWlanResult = new NetworkResult(CaptureSource.WLAN);
 		mMobileResult = new NetworkResult(CaptureSource.MOBILE);
 		mExecutableResult = new NetworkResult(CaptureSource.PCAP);
-		resetTransactionString();
 
 		installBinary();
 		initNotification();
@@ -209,6 +185,7 @@ public class HAPdroidService extends Service {
 			mCallbackHandler
 				.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
 		Log.d(LOG_TAG, mHAPGraphlet.toString());
+		Log.d(LOG_TAG, mHAPGraphlet.showTransactions());
 	}
 
 	private void startTransactionServer() {
@@ -227,7 +204,7 @@ public class HAPdroidService extends Service {
 			throw new UnsupportedOperationException();
 		}
 		startWlanCapture();
-		startMobileCapture();
+//		startMobileCapture();
 
 		startForeground(NOTIFICATION_ID, mNotification);
 		mCaptureRunning = true;
@@ -294,7 +271,15 @@ public class HAPdroidService extends Service {
 
 	public void stopNetworkCapture() {
 		stopWlanCapture();
-		stopMobileCapture();
+//		stopMobileCapture();
+		synchronized (this){
+			try {
+				wait(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		getTransactions();
 
 		stopForeground(true);
