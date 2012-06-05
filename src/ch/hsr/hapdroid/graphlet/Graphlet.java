@@ -42,7 +42,7 @@ public class Graphlet extends Scene{
 		AREA_WIDTH = cameraWidth/5;
 		aFont = mFont;
 		createAreas();
-		addTestContent();
+//		addTestContent();
 	}
 	
 	public static Font getFont(){

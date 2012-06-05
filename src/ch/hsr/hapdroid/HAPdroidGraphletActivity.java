@@ -109,6 +109,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private ProgressDialog mProgressDialog;
 	private TextView mTxtStart;
 	private TextView mTxtEnd;
+	private Toast mToast;
 
 	/**
 	 * Called when the activity is first created.
@@ -122,9 +123,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mTxtStart = (TextView) findViewById(R.id.text_starttime);
 		mTxtEnd = (TextView) findViewById(R.id.text_endtime);
 		
+		mToast = Toast.makeText(this, 
+				R.string.capture_nothing, Toast.LENGTH_SHORT);
+		
 		mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(R.string.import_file_message_title);
-        mProgressDialog.setMessage(getResources().getText(R.string.import_file_message));
+        mProgressDialog.setTitle(R.string.load_graphlet_message_title);
+        mProgressDialog.setMessage(getResources().getText(R.string.load_graphlet_message));
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setCancelable(true);
 	}
@@ -143,9 +147,14 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 			@Override
 			public void onClick(View v) {
-				mProgressDialog.show();
-				mService.stopNetworkCapture();
-				stopService(mServiceIntent);
+				if (mService.hasPacketsCaptured()){
+					mProgressDialog.show();
+					stopService(mServiceIntent);
+					mService.stopNetworkCapture();
+				} else {
+					mService.stopForeground(true);
+					mToast.show();
+				}
 				switchStartStopButton(false);
 			}
 		};
@@ -177,9 +186,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		if (isCaptureStarted) {
 			mBtnCaptureStartStop.setText(R.string.capture_stop);
 			mBtnCaptureStartStop.setOnClickListener(mOnClickStop);
+			mBtnImport.setEnabled(false);
 		} else {
 			mBtnCaptureStartStop.setText(R.string.capture_start);
 			mBtnCaptureStartStop.setOnClickListener(mOnClickStart);
+			mBtnImport.setEnabled(true);
 		}
 	}
 

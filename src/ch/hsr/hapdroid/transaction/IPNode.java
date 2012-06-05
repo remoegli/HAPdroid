@@ -8,13 +8,21 @@ public class IPNode extends Node<InetAddress>{
 	}
 	
 	@Override
+	public boolean equals(Object o) {
+		if (o instanceof IPNode){
+			IPNode n = (IPNode) o;
+			return n.getValue().equals(getValue());
+		}
+		
+		return super.equals(o);
+	}
+	
+	@Override
 	public String toString() {
 		InetAddress ip = getValue();
 		if (isSummarized()){
 			byte[] address = ip.getAddress();
 			return Byte.toString(address[3]);
-		} else if (ip.isAnyLocalAddress()){
-			return "localhost";
 		}
 		return super.toString().replace('/', ' ');
 	}

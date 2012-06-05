@@ -49,6 +49,7 @@ public class Flow implements Comparable<Flow>{
 	private Timeval starttime;
 	private Timeval duration;
 	private byte direction;
+	private CaptureSource source;
 
 	public Flow(Packet p) {
 		src_addr = p.src_addr;
@@ -57,6 +58,7 @@ public class Flow implements Comparable<Flow>{
 		dst_port = p.dst_port;
 		proto = p.proto;
 		as_local = p.pid;
+		source = p.source;
 		
 		tos = p.tos;
 		starttime = p.timestamp;
@@ -261,5 +263,9 @@ public class Flow implements Comparable<Flow>{
 	
 	public Timeval getDuration() {
 		return duration;
+	}
+
+	public CaptureSource getCaptureSource() {
+		return source;
 	}
 }

@@ -1,15 +1,14 @@
 package ch.hsr.hapdroid.transaction;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Log;
+import ch.hsr.hapdroid.network.CaptureSource;
 import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.Proto;
-
-import android.util.Log;
 
 
 public class Transaction {
@@ -20,8 +19,8 @@ public class Transaction {
 	private long mPackets;
 	private int mDirection;
 	
-	private IPNode mSrcIp;
-	private Node<Proto> mProtocol;
+	private SourceIPNode mSrcIp;
+	private ProtoNode mProtocol;
 	private Node<Integer> mSourcePort;
 	private Node<Integer> mDstPort;
 	private IPNode mDstIp;
@@ -61,9 +60,17 @@ public class Transaction {
 		
 		try {
 			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
-			t.setDstIp(n);
 			setSummarized(tokens[0], n);
+			t.setDstIp(n);
 		} catch (UnknownHostException e) {
+			try {
+				IPNode n = new IPNode(Inet4Address.getByName("255.255.255." +tokens[0]), t);
+				setSummarized(tokens[0], n);
+				t.setDstIp(n);
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 	}
@@ -87,14 +94,14 @@ public class Transaction {
 	private static void setProtoData(String proto, Transaction t) {
 		String[] tokens = proto.split(SPLIT_STRING);
 		Proto p = Proto.get(Integer.valueOf(tokens[1]));
-		t.setProto(new Node<Proto>(p, t));
+		t.setProto(new ProtoNode(p, t));
 	}
 	
 	private static void setSrcIpData(String srcip, Transaction t) {
 		String[] tokens = srcip.split(SPLIT_STRING);
 		
 		try {
-			IPNode n = new IPNode(Inet4Address.getByName(tokens[1]), t);
+			SourceIPNode n = new SourceIPNode(Inet4Address.getByName(tokens[1]), t);
 			t.setSrcIp(n);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -106,7 +113,7 @@ public class Transaction {
 			n.setSummarized(true);
 	}
 
-	private void setSrcIp(IPNode node) {
+	private void setSrcIp(SourceIPNode node) {
 		this.mSrcIp = node;
 	}
 
@@ -122,15 +129,26 @@ public class Transaction {
 		return result.toString();
 	}
 
-	public Node<InetAddress> getSrcIp() {
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Transaction){
+			Transaction other = (Transaction) o;
+			return 	other.getDirection() == getDirection() &&
+					other.getPackets() == getPackets() &&
+					other.getBytes() == getBytes();
+		} else
+			return super.equals(o);
+	}
+	
+	public SourceIPNode getSrcIp() {
 		return mSrcIp;
 	}
 
-	public Node<Proto> getProto() {
+	public ProtoNode getProto() {
 		return mProtocol;
 	}
 
-	public void setProto(Node<Proto> mProtocol) {
+	public void setProto(ProtoNode mProtocol) {
 		this.mProtocol = mProtocol;
 	}
 
@@ -150,7 +168,7 @@ public class Transaction {
 		this.mDstPort = mDstPort;
 	}
 
-	public Node<InetAddress> getDstIp() {
+	public IPNode getDstIp() {
 		return mDstIp;
 	}
 
@@ -199,5 +217,12 @@ public class Transaction {
 	
 	public List<Flow> getFlows() {
 		return mFlows;
+	}
+
+	public CaptureSource getCaptureSource() {
+		if (!mFlows.isEmpty())
+			return mFlows.get(0).getCaptureSource();
+		
+		return CaptureSource.UNKNOWN;
 	}
 }

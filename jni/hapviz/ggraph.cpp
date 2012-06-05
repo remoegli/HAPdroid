@@ -1078,7 +1078,7 @@ void CGraphlet::write_transactions(std::ostream & outs) {
 
 		for (iterProtEport = hm_prot_localPort_11->begin();
 				iterProtEport != hm_prot_localPort_11->end(); iterProtEport++) {
-			if (iterIpProt->second.valueA.proto
+			if (ip_proto.valueA.proto
 					== iterProtEport->second.valueA.proto) {
 				for (iterEport2 = hm_localPort_remotePort_11->begin();
 						iterEport2 != hm_localPort_remotePort_11->end();
@@ -1098,7 +1098,7 @@ void CGraphlet::write_transactions(std::ostream & outs) {
 
 		for (iterProtEport = hm_prot_localPort_1n->begin();
 				iterProtEport != hm_prot_localPort_1n->end(); iterProtEport++) {
-			if (iterIpProt->second.valueA.proto
+			if (ip_proto.valueA.proto
 					== iterProtEport->second.valueA.proto) {
 				for (iterEport2 = hm_localPort_remotePort_n1->begin();
 						iterEport2 != hm_localPort_remotePort_n1->end();
