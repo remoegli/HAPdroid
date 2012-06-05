@@ -63,14 +63,4 @@ public class Packet {
 
 		return p;
 	}
-
-	public void reverse() {
-		InetAddress tmpAddress = dst_addr;
-		int tmpPort = dst_port;
-		
-		dst_addr = src_addr;
-		dst_port = src_port;
-		src_addr = tmpAddress;
-		src_port = tmpPort;
-	}
 }

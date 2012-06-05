@@ -42,12 +42,30 @@ public class Timeval implements Comparable<Timeval> {
 		long ms = microseconds/1000;
 		ms += seconds*1000;
 		byte[] b = ByteBuffer.allocate(8).putLong(ms).array();
-		Log.d(LOG_TAG, Long.toHexString(ms));
 		
 		return reverse(b);
 	}
 
-	private byte[] reverse(byte[] b) {
+	public static Timeval getFromByteArray(byte[] flowdata, int start_index, int length) {
+		byte[] array = new byte[length];
+		System.arraycopy(flowdata, start_index, array, 0, length);
+		
+		long ms = getByteArrayLong(array);
+		Log.d(LOG_TAG, "parsed timeval ms: "+ Long.toString(ms));
+		long seconds = ms/1000;
+		long microseconds = (ms*1000) - (seconds*1000000);
+		return new Timeval(seconds, microseconds);
+	}
+
+	private static long getByteArrayLong(byte[] array) {
+		long value = 0;
+		for (int i = 0; i < array.length; i++){
+		   value += ((long) array[i] & 0xff) << (8 * i);
+		}
+		return value;
+	}
+
+	private static byte[] reverse(byte[] b) {
 		int i = 0;
 		int j = b.length - 1;
 		byte tmp;

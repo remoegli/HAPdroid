@@ -22,6 +22,11 @@
     <string name="settings">Settings</string>
     <string name="file_open">Open…</string>
     <string name="file_save">Save</string>
+    <string name="file_save_successfull">File successfully saved to:</string>
+    <string name="input_ip">Please specify the source IP</string>
+    <string name="input_ip_ok">OK</string>
+    <string name="input_ip_cancel">Cancel</string>
+    <string name="input_ip_wrong">invalid IP address, aborting.</string>
     <string name="import_file_title">Choose File from SD</string>
     <string name="load_graphlet_message">Please wait while the graphlet is generating</string>
     <string name="load_graphlet_message_title"></string>
