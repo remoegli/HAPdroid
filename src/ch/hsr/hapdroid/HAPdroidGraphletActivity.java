@@ -364,9 +364,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		switchSaveButton();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -377,9 +374,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Engine onLoadEngine() {
 
@@ -430,9 +424,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return myEngine;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLoadResources() {
 		mTex = new BitmapTextureAtlas(1024, 1024,
@@ -441,9 +432,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				Typeface.NORMAL), 15, true, Color.BLACK);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());

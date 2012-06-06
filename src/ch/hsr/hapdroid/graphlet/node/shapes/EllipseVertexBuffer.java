@@ -1,4 +1,4 @@
-package ch.hsr.hapdroid.graphlet.shapes;
+package ch.hsr.hapdroid.graphlet.node.shapes;
 
 import javax.microedition.khronos.opengles.GL10;
  

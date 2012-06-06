@@ -1,5 +1,6 @@
-/**
- * \package ch.hsr.hapdroid.network
- * any javadoc comments (including tags)
+/**\package ch.hsr.hapdroid.network
+ * \brief short description
+ * 
+ * detailed description
  */
 package ch.hsr.hapdroid.network;

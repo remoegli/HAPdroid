@@ -9,6 +9,7 @@ import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.SplashScene;
+import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasFactory;
@@ -21,9 +22,9 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import android.content.Intent;
 import android.graphics.Rect;
 
-/** Activity used to get the size of the visible display frame.
+/** Activity is used to get the size of the visible application frame.
  * This class is used as a workaround to fix issues with AndEngine if it's not used full screen.
- * This also fixes possible issues with soft keys on Android version 4.0 and tablets.
+ * It also fixes possible issues with soft keys on Android version 4.0 and tablets.
  * @author Remo Egli
  *
  */
@@ -38,10 +39,12 @@ public class SplashActivity extends BaseGameActivity {
 	private Intent intent;
    
 	/**
-	 * {@inheritDoc}
+	 * The width and height of the Camera and the RatioResolutionPolicy are taken from the image
+	 * to prevent it's distortion.
 	 */
 	@Override
 	public Engine onLoadEngine() {
+		// The base path is "assets"
 		this.mSplashTextureAtlasSource = new AssetBitmapTextureAtlasSource(this, "gfx/splash.png");
 	
 		final int width = this.mSplashTextureAtlasSource.getWidth();
@@ -51,9 +54,6 @@ public class SplashActivity extends BaseGameActivity {
 		return new Engine(new EngineOptions(false, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(width, height), this.mCamera));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLoadResources() {
 		final BitmapTextureAtlas loadingScreenBitmapTextureAtlas = BitmapTextureAtlasFactory.createForTextureAtlasSourceSize(BitmapTextureFormat.RGBA_8888, this.mSplashTextureAtlasSource, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -62,15 +62,18 @@ public class SplashActivity extends BaseGameActivity {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * The size of the visible application frame must be calculated in this method
+	 * because it's passed on with the intent extras to the HAPdroidGraphletActivity
+	 * which is held in the scenes UpdateHandler. 
 	 */
 	@Override
 	public Scene onLoadScene() {
 		final SplashScene splashScene = new SplashScene(this.mCamera, this.mLoadingScreenTextureRegion, SPLASH_DURATION, SPLASH_SCALE_FROM, SPLASH_SCALE_TO);
-	
+		splashScene.setBackground(new ColorBackground(0, 0, 0));
+		
 		Rect rect = new Rect();
 		getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-				
+			
 		intent = new Intent(SplashActivity.this, HAPdroidGraphletActivity.class);
 	    intent.putExtra("screenWidth", rect.width());
 	    intent.putExtra("screenHeight", rect.height());
@@ -86,9 +89,6 @@ public class SplashActivity extends BaseGameActivity {
 		return splashScene;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLoadComplete() {
 	}

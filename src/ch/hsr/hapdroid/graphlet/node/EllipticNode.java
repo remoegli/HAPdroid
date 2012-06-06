@@ -1,6 +1,6 @@
 package ch.hsr.hapdroid.graphlet.node;
 
-import ch.hsr.hapdroid.graphlet.shapes.Ellipse;
+import ch.hsr.hapdroid.graphlet.node.shapes.Ellipse;
 
 
 public class EllipticNode extends Ellipse{

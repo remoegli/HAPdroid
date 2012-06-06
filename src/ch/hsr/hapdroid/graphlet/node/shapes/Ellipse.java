@@ -1,4 +1,4 @@
-package ch.hsr.hapdroid.graphlet.shapes;
+package ch.hsr.hapdroid.graphlet.node.shapes;
 
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
@@ -10,6 +10,7 @@ import org.anddev.andengine.entity.shape.IShape;
 import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.opengl.buffer.BufferObjectManager;
 import org.anddev.andengine.opengl.util.GLHelper;
+
 
 public class Ellipse extends Shape {
 	private static final float LINEWIDTH_DEFAULT = 1.0f;

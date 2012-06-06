@@ -1,5 +1,4 @@
-/**
- * \package ch.hsr.hapdroid.graphlet.edge
- * any javadoc comments (including tags)
+/**\package ch.hsr.hapdroid.graphlet.edge
+ * \brief Contains the GUI code for the edges.
  */
 package ch.hsr.hapdroid.graphlet.edge;
