@@ -82,8 +82,9 @@ public class Graphlet extends Scene{
 	
 	public void update(HAPGraphlet graphlet) {
 		Log.v(LOG_TAG, "updating Graphlet");
-		hapGraphlet = graphlet;
 		clear();
+		hapGraphlet = graphlet;
+		Log.v(LOG_TAG, "Graphlet HashCode: " + graphlet.hashCode());
 		
 		Log.v(LOG_TAG, "drawing Nodes");
 		srcIPArea.addAllNodes(graphlet.getSrcIpList());

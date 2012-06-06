@@ -3,6 +3,7 @@ package ch.hsr.hapdroid.network;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -26,6 +27,7 @@ public class FlowTable {
 	}
 
 	public void getLocalIpAddresses() {
+		mLocalIpAddresses.clear();
 	    try {
 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 	            NetworkInterface intf = en.nextElement();
@@ -41,13 +43,39 @@ public class FlowTable {
 	    }
 	}
 	
+	/**
+	 * 
+	 * @param cflow uncompressed
+	 * @return 
+	 */
+	public boolean importByteArray(byte[] cflow){
+		if (cflow.length % Flow.SIZE_BYTE != 0)
+			return false;
+		
+		byte[] flowdata = new byte[Flow.SIZE_BYTE];
+		for(int i = 0; i < cflow.length; i += Flow.SIZE_BYTE){
+			System.arraycopy(cflow, i, flowdata, 0, Flow.SIZE_BYTE);
+			addFlow(new Flow(flowdata));
+		}
+		
+		return true;
+	}
+
+	private void addFlow(Flow flow) {
+		mFlowList.add(flow);
+		setStartTime(flow);
+		setEndTime(flow);
+	}
+
 	public boolean add(Packet packet) {
 		boolean toreturn = false;
 		Flow f = getFlowFor(packet);
 
 		if (f == null){
 			f = createFlowFrom(packet);
-			toreturn = true;
+			if (f == null){
+				return false;
+			}
 		} else {
 			addPacketToFlow(packet, f);
 			toreturn = false;
@@ -82,10 +110,16 @@ public class FlowTable {
 	}
 
 	private Flow createFlowFrom(Packet packet) {
-		if (isLocalIp(packet.dst_addr)){
-			packet.reverse();
-		}
 		Flow f = new Flow(packet);
+		if (isLocalIp(packet.src_addr)){
+			f.setDirection(Flow.TYPE_OUTGOING);
+		} else if (isLocalIp(packet.dst_addr)){
+			f.setDirection(Flow.TYPE_INCOMING);
+			f.reverse();
+		} else{
+			//ignore packet
+			return null;
+		}
 		mFlowList.add(f);
 		return f;
 	}
@@ -121,6 +155,7 @@ public class FlowTable {
 
 	public void clear() {
 		mFlowList.clear();
+		mLocalIpAddresses.clear();
 	}
 
 	public long getPacketCount() {
@@ -168,5 +203,14 @@ public class FlowTable {
 
 	public boolean isEmpty() {
 		return mFlowList.isEmpty();
+	}
+
+	public void setSourceIp(String ip) {
+		try {
+			mLocalIpAddresses.add(InetAddress.getByName(ip));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

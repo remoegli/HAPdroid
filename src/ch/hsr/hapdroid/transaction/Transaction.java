@@ -206,7 +206,7 @@ public class Transaction {
 		
 		for (Flow f : flowlist){
 			packets += f.getPacketCount();
-			bytes += f.getPayloadCount();
+			bytes += f.getByteCount();
 		}
 		
 		mPackets = packets;

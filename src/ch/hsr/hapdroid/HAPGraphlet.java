@@ -103,14 +103,6 @@ public class HAPGraphlet extends Pseudograph<Node<?>, DefaultEdge>{
 		return null;
 	}
 
-	public void clear() {
-		mSrcIp.clear();
-		mProto.clear();
-		mSrcPort.clear();
-		mDstPort.clear();
-		mDstIp.clear();
-	}
-
 	public String showTransactions() {
 		return mTransactionList.toString();
 	}

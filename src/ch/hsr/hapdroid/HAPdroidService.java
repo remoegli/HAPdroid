@@ -1,7 +1,12 @@
 package ch.hsr.hapdroid;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -21,6 +26,7 @@ import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
 import ch.hsr.hapdroid.transaction.Transaction;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.stericson.RootTools.RootTools;
 import com.stericson.RootTools.RootTools.Result;
 
@@ -57,8 +63,8 @@ public class HAPdroidService extends Service {
 	};
 	private NetworkResult mWlanResult;
 	private NetworkResult mMobileResult;
-	private NetworkResult mExecutableResult; 
-	
+	private NetworkResult mExecutableResult;
+
 	private HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mCallbackHandler;
 	private FlowTable mFlowTable;
@@ -82,7 +88,7 @@ public class HAPdroidService extends Service {
 	private void handlePacket(Packet p) {
 		if (p == null)
 			return;
-		
+
 		mFlowTable.add(p);
 		Message msg = new Message();
 		msg.what = HAPdroidGraphletActivity.RECEIVE_NETWORK_FLOW;
@@ -95,7 +101,7 @@ public class HAPdroidService extends Service {
 		List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
 		t.setFlows(flowlist);
 		Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
-		mHAPGraphlet.add(t);		
+		mHAPGraphlet.add(t);
 	}
 
 	@Override
@@ -133,8 +139,7 @@ public class HAPdroidService extends Service {
 		mNotification = new Notification(R.drawable.ic_notification,
 				"HAPdroid Network Capture", System.currentTimeMillis());
 
-		Intent notificationIntent = new Intent(this,
-				SplashActivity.class);
+		Intent notificationIntent = new Intent(this, SplashActivity.class);
 		notificationIntent.setAction(Intent.ACTION_MAIN);
 		notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
@@ -179,11 +184,11 @@ public class HAPdroidService extends Service {
 		HAPvizLibrary.getTransactions(mFlowTable.toByteArray(),
 				SERVER_TRANSACTIONS);
 	}
-	
+
 	protected void finishGettingTransactions() {
 		if (mCallbackHandler != null)
 			mCallbackHandler
-				.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
+					.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
 		Log.d(LOG_TAG, mHAPGraphlet.toString());
 		Log.d(LOG_TAG, mHAPGraphlet.showTransactions());
 	}
@@ -204,15 +209,13 @@ public class HAPdroidService extends Service {
 			throw new UnsupportedOperationException();
 		}
 		startWlanCapture();
-//		startMobileCapture();
+		// startMobileCapture();
 
 		startForeground(NOTIFICATION_ID, mNotification);
 		mCaptureRunning = true;
 	}
 
 	public void startExecutableCapture(String params) {
-		mHAPGraphlet.clear();
-		mFlowTable.clear();
 		startExecutable(params);
 
 		// we cant start the service in foreground because this will
@@ -221,11 +224,11 @@ public class HAPdroidService extends Service {
 
 	private void startExecutable(final String params) {
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
-					RootTools.sendShell(mFileDir + EXECUTABLE + " " +params,
+					RootTools.sendShell(mFileDir + EXECUTABLE + " " + params,
 							mExecutableResult, -1);
 					Log.d(LOG_TAG, "executable started with params: " + params);
 				} catch (Exception e) {
@@ -271,8 +274,8 @@ public class HAPdroidService extends Service {
 
 	public void stopNetworkCapture() {
 		stopWlanCapture();
-//		stopMobileCapture();
-		synchronized (this){
+		// stopMobileCapture();
+		synchronized (this) {
 			try {
 				wait(500);
 			} catch (InterruptedException e) {
@@ -300,7 +303,7 @@ public class HAPdroidService extends Service {
 
 	public void clearCapture() {
 		mFlowTable.clear();
-		mHAPGraphlet.clear();
+		mHAPGraphlet = new HAPGraphlet();
 	}
 
 	public FlowTable getFlowTable() {
@@ -311,9 +314,44 @@ public class HAPdroidService extends Service {
 		return mCaptureRunning;
 	}
 
-	public void importFile(CharSequence filePath) {
+	public void importPcapFile(String filePath, String ip){
+		clearCapture();
+		mFlowTable.setSourceIp(ip);
 		startExecutableCapture("-p " + filePath);
 	}
+	
+	public void importCflowFile(String filePath){
+		clearCapture();
+		try {
+			File file = new File(filePath.toString());
+			FileInputStream fis = new FileInputStream(file);
+			GZIPInputStream gis = new GZIPInputStream(fis);
+			mFlowTable.importByteArray(getByteArray(gis));
+			gis.close();
+			fis.close();
+			getTransactions();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private byte[] getByteArray(GZIPInputStream gis) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		byte[] buffer = new byte[Flow.SIZE_BYTE];
+		int n = 0;
+		try {
+			while (-1 != (n = gis.read(buffer))) {
+				output.write(buffer, 0, n);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return output.toByteArray();
+	}
+
+	
 
 	public String getStartTime() {
 		return mFlowTable.getStartTime().toString();
@@ -330,7 +368,7 @@ public class HAPdroidService extends Service {
 		public NetworkResult(CaptureSource source) {
 			mSource = source;
 		}
-		
+
 		@Override
 		public void processError(String line) throws Exception {
 			// TODO Auto-generated method stub
