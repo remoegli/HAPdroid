@@ -1,6 +1,5 @@
-/**
+/** do i need to put some blabla here?
  * \package ch.hsr.hapdroid
- *  text zu packet
- * any javadoc comments (including tags)
+ *  This packet contains all the activities which are used. 
  */
 package ch.hsr.hapdroid;
