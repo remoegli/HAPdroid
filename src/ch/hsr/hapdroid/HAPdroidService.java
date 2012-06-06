@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -24,19 +23,51 @@ import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.FlowTable;
 import ch.hsr.hapdroid.network.NetworkStreamHandlerTask;
 import ch.hsr.hapdroid.network.Packet;
+import ch.hsr.hapdroid.network.Timeval;
 import ch.hsr.hapdroid.transaction.Transaction;
 
-import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.stericson.RootTools.RootTools;
 import com.stericson.RootTools.RootTools.Result;
 
+/**
+ * Service class which does the capturing of network traffic in 
+ * Background.
+ * 
+ * The HAPdroidService class manages all aspects of the network 
+ * capturing. Hence it is responsible to receive and parse the packets
+ * captured by the flowdump executable as well as passing those 
+ * packets to the FlowTable. It provides methods for live packet 
+ * capture as well as for pcap and cflow file import. 
+ * For the live capture functionality, root access is needed. The
+ * RootTools library project has been used for the installation and
+ * execution of the binary.
+ * 
+ * Also it manages the conversion from the FlowTable to Transactions
+ * and adding the generated Transactions to the HAPGraphlet.
+ * 
+ * @author Dominik Spengler
+ * @see http://developer.android.com/guide/topics/fundamentals/services.html
+ * @see http://code.google.com/p/roottools/
+ */
 public class HAPdroidService extends Service {
 
 	private static final String EXECUTABLE = "flowdump";
 	private static final String CAPTURE_WLAN_CMD = "flowdump -i wlan0";
 	private static final String CAPTURE_MOBILE_CMD = "flowdump -i vsnet0";
 
+	/**
+	 * Communication interface for any client with the Service.
+	 * 
+	 * @author Dominik Spengler
+	 * @see Binder
+	 * 
+	 */
 	public class HAPdroidBinder extends Binder {
+		/**
+		 * Simple getter.
+		 * 
+		 * @return {@link HAPdroidService}
+		 */
 		public HAPdroidService getService() {
 			return HAPdroidService.this;
 		}
@@ -76,10 +107,31 @@ public class HAPdroidService extends Service {
 	private boolean mHasRoot;
 	private boolean mCaptureRunning = false;
 
+	/**
+	 * Message identifier for receiving a packet from the executable. 
+	 */
 	public static final int RECIEVE_PACKET = 0;
+	/**
+	 * Message identifier for finishing to receive packets.
+	 */
 	public static final int RECIEVE_PACKET_FINISH = 1;
+	/**
+	 * Message identifier for receiving a transaction from the library.
+	 */
 	public static final int RECIEVE_TRANSACTION = 2;
+	/**
+	 * Message identifier for finishing to recieve transactions.
+	 */
 	public static final int RECIEVE_TRANSACTION_FINISH = 3;
+	/**
+	 * Message identifier used when sending a network flow.
+	 */
+	private static final int SEND_NETWORK_FLOW = 4;
+	/**
+	 * Message identifier for generating the graphlet. This is mainly
+	 * used once all the transactions are received.
+	 */
+	public static final int GENERATE_GRAPHLET = 5;
 
 	private static final String LOG_TAG = "HAPdroidService";
 	private static final String SERVER_TRANSACTIONS = "LocalServTrans";
@@ -91,13 +143,13 @@ public class HAPdroidService extends Service {
 
 		mFlowTable.add(p);
 		Message msg = new Message();
-		msg.what = HAPdroidGraphletActivity.RECEIVE_NETWORK_FLOW;
+		msg.what = SEND_NETWORK_FLOW;
 		msg.obj = p;
 		if (mCallbackHandler != null)
 			mCallbackHandler.sendMessage(msg);
 	}
 
-	protected void handleTransaction(Transaction t) {
+	private void handleTransaction(Transaction t) {
 		List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
 		t.setFlows(flowlist);
 		Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
@@ -171,10 +223,26 @@ public class HAPdroidService extends Service {
 		super.onDestroy();
 	}
 
+	/**
+	 * Setter for the Handler used to send messages.
+	 * 
+	 * The Handler set in this method will be used to send messages for
+	 * specified actions.
+	 * 
+	 * @param aHandler Handler to be notified with packages and transactions.
+	 * @see #SEND_NETWORK_FLOW
+	 * @see #GENERATE_GRAPHLET
+	 * @see Handler
+	 */
 	public void setCallbackHandler(Handler aHandler) {
 		mCallbackHandler = aHandler;
 	}
 
+	/**
+	 * Simple getter for the HAPGraphlet.
+	 * 
+	 * @return {@link HAPGraphlet}
+	 */
 	public HAPGraphlet getGraphlet() {
 		return mHAPGraphlet;
 	}
@@ -185,10 +253,10 @@ public class HAPdroidService extends Service {
 				SERVER_TRANSACTIONS);
 	}
 
-	protected void finishGettingTransactions() {
+	private void finishGettingTransactions() {
 		if (mCallbackHandler != null)
 			mCallbackHandler
-					.sendEmptyMessage(HAPdroidGraphletActivity.GENERATE_GRAPHLET);
+					.sendEmptyMessage(GENERATE_GRAPHLET);
 		Log.d(LOG_TAG, mHAPGraphlet.toString());
 		Log.d(LOG_TAG, mHAPGraphlet.showTransactions());
 	}
@@ -204,6 +272,15 @@ public class HAPdroidService extends Service {
 		mTransactionCapture.execute();
 	}
 
+	/**
+	 * Starts the network capture.
+	 * 
+	 * This method will start the network capture in the background. The
+	 * capture will run until a call to {@link #stopNetworkCapture()} is 
+	 * issued.
+	 * 
+	 * @throws UnsupportedOperationException if no root access is available
+	 */
 	public void startNetworkCapture() throws UnsupportedOperationException {
 		if (!mHasRoot) {
 			throw new UnsupportedOperationException();
@@ -215,6 +292,18 @@ public class HAPdroidService extends Service {
 		mCaptureRunning = true;
 	}
 
+	/**
+	 * Starts the executable with the given parameters.
+	 * 
+	 * This method start the capture from the executable, builds
+	 * the flow table, generates the transactions and builds
+	 * the {@link HAPGraphlet}.
+	 * The results from the executable are provided using the 
+	 * callback handler.
+	 * 
+	 * @see #setCallbackHandler(Handler)
+	 * @param params parameters to be passed to the executable
+	 */
 	public void startExecutableCapture(String params) {
 		startExecutable(params);
 
@@ -272,7 +361,15 @@ public class HAPdroidService extends Service {
 		}).start();
 	}
 
+	/**
+	 * Stopping the netork capture.
+	 * 
+	 * Will do nothing if the capture is not running.
+	 */
 	public void stopNetworkCapture() {
+		if (!mCaptureRunning)
+			return;
+		
 		stopWlanCapture();
 		// stopMobileCapture();
 		synchronized (this) {
@@ -301,25 +398,63 @@ public class HAPdroidService extends Service {
 		}
 	}
 
+	/**
+	 * Clears the capture.
+	 * 
+	 * This method will clear the flow table as well as create
+	 * a new HAPGraphlet.
+	 */
 	public void clearCapture() {
 		mFlowTable.clear();
 		mHAPGraphlet = new HAPGraphlet();
 	}
 
+	/**
+	 * Getter for flow table.
+	 * 
+	 * @return {@link FlowTable} generated FlowTable
+	 */
 	public FlowTable getFlowTable() {
 		return mFlowTable;
 	}
 
+	/**
+	 * Checks whether the network capture currently is running.
+	 * 
+	 * @return true if the network capture is running, false 
+	 * 		otherwise
+	 */
 	public boolean isCaptureRunning() {
 		return mCaptureRunning;
 	}
 
+	/**
+	 * Reads a pcap file and generates the flow table and {@link HAPGraphlet}.
+	 * 
+	 * This method will clear all previous captures and read in the
+	 * given pcap file.
+	 * 
+	 * For any non pcap file the behaviour is undefined.
+	 * 
+	 * @param filePath the absolute file path
+	 * @param ip dotted string representation of the source ip to 
+	 * 		be used
+	 */
 	public void importPcapFile(String filePath, String ip){
 		clearCapture();
 		mFlowTable.setSourceIp(ip);
 		startExecutableCapture("-p " + filePath);
 	}
 	
+	/**
+	 * Reads a cflow file and generates the flow table and {@link HAPGraphlet}.
+	 * 
+	 * This method will clear all previous captures and read in the
+	 * given cflow file. Please note that a gzipped cflow4 file is
+	 * expected. For any other file the behaviour is undefined.
+	 * 
+	 * @param filePath absolute file path to gzipped cflow4 file
+	 */
 	public void importCflowFile(String filePath){
 		clearCapture();
 		try {
@@ -351,16 +486,45 @@ public class HAPdroidService extends Service {
 		return output.toByteArray();
 	}
 
-	
-
-	public String getStartTime() {
-		return mFlowTable.getStartTime().toString();
+	/**
+	 * Get the start time of the first flow in the flow table.
+	 * 
+	 * @return {@link Timeval} start time 
+	 */
+	public Timeval getStartTime() {
+		return mFlowTable.getStartTime();
 	}
 
-	public String getEndTime() {
-		return mFlowTable.getEndTime().toString();
+	/**
+	 * Get the end time of the last flow in the flow table.
+	 * 
+	 * @return {@link Timeval} end time
+	 */
+	public Timeval getEndTime() {
+		return mFlowTable.getEndTime();
 	}
 
+	/**
+	 * Check whether packets have been captured by the flow table.
+	 * 
+	 * @return true if at least one packet has been captured, false
+	 * 		otherwise.
+	 */
+	public boolean hasPacketsCaptured() {
+		return !mFlowTable.isEmpty();
+	}
+
+	/**
+	 * Class used as a result callback for the executable.
+	 * 
+	 * The NetworkResult class is used to process the results
+	 * given from the executable as well as tag the packets 
+	 * with the capture source.
+	 * 
+	 * @author "Dominik Spengler"
+	 * @see Result
+	 * @see CaptureSource
+	 */
 	private class NetworkResult extends Result {
 
 		private CaptureSource mSource;
@@ -392,9 +556,5 @@ public class HAPdroidService extends Service {
 		public void onComplete(int diag) {
 			mHandler.sendEmptyMessage(RECIEVE_PACKET_FINISH);
 		}
-	}
-
-	public boolean hasPacketsCaptured() {
-		return !mFlowTable.isEmpty();
 	}
 }
