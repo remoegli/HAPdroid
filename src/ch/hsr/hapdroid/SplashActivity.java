@@ -21,6 +21,12 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import android.content.Intent;
 import android.graphics.Rect;
 
+/** Activity used to get the size of the visible display frame.
+ * This class is used as a workaround to fix issues with AndEngine if it's not used full screen.
+ * This also fixes possible issues with soft keys on Android version 4.0 and tablets.
+ * @author Remo Egli
+ *
+ */
 public class SplashActivity extends BaseGameActivity {
 
 	private Camera mCamera;
