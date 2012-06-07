@@ -13,6 +13,14 @@ import java.util.List;
 import android.util.Log;
 import ch.hsr.hapdroid.transaction.Transaction;
 
+/**
+ * Flow table consisting of a number of flows.
+ * 
+ * 
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public class FlowTable {
 	private static final String LOG_TAG = "FlowTable";
 	private List<Flow> mFlowList;
@@ -26,7 +34,7 @@ public class FlowTable {
 		getLocalIpAddresses();
 	}
 
-	public void getLocalIpAddresses() {
+	private void getLocalIpAddresses() {
 		mLocalIpAddresses.clear();
 	    try {
 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -44,9 +52,28 @@ public class FlowTable {
 	}
 	
 	/**
+	 * Sets the source IP of the flow table.
 	 * 
-	 * @param cflow uncompressed
-	 * @return 
+	 * @param ip as a dotted formated string.
+	 */
+	public void setSourceIp(String ip) {
+		try {
+			mLocalIpAddresses.add(InetAddress.getByName(ip));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Imports cflow data into the flow table.
+	 * 
+	 * This method imports a byte array containing a list of flows
+	 * in uncompressed cflow4 format into the flow table.
+	 * 
+	 * @param cflow uncompressed cflow4 data
+	 * @return true if the byte array has been successfully imported,
+	 * 		false otherwise
 	 */
 	public boolean importByteArray(byte[] cflow){
 		if (cflow.length % Flow.SIZE_BYTE != 0)
@@ -67,7 +94,18 @@ public class FlowTable {
 		setEndTime(flow);
 	}
 
+	/**
+	 * Add one packet to the flow table.
+	 * 
+	 * Adds the given packet to the flow table and updates start
+	 * and end time accordingly.
+	 * 
+	 * @param {@link Packet}}
+	 */
 	public boolean add(Packet packet) {
+		if (mLocalIpAddresses.isEmpty())
+			getLocalIpAddresses();
+		
 		boolean toreturn = false;
 		Flow f = getFlowFor(packet);
 
@@ -135,6 +173,11 @@ public class FlowTable {
 		return false;
 	}
 
+	/**
+	 * Converts the flow to an uncompressed cflow4 byte array.
+	 * 
+	 * @return uncompressed cflow4 byte array
+	 */
 	public byte[] toByteArray(){
 		byte[] result = new byte[mFlowList.size()*Flow.SIZE_BYTE];
 		Collections.sort(mFlowList);
@@ -153,11 +196,19 @@ public class FlowTable {
 		return mFlowList.toString();
 	}
 
+	/**
+	 * Clears the flow table and resets the source ip list.
+	 */
 	public void clear() {
 		mFlowList.clear();
 		mLocalIpAddresses.clear();
 	}
 
+	/**
+	 * Getter for packet count of all flows contained in the flow table.
+	 * 
+	 * @return packet count of all flows inside the flow table
+	 */
 	public long getPacketCount() {
 		long result = 0;
 		for (Flow f : mFlowList){
@@ -166,6 +217,11 @@ public class FlowTable {
 		return result;
 	}
 
+	/**
+	 * Getter for byte count of all flows contained in the flow table.
+	 * 
+	 * @return byte count of all flows inside the flow table
+	 */
 	public long getByteCount() {
 		long result = 0;
 		for (Flow f : mFlowList){
@@ -174,6 +230,11 @@ public class FlowTable {
 		return result;
 	}
 	
+	/**
+	 * Getter for payload count of all flows contained in the flow table.
+	 * 
+	 * @return payload count of all flows inside the flow table
+	 */
 	public long getPayloadCount() {
 		long result = 0;
 		for (Flow f : mFlowList){
@@ -182,14 +243,30 @@ public class FlowTable {
 		return result;
 	}
 	
+	/**
+	 * Get the end time of the last flow inside the table.
+	 * 
+	 * @return end time of the last flow
+	 */
 	public Timeval getEndTime() {
 		return mEndTime;
 	}
 	
+	/**
+	 * Get the start time of the first flow inside the table.
+	 * 
+	 * @return start time of the first flow
+	 */
 	public Timeval getStartTime() {
 		return mStartTime;
 	}
 	
+	/**
+	 * Get all flows that match the given transaction.
+	 * 
+	 * @param {@link Transaction} to get the flows for
+	 * @return {@link List} of flows that match the transaction
+	 */
 	public List<Flow> getFlowsForTransaction(Transaction t){
 		List<Flow> flowlist = new ArrayList<Flow>();
 		
@@ -201,16 +278,13 @@ public class FlowTable {
 		return flowlist;
 	}
 
+	/**
+	 * Check whether the flow table is empty.
+	 * 
+	 * @return true if the flow table is empty,
+	 * 		false otherwise
+	 */
 	public boolean isEmpty() {
 		return mFlowList.isEmpty();
-	}
-
-	public void setSourceIp(String ip) {
-		try {
-			mLocalIpAddresses.add(InetAddress.getByName(ip));
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

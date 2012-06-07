@@ -48,6 +48,11 @@ public class Flow implements Comparable<Flow>{
 	private int direction;
 	private CaptureSource source;
 
+	/**
+	 * Generate flow from packet.
+	 * 
+	 * @param packet to generate flow from
+	 */
 	public Flow(Packet p) {
 		src_addr = p.src_addr;
 		src_port = p.src_port;
@@ -65,6 +70,13 @@ public class Flow implements Comparable<Flow>{
 		pkgCount = 1;
 	}
 
+	/**
+	 * Generate flow from cflow data.
+	 * 
+	 * Generates flow from uncompressed cflow4 data.
+	 * 
+	 * @param flowdata cflow data
+	 */
 	public Flow(byte[] flowdata) {
 		try {
 			src_addr = InetAddress.getByAddress(getNetworkByteOrder(flowdata, 0));
@@ -91,6 +103,11 @@ public class Flow implements Comparable<Flow>{
 		tos = flowdata[42];
 	}
 
+	/**
+	 * Add packet to flow.
+	 * 
+	 * @param packet to add to flow
+	 */
 	public void add(Packet p) {
 		++pkgCount;
 		flowSize += p.payload_size + p.header_size;
@@ -101,25 +118,15 @@ public class Flow implements Comparable<Flow>{
 			direction = TYPE_BIFLOW;
 	}
 
-	@Override
-	public int compareTo(Flow another) {
-		int result = src_addr.getHostAddress().compareTo(another.src_addr.getHostAddress());
-		if (result == 0)
-			result = dst_addr.getHostAddress().compareTo(another.dst_addr.getHostAddress());
-		if (result == 0)
-			result = (int) (another.flowSize - flowSize);
-		
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof Flow)
-			return compareTo((Flow) o) == 0;
-
-		return super.equals(o);
-	}
-
+	/**
+	 * Checks whether the flow describes the packet.
+	 * 
+	 * Checkst whether protocol, ports and IPs of the packet
+	 * match the flow.
+	 * 
+	 * @param packet to check against flow
+	 * @return true if the flow describes the packet
+	 */
 	public boolean describes(Packet p) {
 		boolean isSrcEqual = false;
 		boolean isDstEqual = false;
@@ -136,6 +143,11 @@ public class Flow implements Comparable<Flow>{
 		return isSrcEqual && isDstEqual && isProtoEqual;
 	}
 	
+	/**
+	 * Converts the flow to uncompressed binery cflow4 data.
+	 * 
+	 * @return byte[] containing the cflow binary data
+	 */
 	public byte[] toByteArray(){
 		byte[] result = new byte[Flow.SIZE_BYTE];
 		
@@ -234,34 +246,69 @@ public class Flow implements Comparable<Flow>{
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		return src_addr.toString() +":"+src_port + " TO "+
-			dst_addr.toString() +":"+dst_port + " PROTO "+proto+
-			" SIZE "+flowSize+" COUNT "+pkgCount+
-			" DIRECTION "+direction+" STARTTIME "+starttime+"\n";
-	}
-
+	/**
+	 * Getter for packet count.
+	 * 
+	 * @return packet count
+	 */
 	public int getPacketCount() {
 		return pkgCount;
 	}
 	
+	/**
+	 * Getter for direction as specified in the static fields.
+	 * 
+	 * @return direction
+	 * @see #TYPE_BIFLOW
+	 * @see #TYPE_INCOMING
+	 * @see #TYPE_OUTGOING
+	 * @see #TYPE_UNIBIFLOW
+	 * @see #TYPE_UNIFLOW
+	 * @see #TYPE_OKFLOW
+	 */
 	public int getDirection() {
 		return direction;
 	}
 
+	/**
+	 * Setter for direction as specified in the static fields.
+	 * 
+	 * @param direction to set
+	 * @see #TYPE_BIFLOW
+	 * @see #TYPE_INCOMING
+	 * @see #TYPE_OUTGOING
+	 * @see #TYPE_UNIBIFLOW
+	 * @see #TYPE_UNIFLOW
+	 * @see #TYPE_OKFLOW
+	 */
 	public void setDirection(int direction) {
 		this.direction = direction;
 	}
 
+	/**
+	 * Getter for byte count.
+	 * 
+	 * @return byte count
+	 */
 	public long getByteCount() {
 		return flowSize;
 	}
 	
+	/**
+	 * Getter for payload count.
+	 * 
+	 * @return payload count
+	 */
 	public long getPayloadCount(){
 		return payloadSize;
 	}
 
+	/**
+	 * Checks whether this flow belongs to the given transaction.
+	 * 
+	 * @param t transaction to check the flow against
+	 * @return true if the flow belongs to transaction t
+	 */
 	public boolean belongsTo(Transaction t) {
 		boolean srcIp = true;
 		boolean booleanProto = true;
@@ -287,18 +334,39 @@ public class Flow implements Comparable<Flow>{
 		return srcIp && booleanProto && srcPort && dstPort && dstIp;
 	}
 
+	/**
+	 * Getter for the start time.
+	 * 
+	 * @return {@link Timeval} start time of the flow
+	 */
 	public Timeval getStartTime() {
 		return starttime;
 	}
 	
+	/**
+	 * Getter for the duration.
+	 * 
+	 * @return {@link Timeval} duration of the flow
+	 */
 	public Timeval getDuration() {
 		return duration;
 	}
 
+	/**
+	 * Getter for the capture source of the packets contained in the flow.
+	 * 
+	 * @return {@link CaptureSource} of the packets contained in the flow
+	 */
 	public CaptureSource getCaptureSource() {
 		return source;
 	}
 
+	/**
+	 * Reverse the flow.
+	 * 
+	 * Switches source IP with destination IP, as well as source port
+	 * with destination port.
+	 */
 	public void reverse() {
 		InetAddress tmpIp = src_addr;
 		src_addr = dst_addr;
@@ -307,5 +375,32 @@ public class Flow implements Comparable<Flow>{
 		int tmpPort = src_port;
 		src_port = dst_port;
 		dst_port = tmpPort;
+	}
+
+	@Override
+	public String toString() {
+		return src_addr.toString() +":"+src_port + " TO "+
+			dst_addr.toString() +":"+dst_port + " PROTO "+proto+
+			" SIZE "+flowSize+" COUNT "+pkgCount+
+			" DIRECTION "+direction+" STARTTIME "+starttime+"\n";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Flow)
+			return compareTo((Flow) o) == 0;
+	
+		return super.equals(o);
+	}
+
+	@Override
+	public int compareTo(Flow another) {
+		int result = src_addr.getHostAddress().compareTo(another.src_addr.getHostAddress());
+		if (result == 0)
+			result = dst_addr.getHostAddress().compareTo(another.dst_addr.getHostAddress());
+		if (result == 0)
+			result = (int) (another.flowSize - flowSize);
+		
+		return result;
 	}
 }
