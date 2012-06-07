@@ -4,8 +4,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import android.util.Log;
-import ch.hsr.hapdroid.transaction.Node;
-import ch.hsr.hapdroid.transaction.Transaction;
+import ch.hsr.hapdroid.graph.Transaction;
+import ch.hsr.hapdroid.graph.node.Node;
 
 /**
  * This class represents a flow with all necessary fields as

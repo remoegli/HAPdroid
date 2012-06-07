@@ -10,8 +10,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.hsr.hapdroid.graph.Transaction;
+
 import android.util.Log;
-import ch.hsr.hapdroid.transaction.Transaction;
 
 public class FlowTable {
 	private static final String LOG_TAG = "FlowTable";

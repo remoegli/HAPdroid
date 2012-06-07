@@ -54,9 +54,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import ch.hsr.hapdroid.HAPdroidService.HAPdroidBinder;
 import ch.hsr.hapdroid.R.id;
-import ch.hsr.hapdroid.graphlet.Graphlet;
+import ch.hsr.hapdroid.gui.Graphlet;
+import ch.hsr.hapdroid.service.HAPdroidService;
+import ch.hsr.hapdroid.service.HAPdroidService.HAPdroidBinder;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
@@ -167,62 +168,24 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mToast = Toast.makeText(this, R.string.capture_nothing,
 				Toast.LENGTH_SHORT);
 
-		mProgressDialog = createProgressDialog();
-		mWrongFileDialog = createWrongFileDialog();
-		mIPInputDialog = createIPInputDialog();
+		mWrongIPToast = Toast.makeText(this.getApplicationContext(), R.string.input_ip_wrong, Toast.LENGTH_SHORT);
+		mIPEditText = new EditText(this.getApplicationContext());
+		mProgressDialog = DialogHelper.createProgressDialog(this);
+		mWrongFileDialog = DialogHelper.createWrongFileDialog(this);
+		mIPInputDialog = DialogHelper.createIPInputDialog(this,
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				if (IP_ADDRESS.matcher(mIPEditText.getText()).matches()) {
+					mProgressDialog.show();
+					mService.importPcapFile(mFilePath, mIPEditText.getText().toString());
+				} else {
+					mIPEditText.setText("");
+					mWrongIPToast.show();
+				}
+			}
+		});
 	}
-
-	private AlertDialog createIPInputDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		mIPEditText = new EditText(getApplicationContext());
-		mIPEditText.setInputType(EditorInfo.TYPE_CLASS_PHONE);
-		mWrongIPToast = Toast.makeText(getApplicationContext(),
-				R.string.input_ip_wrong, Toast.LENGTH_SHORT);
-		builder.setMessage(R.string.input_ip)
-				.setView(mIPEditText)
-				.setCancelable(false)
-				.setPositiveButton(R.string.input_ip_ok,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (correctIPFormat()) {
-									mProgressDialog.show();
-									mService.importPcapFile(mFilePath, mIPEditText.getText().toString());
-								} else {
-									mIPEditText.setText("");
-									mWrongIPToast.show();
-								}
-							}
-						})
-				.setNegativeButton(R.string.input_ip_cancel,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
-							}
-						});
-		return builder.create();
-	}
-
-	private boolean correctIPFormat() {
-		return IP_ADDRESS.matcher(mIPEditText.getText()).matches();
-	}
-
-	private AlertDialog createWrongFileDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.wrong_file_message).setCancelable(true);
-		return builder.create();
-	}
-
-	private ProgressDialog createProgressDialog() {
-		ProgressDialog dialog = new ProgressDialog(this);
-		dialog.setTitle(R.string.load_graphlet_message_title);
-		dialog.setMessage(getResources()
-				.getText(R.string.load_graphlet_message));
-		dialog.setIndeterminate(true);
-		dialog.setCancelable(true);
-
-		return dialog;
-	}
-
+	
 	private void setOnClickListeners() {
 		mOnClickStart = new OnClickListener() {
 			@Override
@@ -312,15 +275,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICK_FILE) {
 			if (resultCode == RESULT_OK) {
-				handleFileImport(data
-						.getCharSequenceExtra(FileImportActivity.FILE_KEY));
+				handleFileImport(data.getCharSequenceExtra(FileImportActivity.FILE_KEY));
 			}
 		}
 	}
