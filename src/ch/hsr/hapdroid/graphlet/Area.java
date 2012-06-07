@@ -10,17 +10,45 @@ import ch.hsr.hapdroid.graphlet.node.GraphletNode;
 import ch.hsr.hapdroid.transaction.Node;
 import ch.hsr.hapdroid.transaction.NodeList;
 
+/**\class Area
+ * Area represents a container for all GraphletNodes of a certain type (for example "remotePort"-Area holds every "remotePort"-Node).
+ * It's responsible for:
+ * - aligning every GraphletNode contained 
+ * - handling vertical scrolling (and blocking horizontal scrolling) 
+ * - triggering update on all Edges connected to GraphletNodes in this Area
+ * 
+ * GraphletNodes need to be "attached" to their respective Area so AndEngine handles the drawing and screen update
+ *    
+ * @author Remo Egli
+ *
+ */
 public class Area extends Rectangle{
 	
 //	private static final String LOGTAG = "hapdroid.Area";
-	private static float NODESPACING = 10;
+	private static float NODESPACING = 10; /**< spacing between nodes */
 	private boolean mGrabbed = false;
 	private float firstTouchY;
 	private float initialY;
 	private final float initHeight;
+	/**
+	 * This collection is used for convenience and could be replaced by directly accessing the areas child objects,
+	 * where the nodes are held. Extending AndEngine by adding a method providing access to the internal collection
+	 * could be another option. 
+	 */
 	private Vector<GraphletNode> nodes;
+	/**
+	 * This collection can NOT be removed since the edges are NO child objects of the Area.
+	 * It improves the performance by updating only those edges which are connected to the Area instance. 
+	 */
 	private Vector<BaseEdge> edges;
 	
+	/**
+	 * 
+	 * @param pX x value of top left corner, relative to the position of Graphlet
+	 * @param pY y value of top left corner, relative to the position of Graphlet
+	 * @param pWidth Width of the Area, usually display width/number of Areas
+	 * @param pHeight Height of the Area, usually height of the display frame (= display height - notification bar)
+	 */
 	public Area(float pX, float pY, float pWidth, float pHeight) {
 		super(pX, pY, pWidth, pHeight);
 		initHeight = pHeight;
@@ -28,6 +56,10 @@ public class Area extends Rectangle{
 		edges = new Vector<BaseEdge>();
 	}
 
+	/**
+	 * A helper method to move creation of GraphletNode instances from Graphlet to the Area in charge. 
+	 * @param nodeList List of all Nodes to be added as a GraphletNode to this Area.
+	 */
 	public void addAllNodes(NodeList<?> nodeList) {
 		for( Node<?> node : nodeList){
 			GraphletNode graphletNode = new GraphletNode(node);
@@ -36,10 +68,10 @@ public class Area extends Rectangle{
 	}
 
 	/**
-	 *
-	 * 
+	 * Responsible for:
+	 * - updating the Node collection of the Area
+	 * - attaching 
 	 * @param node
-	 * @return
 	 */
 	private void addNode(GraphletNode node){
 		nodes.add(node);

@@ -22,7 +22,8 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import android.content.Intent;
 import android.graphics.Rect;
 
-/** Activity is used to get the size of the visible application frame.
+/**\class SplashActivity 
+ * Activity is used to get the size of the visible application frame.
  * This class is used as a workaround to fix issues with AndEngine if it's not used full screen.
  * It also fixes possible issues with soft keys on Android version 4.0 and tablets.
  * @author Remo Egli
