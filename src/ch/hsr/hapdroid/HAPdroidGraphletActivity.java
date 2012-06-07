@@ -356,8 +356,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private void generateGraphlet() {
 		Log.d(LOG_TAG, "generating graphlet");
 		mGraphlet.update(mService.getGraphlet());
-		mTxtStart.setText(mService.getStartTime());
-		mTxtEnd.setText(mService.getEndTime());
+		mTxtStart.setText(mService.getStartTime().toString());
+		mTxtEnd.setText(mService.getEndTime().toString());
 		switchSaveButton();
 	}
 
