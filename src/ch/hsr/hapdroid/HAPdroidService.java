@@ -156,6 +156,9 @@ public class HAPdroidService extends Service {
 		mHAPGraphlet.add(t);
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void onCreate() {
 		super.onCreate();

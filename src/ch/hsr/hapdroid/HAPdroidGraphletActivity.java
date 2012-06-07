@@ -154,9 +154,6 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Toast mWrongIPToast;
 	private String mFilePath;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
