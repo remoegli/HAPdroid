@@ -14,7 +14,16 @@ import ch.hsr.hapdroid.network.CaptureSource;
 import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.Proto;
 
-
+/**
+ * A class representing a path of the HAP graphlet.
+ * 
+ * A transaction is defined as a distinct path of the HAP graphlet.
+ * It differs from a flow in the sense that it can contain summarized
+ * nodes.
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public class Transaction {
 	
 	private static final String LOG_TAG = "Transaction";
@@ -34,6 +43,16 @@ public class Transaction {
 		mFlows = new ArrayList<Flow>();
 	}
 
+	/**
+	 * Parses a transaction from its string representation.
+	 * 
+	 * The string representation is derived from the 
+	 * 
+	 * 
+	 * @param trans String array with the transaction data
+	 * @return parsed Transaction
+	 */
+	//TODO
 	public static Transaction parse(String[] trans){
 		Transaction t = new Transaction();
 		
@@ -144,66 +163,130 @@ public class Transaction {
 			return super.equals(o);
 	}
 	
+	/**
+	 * Getter for {@link SourceIPNode}
+	 * 
+	 * @return {@link SourceIPNode} of the transaction
+	 */
 	public SourceIPNode getSrcIp() {
 		return mSrcIp;
 	}
 
+	/**
+	 * Getter for {@link ProtoNode}
+	 * 
+	 * @return {@link ProtoNode} of the transaction
+	 */
 	public ProtoNode getProto() {
 		return mProtocol;
 	}
 
-	public void setProto(ProtoNode mProtocol) {
-		this.mProtocol = mProtocol;
+	/**
+	 * Setter for {@link ProtoNode}
+	 * 
+	 * @param protocol
+	 */
+	public void setProto(ProtoNode protocol) {
+		this.mProtocol = protocol;
 	}
 
+	/**
+	 * Getter for source port
+	 * 
+	 * @return {@link Node} with Integer value
+	 */
 	public Node<Integer> getSrcPort() {
 		return mSourcePort;
 	}
 
-	public void setSrcPort(Node<Integer> mSourcePort) {
-		this.mSourcePort = mSourcePort;
+	/**
+	 * Setter for the source port
+	 * 
+	 * @param sourcePort
+	 */
+	public void setSrcPort(Node<Integer> sourcePort) {
+		this.mSourcePort = sourcePort;
 	}
 
+	/**
+	 * Getter for the destination port
+	 * 
+	 * @return {@link Node} with Integer value
+	 */
 	public Node<Integer> getDstPort() {
 		return mDstPort;
 	}
-
-	public void setDstPort(Node<Integer> mDstPort) {
-		this.mDstPort = mDstPort;
+	
+	/**
+	 * Setter for the destination port
+	 * 
+	 * @param dstPort
+	 */
+	public void setDstPort(Node<Integer> dstPort) {
+		this.mDstPort = dstPort;
 	}
 
+	/**
+	 * Getter for the destination IP
+	 * 
+	 * @return {@link IPNode}
+	 */
 	public IPNode getDstIp() {
 		return mDstIp;
 	}
 
-	public void setDstIp(IPNode mDstIp) {
-		this.mDstIp = mDstIp;
+	/**
+	 * Setter for the destination IP
+	 * 
+	 * @param dstIp
+	 */
+	public void setDstIp(IPNode dstIp) {
+		this.mDstIp = dstIp;
 	}
 
+	/**
+	 * Get total byte count of the transaction.
+	 * 
+	 * @return total byte count
+	 */
 	public long getBytes() {
 		return mBytes;
 	}
 
-	public void setBytes(long mBytes) {
-		this.mBytes = mBytes;
-	}
-
+	/**
+	 * Get total packet count of the transaction.
+	 * 
+	 * @return total packet count
+	 */
 	public long getPackets() {
 		return mPackets;
 	}
 
-	public void setPackets(long mPackets) {
-		this.mPackets = mPackets;
-	}
-
+	/**
+	 * Get the direction of the transaction.
+	 * 
+	 * @return direction
+	 * @see Flow#TYPE_BIFLOW
+	 * @see Flow#TYPE_INCOMING
+	 * @see Flow#TYPE_OUTGOING
+	 * @see Flow#TYPE_OKFLOW
+	 * @see Flow#TYPE_UNIBIFLOW
+	 * @see Flow#TYPE_UNIFLOW
+	 */
 	public int getDirection() {
 		return mDirection;
 	}
 
-	public void setDirection(int mDirection) {
-		this.mDirection = mDirection;
-	}
-
+	/**
+	 * Set the list of flows belonging to the transaction.
+	 * 
+	 * Please note that no checks for the existing values
+	 * of the transaction are performed. Hence it is possible
+	 * to add a list of flows which is not described by the 
+	 * transaction.
+	 * 
+	 * @param flowlist list of flows belonging to the transaction
+	 */
 	public void setFlows(List<Flow> flowlist) {
 		long packets = 0;
 		long bytes = 0;
@@ -219,10 +302,23 @@ public class Transaction {
 		mFlows = flowlist;
 	}
 	
+	/**
+	 * Getter for attached flow list.
+	 * 
+	 * @return list of flows set by {@link #setFlows(List)}
+	 */
 	public List<Flow> getFlows() {
 		return mFlows;
 	}
 
+	/**
+	 * Get the capture source of the attached flows.
+	 * 
+	 * Please not that this method merely returns the capture 
+	 * source of the first attached flow.
+	 * 
+	 * @return {@link CaptureSource} of the first attached flow
+	 */
 	public CaptureSource getCaptureSource() {
 		if (!mFlows.isEmpty())
 			return mFlows.get(0).getCaptureSource();

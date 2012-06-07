@@ -3,9 +3,17 @@ package ch.hsr.hapdroid.graph.node;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.hsr.hapdroid.graph.HAPGraph;
 import ch.hsr.hapdroid.graph.Transaction;
 
-
+/**
+ * Represents a node of a {@link Transaction} as well as a node of
+ * the {@link HAPGraph}.
+ * 
+ * @author "Dominik Spengler"
+ *
+ * @param <V> the value inside the node
+ */
 public class Node<V>{
 	private int id;
 	private boolean active;
@@ -21,35 +29,54 @@ public class Node<V>{
 		mTransaction = t;
 	}
 	
-	public boolean addNode(Node<V> node) {
+	private boolean addNode(Node<V> node) {
 		return nodes.add(node);
 	}
 	
+	/**
+	 * Getter for the stored value.
+	 * 
+	 * @return
+	 */
 	public V getValue() {
 		return value;
 	}
 	
+	/**
+	 * Setter for the stored value.
+	 * 
+	 * @param value
+	 */
 	protected void setValue(V value){
 		this.value = value;
 	}
 	
-	public int getId() {
+	private int getId() {
 		return id;
 	}
 	
+	/**
+	 * Whether or not the node is summarized.
+	 * 
+	 * @return true if the node is summarized,
+	 * 		false otherwise
+	 */
 	public boolean isSummarized(){
 		return mSummarized;
 	}
 	
+	/*
+	 * Sets the node as summarized or not.
+	 */
 	public void setSummarized(boolean b) {
 		mSummarized = b;
 	}
 
-	public boolean isActive() {
+	private boolean isActive() {
 		return active;
 	}
 
-	public void setActive(boolean active) {
+	private void setActive(boolean active) {
 		this.active = active;
 	}
 	
@@ -58,6 +85,11 @@ public class Node<V>{
 		return value.toString();
 	}
 	
+	/**
+	 * Getter for the transaction the node belongs to.
+	 * 
+	 * @return {@link Transaction} the node belongs to
+	 */
 	public Transaction getTransaction() {
 		return mTransaction;
 	}

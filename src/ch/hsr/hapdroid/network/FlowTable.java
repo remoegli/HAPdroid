@@ -17,7 +17,9 @@ import android.util.Log;
 /**
  * Flow table consisting of a number of flows.
  * 
- * 
+ * The flow table takes care of identifying the source address
+ * of incoming packets, either by the IP addresses of the device,
+ * or previously set IPs via {@link #setSourceIp(String)}.
  * 
  * @author "Dominik Spengler"
  *

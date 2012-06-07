@@ -49,7 +49,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -61,6 +60,11 @@ import ch.hsr.hapdroid.service.HAPdroidService.HAPdroidBinder;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+/**
+ * 
+ * @author "Dominik Spengler, Remo Egli"
+ *
+ */
 public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		IOnSceneTouchListener, IScrollDetectorListener,
 		IPinchZoomDetectorListener {
@@ -98,11 +102,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case RECEIVE_NETWORK_FLOW:
+			case HAPdroidService.SEND_NETWORK_FLOW:
 				break;
-			case RECEIVE_TRANSACTION_TABLE:
-				break;
-			case GENERATE_GRAPHLET:
+			case HAPdroidService.GENERATE_GRAPHLET:
 				mProgressDialog.dismiss();
 				generateGraphlet();
 				break;

@@ -1,5 +1,14 @@
 package ch.hsr.hapdroid.network;
 
+/**
+ * Enumeration representing the supported network protocols.
+ * 
+ * This enumeration is used to convert the protocol numbers
+ * as received from the network to its string representation.
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public enum Proto {
 	TCP {
 		@Override
@@ -20,6 +29,12 @@ public enum Proto {
 		}
 	}, UNKNOWN;
 	
+	/**
+	 * Get the Proto enum from the network protocol number.
+	 * 
+	 * @param value network protocol number
+	 * @return Proto enum
+	 */
 	public static Proto get(int value){
 		switch (value){
 		case 1:

@@ -104,7 +104,7 @@ public class HAPdroidService extends Service {
 	private HAPdroidBinder mBinder = new HAPdroidBinder();
 	private Handler mCallbackHandler;
 	private FlowTable mFlowTable;
-	private NetworkStreamHandlerTask mTransactionCapture;
+	private LocalServerTransactionHandlerTask mTransactionCapture;
 	private HAPGraph mHAPGraphlet;
 	private Notification mNotification;
 	private String mFileDir;
@@ -131,7 +131,7 @@ public class HAPdroidService extends Service {
 	/**
 	 * Message identifier used when sending a network flow.
 	 */
-	private static final int SEND_NETWORK_FLOW = 4;
+	public static final int SEND_NETWORK_FLOW = 4;
 	/**
 	 * Message identifier for generating the graphlet. This is mainly
 	 * used once all the transactions are received.
@@ -275,7 +275,7 @@ public class HAPdroidService extends Service {
 				return;
 			}
 		}
-		mTransactionCapture = new NetworkStreamHandlerTask(SERVER_TRANSACTIONS,
+		mTransactionCapture = new LocalServerTransactionHandlerTask(SERVER_TRANSACTIONS,
 				mHandler, RECIEVE_TRANSACTION, RECIEVE_TRANSACTION_FINISH);
 		mTransactionCapture.execute();
 	}

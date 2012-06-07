@@ -1,21 +1,21 @@
 package ch.hsr.hapdroid.graph.node;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import ch.hsr.hapdroid.graph.Transaction;
 
-
+/**
+ * Since an Android device might have two active source IP
+ * addresses this class makes sure that only one source is 
+ * shown and it is always called "localhost"
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public class SourceIPNode extends IPNode {
 
 	public SourceIPNode(InetAddress ip, Transaction t) {
 		super(ip, t);
-//		try {
-//			setValue(InetAddress.getLocalHost());
-//		} catch (UnknownHostException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 	
 	@Override

@@ -5,6 +5,15 @@ import java.net.UnknownHostException;
 
 import android.util.Log;
 
+/**
+ * Class representing a captured network packet.
+ * 
+ * The Packet class is a simple data holder class for the 
+ * information contained in a network packet.
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public class Packet {
 	public static final short IPPROTO_ICMP = 1;
 	public static final short IPPROTO_TCP = 6;
@@ -31,6 +40,13 @@ public class Packet {
 				+ proto + " SIZE " + payload_size + "\n";
 	}
 
+	/**
+	 * Parse the string representation of a packet.
+	 * 
+	 * @param packet String representaion of a packet as returned by the
+	 * 		executable
+	 * @return parsed Packet instance
+	 */
 	public static final Packet parsePacket(String packet) {
 		String[] tokens = packet.split(":|-->|,");
 		if (tokens.length != 11)

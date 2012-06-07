@@ -6,7 +6,7 @@
 #include <streambuf>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include "ch_hsr_hapdroid_HAPvizLibrary.h"
+#include "ch_hsr_hapdroid_service_HAPvizLibrary.h"
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -38,12 +38,13 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
 /**
  * start definitions of the JNI binding functions
  *
- * Class:     ch_hsr_hapdroid_HAPvizLibrary
+ *
+ * Class:     ch_hsr_hapdroid_service_HAPvizLibrary
  * Method:    getTransactions
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2(
-		JNIEnv * env, jclass cl, jstring in_file, jstring serv, jstring ip,
+JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_service_HAPvizLibrary_getTransactions__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
+		(JNIEnv * env, jclass cl, jstring in_file, jstring serv, jstring ip,
 		jstring netmask) {
 	const char * inf_char = env->GetStringUTFChars(in_file, 0);
 	const char * local_server_sk_char = env->GetStringUTFChars(serv, 0);
@@ -66,8 +67,13 @@ JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions__L
 	return NULL;
 }
 
-JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_HAPvizLibrary_getTransactions___3BLjava_lang_String_2(
-		JNIEnv * env, jclass jcl, jbyteArray jcflows, jstring jserv) {
+/*
+ * Class:     ch_hsr_hapdroid_service_HAPvizLibrary
+ * Method:    getTransactions
+ * Signature: ([BLjava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_ch_hsr_hapdroid_service_HAPvizLibrary_getTransactions___3BLjava_lang_String_2
+		(JNIEnv * env, jclass jcl, jbyteArray jcflows, jstring jserv) {
 	const char * local_server_sk_char = env->GetStringUTFChars(jserv, 0);
 	std::string local_server_name(local_server_sk_char,
 			env->GetStringLength(jserv));

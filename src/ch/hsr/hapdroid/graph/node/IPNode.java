@@ -4,7 +4,13 @@ import java.net.InetAddress;
 
 import ch.hsr.hapdroid.graph.Transaction;
 
-
+/**
+ * This class was needed because the equals and toString 
+ * methods need to be handled in a special way for IP addresses.
+ * 
+ * @author "Dominik Spengler"
+ *
+ */
 public class IPNode extends Node<InetAddress>{
 	public IPNode(InetAddress ip, Transaction t) {
 		super(ip,t);

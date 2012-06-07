@@ -1,5 +1,6 @@
 package ch.hsr.hapdroid;
 
+import ch.hsr.hapdroid.gui.Graphlet;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,8 +9,30 @@ import android.content.DialogInterface.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
+/**
+ * The DialogHelper class is used to create the dialogs used in the 
+ * {@link HAPdroidGraphletActivity} used to inform the user or get user
+ * input. 
+ * 
+ * As the name indicates, this class is a helper in order to not bloat\
+ * the activity.
+ * 
+ * @author "Dominik Spengler, Remo Egli"
+ *
+ */
 public class DialogHelper {
 	
+	/**
+	 * Creates an IP input dialog.
+	 * 
+	 * The dialog created will show a simple text field with OK and Cancel
+	 * buttons.
+	 * 
+	 * @param context the {@link Context} to be used to create the dialogs
+	 * @param listener the {@link android.view.View.OnClickListener} to 
+	 * 		attach to the OK button
+	 * @return {@link AlertDialog}
+	 */
 	public static AlertDialog createIPInputDialog(Context context, OnClickListener listener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		EditText mIPEditText = new EditText(context.getApplicationContext());
@@ -25,12 +48,31 @@ public class DialogHelper {
 		return builder.create();
 	}
 
+	/**
+	 * Creates a simple {@link AlertDialog}.
+	 * 
+	 * The dialog created will inform the user that the wrong file
+	 * format has been selected.
+	 * 
+	 * @param context the {@link Context} used to create the dialog
+	 * @return {@link AlertDialog}
+	 */
 	public static AlertDialog createWrongFileDialog(Context context) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setMessage(R.string.wrong_file_message).setCancelable(true);
 		return builder.create();
 	}
 
+	/**
+	 * Create a simple {@link ProgressDialog}
+	 * 
+	 * The dialog created will inform the user about the ongoing task
+	 * of creating the {@link Graphlet} out of the captured data or out
+	 * of the selected file.
+	 * 
+	 * @param context the {@link Context} usd to create the dialog
+	 * @return {@link ProgressDialog}
+	 */
 	public static ProgressDialog createProgressDialog(Context context) {
 		ProgressDialog dialog = new ProgressDialog(context);
 		dialog.setTitle(R.string.load_graphlet_message_title);
@@ -41,6 +83,5 @@ public class DialogHelper {
 
 		return dialog;
 	}
-
 	
 }

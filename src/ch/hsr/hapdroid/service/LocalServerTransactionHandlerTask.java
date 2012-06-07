@@ -13,7 +13,22 @@ import android.os.Message;
 import android.util.Log;
 import ch.hsr.hapdroid.graph.Transaction;
 
-public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
+/**
+ * {@link AsyncTask} implementation that creates a {@link LocalServerSocket}
+ * for reading and passes callback messages to a {@link Handler}.
+ * 
+ * This class reads from the {@link LocalServerSocket} specified by 
+ * servername until the connection is closed by the client. Also it 
+ * sends a Message progressMsg containing the parsed transaction
+ * received from the local server socket to the handler. The shutdownMsg 
+ * is sent to the handler once the client closes the connection and the 
+ * task will be stopped.
+ * 
+ * @author "Dominik Spengler"
+ * @see AsyncTask
+ *
+ */
+public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, Void> {
 	private LocalServerSocket mServerSocket;
 	private BufferedReader mReader;
 	private InputStream mInputStream;
@@ -25,9 +40,17 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 	private String[] mTransactionString;
 	private int mTransactionStringPos;
 
-	private static final String LOG_TAG = "NetworkStreamHandlerTask";
+	private static final String LOG_TAG = "LocalServerTransactionHandlerTask";
 
-	public NetworkStreamHandlerTask(String servername, Handler handler,
+	/**
+	 * Constructs a new LocalServerTransactionHandlerTask.
+	 * 
+	 * @param servername name of the {@link LocalServerSocket}
+	 * @param handler callback handler
+	 * @param progressMsg message identifier for line read messages
+	 * @param shutdownMsg message identifier for shutdown message
+	 */
+	public LocalServerTransactionHandlerTask(String servername, Handler handler,
 			int progressMsg, int shutdownMsg) {
 		mServerName = servername;
 		mHandler = handler;
@@ -61,7 +84,6 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 			mInputStream = sk.getInputStream();
 			mReader = new BufferedReader(new InputStreamReader(mInputStream));
 			while ((line = mReader.readLine()) != null) {
-//				publishProgress(line);
 				handleTransaction(line);
 			}
 		} catch (IOException e) {
@@ -74,9 +96,7 @@ public class NetworkStreamHandlerTask extends AsyncTask<Void, String, Void> {
 
 	@Override
 	protected void onProgressUpdate(String... values) {
-		
-		for (String s : values) {
-		}
+		// do nothing
 	}
 	
 	private void handleTransaction(String s) {
