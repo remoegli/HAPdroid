@@ -19,6 +19,7 @@ Thumbs.db
 
 # Local configuration file (sdk path, etc)
 local.properties
+external/
 
 *.pydevproject
 .project

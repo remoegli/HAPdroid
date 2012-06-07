@@ -13,6 +13,23 @@ import android.util.Log;
 import ch.hsr.hapdroid.graph.node.Node;
 import ch.hsr.hapdroid.network.Proto;
 
+/**
+ * Graph representation of the HAPGraphlet.
+ * 
+ * This class provides a Java Graph representation of the HAPGraphlet
+ * based on the jGrapht library, more specifically on a Pseudograph from
+ * jGrapht. We use a Pseudograph since it allows for multiple edges and
+ * loops.
+ * 
+ * The HAPGraphlet class contains a set of transactions and a {@link NodeList}
+ * for each of the different sections (local ip, protocol, local port, 
+ * destination port, destination ip).
+ * 
+ * @author "Dominik Spengler"
+ * @see NodeList
+ * @see http://jgrapht.org/
+ *
+ */
 public class HAPGraph extends Pseudograph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mSrcIp;
 	private NodeList<Proto> mProto;
@@ -21,9 +38,6 @@ public class HAPGraph extends Pseudograph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mDstIp;
 	private Set<Transaction> mTransactionList;
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private static final String LOG_tAG = "HAPGraphlet";
 
@@ -38,26 +52,59 @@ public class HAPGraph extends Pseudograph<Node<?>, DefaultEdge>{
 		mDstIp = new UniqueNodeList<InetAddress>();
 	}
 	
+	/**
+	 * Getter for the source IP node list.
+	 * 
+	 * @return {@link NodeList} of source IPs
+	 */
 	public NodeList<InetAddress> getSrcIpList() {
 		return mSrcIp;
 	}
 
+	/**
+	 * Getter for the protocol node list.
+	 * 
+	 * @return {@link NodeList} of protocols
+	 */
 	public NodeList<Proto> getProtoList() {
 		return mProto;
 	}
 
+	/**
+	 * Getter for the source port node list.
+	 * 
+	 * @return {@link NodeList} of source ports
+	 */
 	public NodeList<Integer> getSrcPortList() {
 		return mSrcPort;
 	}
 
+	/**
+	 * Getter for the destination port node list.
+	 * 
+	 * @return {@link NodeList} of destination ports
+	 */
 	public NodeList<Integer> getDstPortList() {
 		return mDstPort;
 	}
 
+	/**
+	 * Getter for the destination IP node list.
+	 * 
+	 * @return {@link NodeList} of destination IPs
+	 */
 	public NodeList<InetAddress> getDstIpList() {
 		return mDstIp;
 	}
 
+	/**
+	 * Adds a transaction to the graphlet.
+	 * 
+	 * Does nothing if the transaction is null or already
+	 * exists inside the HAPGraphlet. 
+	 * 
+	 * @param {@link Transaction} to be added
+	 */
 	public void add(Transaction trans){
 		Log.d(LOG_tAG, "adding Transaction: "+trans);
 		if (trans == null)
@@ -100,6 +147,12 @@ public class HAPGraph extends Pseudograph<Node<?>, DefaultEdge>{
 		return null;
 	}
 
+	/**
+	 * Show the transactions inside the graphlet.
+	 * 
+	 * @return a string representation of the transactions contained
+	 * 		in the graphlet.
+	 */
 	public String showTransactions() {
 		return mTransactionList.toString();
 	}
