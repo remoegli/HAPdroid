@@ -1,4 +1,4 @@
-/**\package ch.hsr.hapdroid.transaction;
+/**\package ch.hsr.hapdroid.graph;
  * \brief short description
  * 
  * detailed description
