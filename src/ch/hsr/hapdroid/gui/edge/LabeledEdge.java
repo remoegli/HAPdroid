@@ -24,6 +24,9 @@ public class LabeledEdge extends BaseEdge {
 		this.attachChild(edgeLabel);
 	}
 	
+	/**
+	 * @see ch.hsr.hapdroid.gui.edge.BaseEdge#update()
+	 */
 	@Override
 	public void update(){
 		super.update();

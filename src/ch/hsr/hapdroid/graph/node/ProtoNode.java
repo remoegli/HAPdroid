@@ -18,6 +18,7 @@ public class ProtoNode extends Node<Proto> {
 	/**
 	 * Make sure the equals method compares the stored 
 	 * {@link Proto} value.
+	 * 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object o) {

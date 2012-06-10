@@ -65,7 +65,7 @@ public class Node<V>{
 		return mSummarized;
 	}
 	
-	/*
+	/**
 	 * Sets the node as summarized or not.
 	 */
 	public void setSummarized(boolean b) {
@@ -80,6 +80,9 @@ public class Node<V>{
 		this.active = active;
 	}
 	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return value.toString();

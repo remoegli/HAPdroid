@@ -30,6 +30,9 @@ public class Timeval implements Comparable<Timeval> {
 		this(other.getSeconds(), other.getMicroseconds());
 	}
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return getDate().toLocaleString();
@@ -118,6 +121,9 @@ public class Timeval implements Comparable<Timeval> {
 		return b;
 	}
 
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	@Override
 	public int compareTo(Timeval another) {
 		long diff = getSeconds() - another.getSeconds();

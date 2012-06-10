@@ -76,6 +76,9 @@ public class HAPdroidService extends Service {
 	}
 
 	private Handler mHandler = new Handler() {
+		/**
+		 * @see android.os.Handler#handleMessage(android.os.Message)
+		 */
 		@Override
 		public void handleMessage(Message msg) {
 			Transaction t;
@@ -159,7 +162,7 @@ public class HAPdroidService extends Service {
 	}
 
 	/**
-	 * 
+	 * @see android.app.Service#onCreate()
 	 */
 	@Override
 	public void onCreate() {
@@ -207,22 +210,34 @@ public class HAPdroidService extends Service {
 				getText(R.string.notification_message), pendingIntent);
 	}
 
+	/**
+	 * @see android.app.Service#onBind(android.content.Intent)
+	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return mBinder;
 	}
 
+	/**
+	 * @see android.app.Service#onUnbind(android.content.Intent)
+	 */
 	@Override
 	public boolean onUnbind(Intent intent) {
 		setCallbackHandler(null);
 		return super.onUnbind(intent);
 	}
 
+	/**
+	 * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
+	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		return Service.START_STICKY;
 	}
 
+	/**
+	 * @see android.app.Service#onDestroy()
+	 */
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -538,12 +553,18 @@ public class HAPdroidService extends Service {
 			mSource = source;
 		}
 
+		/**
+		 * @see com.stericson.RootTools.RootTools.Result#processError(java.lang.String)
+		 */
 		@Override
 		public void processError(String line) throws Exception {
 			// TODO Auto-generated method stub
 
 		}
 
+		/**
+		 * @see com.stericson.RootTools.RootTools.Result#process(java.lang.String)
+		 */
 		@Override
 		public void process(String line) throws Exception {
 			mCurrentPacket = Packet.parsePacket(line);
@@ -551,12 +572,18 @@ public class HAPdroidService extends Service {
 			handlePacket(mCurrentPacket);
 		}
 
+		/**
+		 * @see com.stericson.RootTools.RootTools.Result#onFailure(java.lang.Exception)
+		 */
 		@Override
 		public void onFailure(Exception ex) {
 			// TODO Auto-generated method stub
 
 		}
 
+		/**
+		 * @see com.stericson.RootTools.RootTools.Result#onComplete(int)
+		 */
 		@Override
 		public void onComplete(int diag) {
 			mHandler.sendEmptyMessage(RECIEVE_PACKET_FINISH);

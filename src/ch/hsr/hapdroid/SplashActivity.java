@@ -42,6 +42,10 @@ public class SplashActivity extends BaseGameActivity {
 	/**
 	 * The width and height of the Camera and the RatioResolutionPolicy are taken from the image
 	 * to prevent it's distortion.
+	 * 
+	 * This method is called at the onCreate() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadEngine() 
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	public Engine onLoadEngine() {
@@ -55,6 +59,11 @@ public class SplashActivity extends BaseGameActivity {
 		return new Engine(new EngineOptions(false, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(width, height), this.mCamera));
 	}
 
+	/**
+	 * This method is called first at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadResources()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
+	 */
 	@Override
 	public void onLoadResources() {
 		final BitmapTextureAtlas loadingScreenBitmapTextureAtlas = BitmapTextureAtlasFactory.createForTextureAtlasSourceSize(BitmapTextureFormat.RGBA_8888, this.mSplashTextureAtlasSource, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -66,6 +75,10 @@ public class SplashActivity extends BaseGameActivity {
 	 * The size of the visible application frame must be calculated in this method
 	 * because it's passed on with the intent extras to the HAPdroidGraphletActivity
 	 * which is held in the scenes UpdateHandler. 
+	 * 
+	 * This method is called second at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadScene()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
 	 */
 	@Override
 	public Scene onLoadScene() {
@@ -90,6 +103,11 @@ public class SplashActivity extends BaseGameActivity {
 		return splashScene;
 	}
 
+	/**
+	 * This method is called third at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadComplete()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
+	 */
 	@Override
 	public void onLoadComplete() {
 	}

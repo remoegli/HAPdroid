@@ -16,6 +16,9 @@ public class IPNode extends Node<InetAddress>{
 		super(ip,t);
 	}
 	
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof IPNode){
@@ -26,6 +29,9 @@ public class IPNode extends Node<InetAddress>{
 		return super.equals(o);
 	}
 	
+	/**
+	 * @see ch.hsr.hapdroid.graph.node.Node#toString()
+	 */
 	@Override
 	public String toString() {
 		InetAddress ip = getValue();
