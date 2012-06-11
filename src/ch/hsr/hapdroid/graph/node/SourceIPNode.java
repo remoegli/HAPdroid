@@ -18,6 +18,9 @@ public class SourceIPNode extends IPNode {
 		super(ip, t);
 	}
 	
+	/**
+	 * @see ch.hsr.hapdroid.graph.node.IPNode#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof SourceIPNode)
@@ -25,6 +28,9 @@ public class SourceIPNode extends IPNode {
 		return super.equals(o);
 	}
 
+	/**
+	 * @see ch.hsr.hapdroid.graph.node.IPNode#toString()
+	 */
 	@Override
 	public String toString() {
 		return "localhost";

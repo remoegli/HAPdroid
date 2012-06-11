@@ -12,7 +12,9 @@ import ch.hsr.hapdroid.graph.node.Node;
  * @param <T>
  */
 public class UniqueNodeList<T> extends NodeList<T> {
-	
+	/**
+	 * @see ch.hsr.hapdroid.graph.NodeList#isSummarized(ch.hsr.hapdroid.graph.node.Node)
+	 */
 	@Override
 	protected boolean isSummarized(Node<T> node) {
 		return true;

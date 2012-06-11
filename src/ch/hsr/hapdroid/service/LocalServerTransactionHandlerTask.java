@@ -60,12 +60,18 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 
 	}
 
+	/**
+	 * @see android.os.AsyncTask#onPreExecute()
+	 */
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
 		Log.d(LOG_TAG, mServerName + ": Server started");
 	}
 
+	/**
+	 * @see android.os.AsyncTask#doInBackground(Params[])
+	 */
 	@Override
 	protected Void doInBackground(Void... params) {
 		try {
@@ -94,6 +100,9 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 		return null;
 	}
 
+	/**
+	 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
+	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
 		// do nothing
@@ -129,6 +138,9 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 		mTransactionStringPos = 0;
 	}
 
+	/**
+	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+	 */
 	@Override
 	protected void onPostExecute(Void result) {
 		mHandler.sendEmptyMessage(mShutdownMessage);

@@ -2,7 +2,6 @@ package ch.hsr.hapdroid.gui.node;
 
 import ch.hsr.hapdroid.gui.node.shapes.Ellipse;
 
-
 public class EllipticNode extends Ellipse{
 
 	private static final int SEGMENTS_DEFAULT = 50;
