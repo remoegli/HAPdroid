@@ -26,6 +26,7 @@ public class Graphlet extends Scene{
 	private final float CAMERA_HEIGHT;
 	private final float AREA_WIDTH;
 	private final float AREA_ALPHA = 0.2f;
+	private final float COLOR_DIV = 255;
 	private Area srcIPArea;
 	private Area protoArea;
 	private Area srcPortArea;
@@ -60,19 +61,19 @@ public class Graphlet extends Scene{
 		//Areas
 		srcIPArea = new Area(0, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(srcIPArea);
-		srcIPArea.setColor(0, 0.2f, 0.2f, AREA_ALPHA);
+		srcIPArea.setColor(117/COLOR_DIV, 12/COLOR_DIV, 232/COLOR_DIV, AREA_ALPHA);
 		protoArea = new Area(AREA_WIDTH, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(protoArea);
-		protoArea.setColor(0.5f, 0, 0, AREA_ALPHA);
+		protoArea.setColor(255/COLOR_DIV, 37/COLOR_DIV, 13/COLOR_DIV, AREA_ALPHA);
 		srcPortArea = new Area(AREA_WIDTH*2, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(srcPortArea);
-		srcPortArea.setColor(0, 0.5f, 0, AREA_ALPHA);
+		srcPortArea.setColor(0/COLOR_DIV, 192/COLOR_DIV, 255/COLOR_DIV, AREA_ALPHA);
 		dstPortArea = new Area(AREA_WIDTH*3, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(dstPortArea);
-		dstPortArea.setColor(0, 0, 0.5f, AREA_ALPHA);
+		dstPortArea.setColor(21/COLOR_DIV, 232/COLOR_DIV, 12/COLOR_DIV, AREA_ALPHA);
 		dstIPArea = new Area(AREA_WIDTH*4, 0, AREA_WIDTH, CAMERA_HEIGHT);
 		areas.add(dstIPArea);
-		dstIPArea.setColor(0.2f, 0.2f, 0, AREA_ALPHA);
+		dstIPArea.setColor(255/COLOR_DIV, 209/COLOR_DIV, 8/COLOR_DIV, AREA_ALPHA);
 		
 		//Attach Areas to Scene and register TouchHandler
 		for(Area area : areas){
