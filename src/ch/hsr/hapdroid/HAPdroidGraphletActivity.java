@@ -99,6 +99,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private static final String LOG_TAG = "HAPdroidGraphletActivity";
 
 	private Handler mHandler = new Handler() {
+		/**
+		 * @see android.os.Handler#handleMessage(android.os.Message)
+		 */
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -113,7 +116,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	};
 
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
-	
+		/**
+		 * @see android.content.ServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder)
+		 */
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			HAPdroidBinder binder = (HAPdroidBinder) service;
@@ -123,7 +128,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 			mService.setCallbackHandler(mHandler);
 			setOnClickListeners();
 		}
-	
+		/**
+		 * @see android.content.ServiceConnection#onServiceDisconnected(android.content.ComponentName)
+		 */
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
 			mBound = false;
@@ -157,6 +164,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Toast mWrongIPToast;
 	private String mFilePath;
 
+	/**
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -190,6 +200,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	
 	private void setOnClickListeners() {
 		mOnClickStart = new OnClickListener() {
+			/**
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				startService(mServiceIntent);
@@ -199,7 +212,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		};
 
 		mOnClickStop = new OnClickListener() {
-
+			/**
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				if (mService.hasPacketsCaptured()) {
@@ -216,7 +231,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		mBtnImport.setOnClickListener(new OnClickListener() {
 			Intent intent = new Intent();
-
+			/**
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				intent.setClass(getBaseContext(), FileImportActivity.class);
@@ -226,7 +243,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		});
 
 		mBtnExport.setOnClickListener(new OnClickListener() {
-
+			/**
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				File file = new File(Environment.getExternalStorageDirectory(),
@@ -277,6 +296,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
+	/**
+	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICK_FILE) {
@@ -322,6 +344,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		switchSaveButton();
 	}
 
+	/**
+	 * @see android.app.Activity#onStop()
+	 */
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -332,6 +357,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		}
 	}
 
+	/**
+	 * This method is called at the onCreate() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadEngine() 
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public Engine onLoadEngine() {
 
@@ -382,6 +412,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		return myEngine;
 	}
 
+	/**
+	 * This method is called first at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadResources()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
+	 */
 	@Override
 	public void onLoadResources() {
 		mTex = new BitmapTextureAtlas(1024, 1024,
@@ -390,6 +425,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				Typeface.NORMAL), 15, true, Color.BLACK);
 	}
 
+	/**
+	 * This method is called second at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadScene()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
+	 */
 	@Override
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -418,7 +458,9 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * This method is called third at the onResume() method of the activity life cycle.
+	 * @see org.anddev.andengine.ui.IGameInterface#onLoadComplete()
+	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
 	 */
 	@Override
 	public void onLoadComplete() {
@@ -428,7 +470,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener#onSceneTouchEvent(org.anddev.andengine.entity.scene.Scene, org.anddev.andengine.input.touch.TouchEvent)
 	 */
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
@@ -451,7 +493,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener#onScroll(org.anddev.andengine.input.touch.detector.ScrollDetector, org.anddev.andengine.input.touch.TouchEvent, float, float)
 	 */
 	@Override
 	public void onScroll(ScrollDetector pScollDetector, TouchEvent pTouchEvent,
@@ -462,7 +504,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener#onPinchZoomStarted(org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector, org.anddev.andengine.input.touch.TouchEvent)
 	 */
 	@Override
 	public void onPinchZoomStarted(PinchZoomDetector pPinchZoomDetector,
@@ -472,7 +514,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener#onPinchZoom(org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector, org.anddev.andengine.input.touch.TouchEvent, float)
 	 */
 	@Override
 	public void onPinchZoom(PinchZoomDetector pPinchZoomDetector,
@@ -485,7 +527,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener#onPinchZoomFinished(org.anddev.andengine.extension.input.touch.detector.PinchZoomDetector, org.anddev.andengine.input.touch.TouchEvent, float)
 	 */
 	@Override
 	public void onPinchZoomFinished(PinchZoomDetector pPinchZoomDetector,
@@ -498,7 +540,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.ui.activity.LayoutGameActivity#getLayoutID()
 	 */
 	@Override
 	protected int getLayoutID() {
@@ -506,7 +548,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @see org.anddev.andengine.ui.activity.LayoutGameActivity#getRenderSurfaceViewID()
 	 */
 	@Override
 	protected int getRenderSurfaceViewID() {

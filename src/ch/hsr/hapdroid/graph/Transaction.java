@@ -140,6 +140,9 @@ public class Transaction {
 		this.mSrcIp = node;
 	}
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		String result = "[ " + mSrcIp.toString() + ", " +
@@ -152,6 +155,9 @@ public class Transaction {
 		return result.toString();
 	}
 
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Transaction){

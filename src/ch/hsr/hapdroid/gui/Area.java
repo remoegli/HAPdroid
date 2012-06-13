@@ -117,6 +117,9 @@ public class Area extends Rectangle{
 		}
 	}
 	
+	/**
+	 * @see org.anddev.andengine.entity.Entity#setPosition(float, float)
+	 */
 	@Override
 	public void setPosition(final float pX, final float pY) {
 		super.setPosition(pX, pY);
@@ -129,6 +132,9 @@ public class Area extends Rectangle{
 		edges.clear();
 	}
 	
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#onAreaTouched(org.anddev.andengine.input.touch.TouchEvent, float, float)
+	 */
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		switch(pSceneTouchEvent.getAction()) {

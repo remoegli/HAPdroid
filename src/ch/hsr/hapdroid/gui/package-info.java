@@ -1,4 +1,4 @@
-/**\package ch.hsr.hapdroid.graphlet
+/**\package ch.hsr.hapdroid.gui
  * \brief Contains all GUI and AndEngine related code.
  * 
  * The classes on this level contain the main screen elements which are either used by AndEngine (Graphlet extends Scene)

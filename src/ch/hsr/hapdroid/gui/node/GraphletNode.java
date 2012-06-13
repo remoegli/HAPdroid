@@ -41,11 +41,17 @@ public class GraphletNode extends BaseRectangle{
 		return mNode;
 	}
 	
+	/**
+	 * @see org.anddev.andengine.entity.Entity#setPosition(float, float)
+	 */
 	@Override
 	public void setPosition(float x, float y) {
 		super.setPosition(x-(this.getWidth()/2), y-(this.getHeight()/2));
 	}
 
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o){
 		if(o instanceof GraphletNode){

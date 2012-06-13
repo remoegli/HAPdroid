@@ -57,6 +57,9 @@ public class NodeList<T> implements Iterable<Node<T>>{
 		return node.isSummarized();
 	}
 
+	/**
+	 * @see java.lang.Iterable#iterator()
+	 */
 	@Override
 	public Iterator<Node<T>> iterator() {
 		return mNodeList.iterator();

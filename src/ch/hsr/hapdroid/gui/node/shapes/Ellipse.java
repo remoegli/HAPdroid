@@ -73,6 +73,9 @@ public class Ellipse extends Shape {
 		this.updateVertexBuffer();
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.Entity#getSceneCenterCoordinates()
+	 */
 	@Override
 	public float[] getSceneCenterCoordinates() {
 		return this.convertLocalToSceneCoordinates(this.width * 0.5f,
@@ -105,21 +108,33 @@ public class Ellipse extends Shape {
 				collisionRectangle, pX, pY); // TODO Ellipse Collision
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#onUpdateVertexBuffer()
+	 */
 	@Override
 	protected void onUpdateVertexBuffer() {
 		vertexBuffer.update(segments, getWidth(), getHeight(), filledMode);
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#getVertexBuffer()
+	 */
 	@Override
 	public EllipseVertexBuffer getVertexBuffer() { // was protected
 		return vertexBuffer;
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#isCulled(org.anddev.andengine.engine.camera.Camera)
+	 */
 	@Override
 	protected boolean isCulled(Camera pCamera) {
 		return false;
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#onInitDraw(javax.microedition.khronos.opengles.GL10)
+	 */
 	@Override
 	protected void onInitDraw(final GL10 pGL) {
 		super.onInitDraw(pGL);
@@ -130,6 +145,9 @@ public class Ellipse extends Shape {
 		GLHelper.lineWidth(pGL, lineWidth);
 	}
 
+	/**
+	 * @see org.anddev.andengine.entity.shape.Shape#drawVertices(javax.microedition.khronos.opengles.GL10, org.anddev.andengine.engine.camera.Camera)
+	 */
 	@Override
 	protected void drawVertices(GL10 gl, Camera pCamera) {
 		gl.glDrawArrays(filledMode, 0, segments);
