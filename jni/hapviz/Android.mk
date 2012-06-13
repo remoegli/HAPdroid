@@ -1,6 +1,5 @@
-MY_PATH := $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
-LOCAL_PATH := $(MY_PATH)
 
 LOCAL_SRC_FILES :=\
 	cflow.cpp\
@@ -20,14 +19,13 @@ LOCAL_SRC_FILES :=\
 
 LOCAL_MODULE := hapviz
 
-LOCAL_C_INCLUDES := $(NDK_ROOT)/external/boost
+LOCAL_C_INCLUDES := $(MY_PATH)/external/boost
 LOCAL_SHARED_LIBRARIES :=\
 	boost_iostreams\
 	boost_regex
 LOCAL_LDLIBS := -lz -llog
 
 include $(BUILD_SHARED_LIBRARY)
-include $(MY_PATH)/boost/iostreams.mk
-include $(MY_PATH)/boost/thread.mk
-include $(MY_PATH)/boost/regex.mk
+include $(MY_PATH)/external/boost-iostreams.mk
+include $(MY_PATH)/external/boost-regex.mk
 

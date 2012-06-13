@@ -1,0 +1,14 @@
+In order to compile the netdump executable, the libpcap library needs to be cloned to this location.
+Perform the following steps to get the code:
+
+1. 	In this directory do: 
+	
+	git clone https://github.com/android/platform_external_libpcap.git libpcap
+
+2. 	Get the boost libraries from http://www.boost.org/ and save them in this directory
+	The libs directory should be in a subfolder called boost. (./boost/libs)
+
+3.	Patch the boost libraries with the provided patches.
+	patch -p0 < patches/endian.hpp.patch 
+	
+	

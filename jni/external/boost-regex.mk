@@ -1,4 +1,4 @@
-LOCAL_PATH:= $(NDK_ROOT)/external/boost/libs/regex/src
+LOCAL_PATH:= $(MY_PATH)/external/boost/libs/regex/src
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:=\
@@ -20,7 +20,7 @@ LOCAL_SRC_FILES:=\
 	wide_posix_api.cpp\
 	winstances.cpp\
 
-LOCAL_C_INCLUDES := $(NDK_ROOT)/external/boost
+LOCAL_C_INCLUDES := $(MY_PATH)/external/boost
 LOCAL_MODULE:= boost_regex
 
 include $(BUILD_SHARED_LIBRARY)
