@@ -1,6 +1,5 @@
-diff -u -r boost-old/boost/detail/endian.hpp boost/boost/detail/endian.hpp
---- boost-old/boost/detail/endian.hpp	2010-11-17 11:51:56.000000000 +0200
-+++ boost/boost/detail/endian.hpp	2011-07-28 13:51:36.988916179 +0300
+--- old/boost/detail/endian.hpp	2012-06-14 01:30:13.259839531 +0200
++++ boost/boost/detail/endian.hpp	2012-06-14 01:37:57.459818832 +0200
 @@ -31,7 +31,7 @@
  // GNU libc offers the helpful header <endian.h> which defines
  // __BYTE_ORDER
