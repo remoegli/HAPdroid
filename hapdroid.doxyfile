@@ -1577,11 +1577,11 @@ SKIP_FUNCTION_MACROS   = YES
 # NOT include the path). If a tag file is not located in the directory in which 
 # doxygen is run, you must also specify the path to the tagfile here.
 
-TAGFILES               = doc/external/afilechooser/afilechooser.tag \
-                         doc/external/AndEngine/andengine.tag \
-                         doc/external/andenginemultitouchextension/multitouch.tag \
-                         doc/external/jgrapht/jgrapht-core.tag \
-                         doc/external/roottools/roottools.tag
+TAGFILES               = doc/external/afilechooser/afilechooser.tag=../../../doc/external/afilechooser/doc=../../../afilechooser/doc/html \
+                         doc/external/AndEngine/andengine.tag=../../../doc/external/AndEngine/doc/html \
+                         doc/external/andenginemultitouchextension/multitouch.tag=../../../doc/external/andenginemultitouchextension/doc/html \
+                         doc/external/jgrapht/jgrapht-core.tag=../../../doc/external/jgrapht/jgrapht-core/doc/html \
+                         doc/external/roottools/roottools.tag=../../../doc/external/roottools/doc/html
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads.

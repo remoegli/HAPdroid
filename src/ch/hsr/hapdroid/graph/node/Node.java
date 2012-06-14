@@ -1,8 +1,5 @@
 package ch.hsr.hapdroid.graph.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.hsr.hapdroid.graph.HAPGraph;
 import ch.hsr.hapdroid.graph.Transaction;
 
@@ -15,22 +12,14 @@ import ch.hsr.hapdroid.graph.Transaction;
  * @param <V> the value inside the node
  */
 public class Node<V>{
-	private int id;
-	private boolean active;
 	private V value;
-	private List<Node<V>> nodes;
 	private boolean mSummarized;
 	private Transaction mTransaction;
 
 	public Node(V value, Transaction t) {
 		this.value = value;
-		nodes = new ArrayList<Node<V>>();
 		mSummarized = false;
 		mTransaction = t;
-	}
-	
-	private boolean addNode(Node<V> node) {
-		return nodes.add(node);
 	}
 	
 	/**
@@ -51,10 +40,6 @@ public class Node<V>{
 		this.value = value;
 	}
 	
-	private int getId() {
-		return id;
-	}
-	
 	/**
 	 * Whether or not the node is summarized.
 	 * 
@@ -72,14 +57,6 @@ public class Node<V>{
 		mSummarized = b;
 	}
 
-	private boolean isActive() {
-		return active;
-	}
-
-	private void setActive(boolean active) {
-		this.active = active;
-	}
-	
 	/**
 	 * @see java.lang.Object#toString()
 	 */

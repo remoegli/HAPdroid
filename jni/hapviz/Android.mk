@@ -21,8 +21,8 @@ LOCAL_MODULE := hapviz
 
 LOCAL_C_INCLUDES := $(MY_PATH)/external/boost
 LOCAL_SHARED_LIBRARIES :=\
+	boost_regex\
 	boost_iostreams\
-	boost_regex
 LOCAL_LDLIBS := -lz -llog
 
 include $(BUILD_SHARED_LIBRARY)

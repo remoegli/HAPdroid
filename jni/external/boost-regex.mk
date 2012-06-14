@@ -1,4 +1,4 @@
-LOCAL_PATH:= $(MY_PATH)/external/boost/libs/regex/src
+LOCAL_PATH:= $(call my-dir)/boost/libs/regex/src
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:=\

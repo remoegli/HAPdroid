@@ -156,10 +156,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header,
 	/* get payload size */
 	int size_header = size_ip + size_transp;
 	size_payload = ntohs(ip->ip_len) - size_header;
-//	size_payload = sizeof(packet);
 
 	/*
-	 * Print header data.
+	 * Print packet data.
 	 */
 	fdprintf(fd, "%s:%d:", dev, ip_p);
 	fdprintf(fd, "%s:%d", inet_ntoa(ip->ip_src), ntohs(transp->h_sport));

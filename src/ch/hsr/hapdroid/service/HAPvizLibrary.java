@@ -13,7 +13,6 @@ import android.net.LocalServerSocket;
 public class HAPvizLibrary {
 	static {
 		System.loadLibrary("boost_regex");
-		System.loadLibrary("boost_thread");
 		System.loadLibrary("boost_iostreams");
 		System.loadLibrary("hapviz");
 		System.loadLibrary("hapvizwrapper");
