@@ -70,6 +70,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		IPinchZoomDetectorListener {
 
 	/**
+	 * Font size for the node and edge descriptions
+	 */
+	private static final int FONT_SIZE = 15;
+	/**
 	 * Message identifier for receiving network flow
 	 */
 	public static final int RECEIVE_NETWORK_FLOW = 0;
@@ -364,6 +368,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
+	 * The screen width and height are read from the intent which should have been saved
+	 * there by the SplashActivity.
+	 * The device is tested on its multi-touch capabilities.
+	 * 
 	 * This method is called at the onCreate() method of the activity life cycle.
 	 * @see org.anddev.andengine.ui.IGameInterface#onLoadEngine() 
 	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#onCreate(android.os.Bundle)
@@ -388,11 +396,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		RatioResolutionPolicy pResolutionPolicy = new RatioResolutionPolicy(
 				screenWidth, screenHeight);
-		mZoomCamera = new ZoomCamera(0, 0, screenWidth, screenHeight); // floats
-																		// pX,
-																		// pY,
-																		// pWidth,
-																		// pHeight
+		mZoomCamera = new ZoomCamera(0, 0, screenWidth, screenHeight);
 		mZoomCamera.setBoundsEnabled(true);
 		mZoomCamera.setBounds(0, screenWidth, 0, screenHeight);
 		EngineOptions pEngineOptions = new EngineOptions(false,
@@ -419,6 +423,8 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	}
 
 	/**
+	 * The font which is used throughout the whole GUI is created in this method.
+	 * 
 	 * This method is called first at the onResume() method of the activity life cycle.
 	 * @see org.anddev.andengine.ui.IGameInterface#onLoadResources()
 	 * @see org.anddev.andengine.ui.activity.BaseGameActivity#doResume()
@@ -428,7 +434,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mTex = new BitmapTextureAtlas(1024, 1024,
 				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mFont = new Font(mTex, Typeface.create(Typeface.DEFAULT,
-				Typeface.NORMAL), 15, true, Color.BLACK);
+				Typeface.NORMAL), FONT_SIZE, true, Color.BLACK);
 	}
 
 	/**
@@ -442,8 +448,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 		mGraphlet = new Graphlet(screenWidth, screenHeight, mFont);
 		mGraphlet.setOnSceneTouchListener(this);
+
+		/**
+		 * Enables a more comfortable scrolling for the user because the finger can be
+		 *  dragged out of the initial touch area without losing control over it.
+		 */
 		mGraphlet.setTouchAreaBindingEnabled(true);
-		// mGraphlet.setOnAreaTouchTraversalFrontToBack();
 		mGraphlet.setBackground(new ColorBackground(1f, 1f, 1f));
 
 		this.mScrollDetector = new SurfaceScrollDetector(this);

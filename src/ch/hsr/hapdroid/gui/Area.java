@@ -80,6 +80,11 @@ public class Area extends Rectangle{
 		updateNodePositions();
 	}
 	
+	/**
+	 * 
+	 * @param node A GraphletNode containing the exact value required
+	 * @return Returns the instance of a GraphletNode if existent with the specified value
+	 */
 	public GraphletNode getNode(GraphletNode node){
 		if(nodes.indexOf(node)>-1){
 			return nodes.get(nodes.indexOf(node));
@@ -87,20 +92,35 @@ public class Area extends Rectangle{
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return Returns an iterator for all GraphletNode instanced contained in this Area.
+	 */
 	public Iterator<GraphletNode> getNodeIterator(){
 		return nodes.iterator();
 	}
 	
+	/**
+	 * Adds an edge which is connected to a GraphletNode contained in this Area.
+	 * Required so only the related edges are redrawn if the Area changes.  
+	 * @param edge 
+	 */
 	public void addEdge(BaseEdge edge){
 		edges.add(edge);
 	}
 
+	/**
+	 * Updates all the edges which are connected to a GraphletNode contained in this Area.
+	 */
 	public void updateEdges(){
 		for(BaseEdge edge : edges){
 			edge.update();
 		}
 	}
 
+	/**
+	 * (Re)Calculates the position and distribution of all GraphletNode instances if a new one is added. 
+	 */
 	private void updateNodePositions() {
 		//Every node with it's spacing plus the extra spacing at the top
 		float height = NODESPACING;
@@ -126,6 +146,9 @@ public class Area extends Rectangle{
 		updateEdges();
 	}
 	
+	/**
+	 * Removes all contained GUI elements.
+	 */
 	public void clear(){
 		detachChildren();
 		nodes.clear();

@@ -17,6 +17,14 @@ import ch.hsr.hapdroid.gui.edge.DirectedEdge;
 import ch.hsr.hapdroid.gui.edge.LabeledEdge;
 import ch.hsr.hapdroid.gui.node.GraphletNode;
 
+/**\class Graphlet
+ * Graphlet is the top level container of all the other GUI elements.
+ * A GUI object which is not attached to the Graphlet or one of its children
+ * is not drawn.
+ * 
+ * @author Remo Egli
+ *
+ */
 public class Graphlet extends Scene{
 
 	private static final String LOG_TAG = "HAPdroid.Graphlet";
@@ -34,6 +42,12 @@ public class Graphlet extends Scene{
 	private Area dstIPArea;
 	private HAPGraph hapGraphlet;
 	
+	/**
+	 * 
+	 * @param cameraWidth
+	 * @param cameraHeight
+	 * @param aFont
+	 */
 	public Graphlet(float cameraWidth, float cameraHeight, Font aFont){
 		super();
 		areas = new Vector<Area>();
@@ -49,10 +63,10 @@ public class Graphlet extends Scene{
 		createAreas();
 	}
 	
-	public static Font getFont(){
-		return sFont;
-	}
-
+	/**
+	 * Creates and aligns an area for each field of the Berkeley socket model:
+	 * source IP, protocol, source port, destination port, destination IP
+	 */
 	private void createAreas() {
 		AreaLabels areaLabels = new AreaLabels(AREA_WIDTH);
 		areaLabels.setZIndex(15);
@@ -84,18 +98,22 @@ public class Graphlet extends Scene{
 		this.sortChildren();
 	}
 	
-	public void update(HAPGraph graphlet) {
+	/**
+	 * 
+	 * @param graph The Graphlet will render and display this graph data structure
+	 */
+	public void update(HAPGraph graph) {
 		Log.v(LOG_TAG, "updating Graphlet");
 		clear();
-		hapGraphlet = graphlet;
-		Log.v(LOG_TAG, "Graphlet HashCode: " + graphlet.hashCode());
+		hapGraphlet = graph;
+		Log.v(LOG_TAG, "Graphlet HashCode: " + graph.hashCode());
 		
 		Log.v(LOG_TAG, "drawing Nodes");
-		srcIPArea.addAllNodes(graphlet.getSrcIpList());
-		protoArea.addAllNodes(graphlet.getProtoList());
-		srcPortArea.addAllNodes(graphlet.getSrcPortList());
-		dstPortArea.addAllNodes(graphlet.getDstPortList());
-		dstIPArea.addAllNodes(graphlet.getDstIpList());
+		srcIPArea.addAllNodes(graph.getSrcIpList());
+		protoArea.addAllNodes(graph.getProtoList());
+		srcPortArea.addAllNodes(graph.getSrcPortList());
+		dstPortArea.addAllNodes(graph.getDstPortList());
+		dstIPArea.addAllNodes(graph.getDstIpList());
 		
 		Log.v(LOG_TAG, "drawing Edges");
 		findEdges(srcIPArea, protoArea, BaseEdge.class);
@@ -106,7 +124,14 @@ public class Graphlet extends Scene{
 		refreshEdges();
 	}
 
-	//TODO: Review
+	/**
+	 * This method is used to determine all the edges which connect the nodes
+	 * of two specific areas.
+	 * 
+	 * @param left The left Area containing nodes
+	 * @param right The right Area containing nodes
+	 * @param edgetype Depending on which type of node (IP, port, protocol) the area contains different edges are used 
+	 */
 	private void findEdges(Area left, Area right, Class<?> edgetype) {
 		Iterator<GraphletNode> iterator = left.getNodeIterator();
 		while(iterator.hasNext()){
@@ -123,7 +148,12 @@ public class Graphlet extends Scene{
 		}
 	}
 
-	//TODO: Review
+	/**
+	 * 
+	 * @param left The left GraphletNode the edge connects to 
+	 * @param right The right GraphletNode the edge connects to
+	 * @param edgetype The type of edge it represents
+	 */
 	private void createEdge(GraphletNode left, GraphletNode right, Class<?> edgetype){
 		BaseEdge edge;
 		if(edgetype.equals(DirectedEdge.class)){
@@ -145,6 +175,9 @@ public class Graphlet extends Scene{
 		((Area)right.getParent()).addEdge(edge);
 	}
 	
+	/**
+	 * Recalculates the position of each edge
+	 */
 	private void refreshEdges(){
 		for(Area area : areas){
 			area.updateEdges();
@@ -152,6 +185,9 @@ public class Graphlet extends Scene{
 		this.sortChildren();
 	}
 
+	/**
+	 * Removes the graphlet and all related objects
+	 */
 	private void clear(){
 		for(BaseEdge edge : edges){
 			this.detachChild(edge);
@@ -163,6 +199,13 @@ public class Graphlet extends Scene{
 		}
 	}
 
+	/**
+	 * Enables the Graphlet to receive TouchEvents
+	 * 
+	 * @param pScene
+	 * @param pSceneTouchEvent
+	 * @return
+	 */
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		return true;
 	}
