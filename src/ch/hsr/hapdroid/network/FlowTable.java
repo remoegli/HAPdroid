@@ -30,6 +30,7 @@ public class FlowTable {
 	private Timeval mStartTime;
 	private Timeval mEndTime;
 	private ArrayList<InetAddress> mLocalIpAddresses;
+	private boolean mRecieving;
 	
 	public FlowTable() {
 		mFlowList = new ArrayList<Flow>();
@@ -60,12 +61,17 @@ public class FlowTable {
 	 * @param ip as a dotted formated string.
 	 */
 	public void setSourceIp(String ip) {
+		mLocalIpAddresses.clear();
 		try {
 			mLocalIpAddresses.add(InetAddress.getByName(ip));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void resetSourceIp() {
+		getLocalIpAddresses();
 	}
 
 	/**
@@ -102,14 +108,24 @@ public class FlowTable {
 	 * 
 	 * Adds the given packet to the flow table and updates start
 	 * and end time accordingly.
+	 * The packet only is added if source or destination address
+	 * matches one of the device addresses or the address specified
+	 * by {@link #setSourceIp(String)}. Also no packets are added if
+	 * {@link #stopRecieving()} was called before.
 	 * 
+	 * @see #stopRecieving()
+	 * @see #setSourceIp(String)
 	 * @param {@link Packet}}
+	 * @return true if the packet has been added,
+	 * 		false otherwise
 	 */
 	public boolean add(Packet packet) {
+		if (!mRecieving)
+			return false;
+		
 		if (mLocalIpAddresses.isEmpty())
 			getLocalIpAddresses();
 		
-		boolean toreturn = false;
 		Flow f = getFlowFor(packet);
 
 		if (f == null){
@@ -119,12 +135,11 @@ public class FlowTable {
 			}
 		} else {
 			addPacketToFlow(packet, f);
-			toreturn = false;
 		}
 		
 		setStartTime(f);
 		setEndTime(f);
-		return toreturn;
+		return true;
 	}
 
 	private void setStartTime(Flow f) {
@@ -158,7 +173,8 @@ public class FlowTable {
 			f.setDirection(Flow.TYPE_INCOMING);
 			f.reverse();
 		} else{
-			//ignore packet
+			//ignore packets not from or to the souce ip
+			Log.d(LOG_TAG, "packet ignored. Not a local IP");
 			return null;
 		}
 		mFlowList.add(f);
@@ -289,5 +305,28 @@ public class FlowTable {
 	 */
 	public boolean isEmpty() {
 		return mFlowList.isEmpty();
+	}
+
+	/**
+	 * Allow adding packets and flows and to the flow table.
+	 * 
+	 * @see #stopRecieving()
+	 */
+	public void startRecieving() {
+		mRecieving = true;
+	}
+
+	/**
+	 * Stop adding packets to the flows and the flow table.
+	 * 
+	 * This is necessary to prevent the flow table from concurrently
+	 * modifying the flow list.
+	 * Concurrent modification might happen if the capture executable
+	 * still is active while the transactions get processed.
+	 * 
+	 * @see #startRecieving()
+	 */
+	public void stopRecieving() {
+		mRecieving = false;
 	}
 }

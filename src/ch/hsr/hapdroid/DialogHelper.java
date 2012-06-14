@@ -33,11 +33,10 @@ public class DialogHelper {
 	 * 		attach to the OK button
 	 * @return {@link AlertDialog}
 	 */
-	public static AlertDialog createIPInputDialog(Context context, OnClickListener listener) {
+	public static AlertDialog createIPInputDialog(Context context, EditText editText, OnClickListener listener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		EditText mIPEditText = new EditText(context.getApplicationContext());
-		mIPEditText.setInputType(EditorInfo.TYPE_CLASS_PHONE);
-		builder.setMessage(R.string.input_ip).setView(mIPEditText).setCancelable(false)
+		editText.setInputType(EditorInfo.TYPE_CLASS_PHONE);
+		builder.setMessage(R.string.input_ip).setView(editText).setCancelable(false)
 				.setPositiveButton(R.string.input_ip_ok, listener)
 				.setNegativeButton(R.string.input_ip_cancel,
 						new DialogInterface.OnClickListener() {
@@ -51,15 +50,16 @@ public class DialogHelper {
 	/**
 	 * Creates a simple {@link AlertDialog}.
 	 * 
-	 * The dialog created will inform the user that the wrong file
-	 * format has been selected.
+	 * The dialog created will inform the user with the message taken
+	 * from the messageId.
 	 * 
 	 * @param context the {@link Context} used to create the dialog
+	 * @param messageId the int identifier for the message to be shown
 	 * @return {@link AlertDialog}
 	 */
-	public static AlertDialog createWrongFileDialog(Context context) {
+	public static AlertDialog createAlertDialog(Context context, int messageId) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		builder.setMessage(R.string.wrong_file_message).setCancelable(true);
+		builder.setMessage(messageId).setCancelable(true);
 		return builder.create();
 	}
 

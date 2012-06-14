@@ -191,12 +191,21 @@ int init_srv_conn(const char* srvname) {
 
 void read_stream(std::istream & ins, unsigned int flowcount, const string srvname,
 		const IPv6_addr & local_net, const IPv6_addr & netmask) {
+	if (flowcount == 0){
+		LOGD("No flows recieved");
+		return;
+	}
+
 	prefs_t prefs;
 	prefs.summarize_biflows = true;
 	prefs.summarize_clt_roles = true;
 	prefs.summarize_multclt_roles = true;
 	prefs.summarize_p2p_roles = true;
-	prefs.summarize_srv_roles = true;
+	//TODO: fix server role summarization.
+	//for some reason summarizing server roles seems to cause a segmentation
+	//fault on numerous cases. In order to prevent this from happening we
+	//disable server role summarization for now.
+	prefs.summarize_srv_roles = false;
 	prefs.summarize_uniflows = true;
 
 	CImport import("something.gz", "something.hpg", prefs);
@@ -215,7 +224,7 @@ void read_stream(std::istream & ins, unsigned int flowcount, const string srvnam
 	CGraphlet * graphlet = new CGraphlet(out, roleMembership);
 	import.prepare_graphlet(graphlet, roleMembership);
 	LOGD("Write transactions");
-	graphlet->write_transactions(out);
+	graphlet->write_transactions();
 	out.flush();
 
 	delete graphlet;

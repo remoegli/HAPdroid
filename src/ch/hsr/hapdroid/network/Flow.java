@@ -3,7 +3,6 @@ package ch.hsr.hapdroid.network;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import android.util.Log;
 import ch.hsr.hapdroid.graph.Transaction;
 import ch.hsr.hapdroid.graph.node.Node;
 
@@ -29,7 +28,6 @@ public class Flow implements Comparable<Flow>{
 	public static final int SIZE_BYTE = 48;
 
 	private static final byte MAGIC_NUMBER = 1;
-	private static final String LOG_TAG = "Flow";
 	
 	private InetAddress src_addr;
 	private InetAddress dst_addr;
@@ -114,7 +112,10 @@ public class Flow implements Comparable<Flow>{
 		payloadSize += p.payload_size;
 		duration = Timeval.getDifference(p.timestamp, starttime);
 		
-		if (p.dst_addr.equals(src_addr))
+		if (getDirection() == TYPE_OUTGOING && p.dst_addr.equals(src_addr))
+			direction = TYPE_BIFLOW;
+
+		if (getDirection() == TYPE_INCOMING && p.src_addr.equals(src_addr))
 			direction = TYPE_BIFLOW;
 	}
 
@@ -160,9 +161,7 @@ public class Flow implements Comparable<Flow>{
 		set16bitInt(result, 22, dst_port);
 		
 		set48bitLong(result, 24, flowSize);
-		Log.d(LOG_TAG, Long.toHexString(flowSize));
 		set32bitLong(result, 32, pkgCount);
-		Log.d(LOG_TAG, Long.toHexString(flowSize));
 		
 		set16bitInt(result, 36, as_local);
 		set16bitInt(result, 38, as_remote);

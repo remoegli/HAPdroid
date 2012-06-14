@@ -3,8 +3,6 @@ package ch.hsr.hapdroid.network;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
-import android.util.Log;
-
 /**
  * Java representation of the unix time.
  * 
@@ -17,7 +15,6 @@ import android.util.Log;
  */
 public class Timeval implements Comparable<Timeval> {
 
-	private static final String LOG_TAG = "Timeval";
 	private long seconds;
 	private long microseconds;
 
@@ -93,7 +90,6 @@ public class Timeval implements Comparable<Timeval> {
 		System.arraycopy(flowdata, start_index, array, 0, length);
 		
 		long ms = getByteArrayLong(array);
-		Log.d(LOG_TAG, "parsed timeval ms: "+ Long.toString(ms));
 		long seconds = ms/1000;
 		long microseconds = (ms*1000) - (seconds*1000000);
 		return new Timeval(seconds, microseconds);

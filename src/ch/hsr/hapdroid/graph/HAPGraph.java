@@ -6,10 +6,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.Pseudograph;
+import org.jgrapht.graph.SimpleGraph;
 
 import android.util.Log;
-
 import ch.hsr.hapdroid.graph.node.Node;
 import ch.hsr.hapdroid.network.Proto;
 
@@ -30,7 +29,7 @@ import ch.hsr.hapdroid.network.Proto;
  * @see http://jgrapht.org/
  *
  */
-public class HAPGraph extends Pseudograph<Node<?>, DefaultEdge>{
+public class HAPGraph extends SimpleGraph<Node<?>, DefaultEdge>{
 	private NodeList<InetAddress> mSrcIp;
 	private NodeList<Proto> mProto;
 	private NodeList<Integer> mSrcPort;
