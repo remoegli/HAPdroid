@@ -5,9 +5,21 @@ import javax.microedition.khronos.opengles.GL10;
 import org.anddev.andengine.opengl.util.FastFloatBuffer;
 import org.anddev.andengine.opengl.vertex.VertexBuffer;
 import org.anddev.andengine.util.MathUtils;
- 
+
+/**\class EllipseVertexBuffer
+ * The EllipseVertexBuffer is in charge of calculating a vertex for each segment of the ellipse.
+ * 
+ * This code was taken from AndEngine Forums:
+ * http://www.andengine.org/forums/gles1/how-do-i-draw-a-circle-t868.html
+ *
+ */
 public class EllipseVertexBuffer extends VertexBuffer {
- 
+
+	/**
+	 * 
+	 * @param segments Amount of vertices used to draw the circle.
+	 * @param pDrawType
+	 */
   public EllipseVertexBuffer(int segments, int pDrawType) {
     super(segments * 2, pDrawType, false); //TODO Managed = false comes with new andengine version
   }

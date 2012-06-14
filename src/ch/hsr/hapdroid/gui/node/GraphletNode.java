@@ -7,12 +7,26 @@ import org.anddev.andengine.opengl.font.Font;
 
 import ch.hsr.hapdroid.graph.node.Node;
 
+/**\class GraphletNode
+ * This class is in charge of representing the Node it contains on the GUI.
+ *  
+ *  @author Remo Egli
+ */
 public class GraphletNode extends BaseRectangle{
 
 	private static Font sFont;
 	private Node<?> mNode;
+	/**
+	 * This parameter is used to provide a minimal size of a GraphletNode by means of width and height.
+	 * In a future version the height optimally is based on the font size.
+	 */
 	private static final int NODE_HEIGHT = 30;
 	
+	/**
+	 * The GraphletNode needs to hold a reference to the Node it represents to gain access to the label text
+	 * and the isSummarized() value.
+	 * @param node
+	 */
 	public GraphletNode(Node<?> node) {
 		super(0, 0, 0, NODE_HEIGHT);
 		this.mNode = node;
@@ -33,10 +47,10 @@ public class GraphletNode extends BaseRectangle{
 		this.attachChild(nodeLabel);
 	}
 
-	public String getLabel(){
-		return (String) mNode.getValue();
-	}
-	
+	/**
+	 * 
+	 * @return returns the data Node this GraphletNode represents 
+	 */
 	public Node<?> getNode(){
 		return mNode;
 	}
@@ -60,6 +74,10 @@ public class GraphletNode extends BaseRectangle{
 		return super.equals(o);
 	}
 	
+	/**
+	 * This method is require so the whole GUI can use the same font.
+	 * @param aFont
+	 */
 	public static void setFont(Font aFont){
 		  sFont = aFont;
 	}

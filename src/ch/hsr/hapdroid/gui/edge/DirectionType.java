@@ -51,8 +51,20 @@ public enum DirectionType {
      * @return rightArrow Returns the String representation of an arrow to the right if available for this DirectionType
      */
     public String rightArrow() { return rightArrow; }
+    /**
+     * 
+     * @return Return the red component of a color int. 
+     */
     public float getRed() {return Color.red(edgeColor)/COLOR_INT_TO_FLOAT_FACTOR; }
+    /**
+     * 
+     * @return Return the green component of a color int. 
+     */
     public float getGreen(){return Color.green(edgeColor)/COLOR_INT_TO_FLOAT_FACTOR; }
+    /**
+     * 
+     * @return Return the blue component of a color int. 
+     */
     public float getBlue(){return Color.blue(edgeColor)/COLOR_INT_TO_FLOAT_FACTOR; }
 
     /** \brief Returns the DirectionType of a Transaction.
