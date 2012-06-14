@@ -87,11 +87,11 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	public static final int GENERATE_GRAPHLET = 3;
 
 	private static final int PICK_FILE = 0;
-	private static final Pattern IP_ADDRESS = Pattern
-			.compile("((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
-					+ "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
-					+ "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
-					+ "|[1-9][0-9]|[0-9]))");
+	private static final Pattern IP_REGEX = Pattern
+			.compile("((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])" +
+					"\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)" +
+					"\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)" +
+					"\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9]))");
 	private static final String SAVE_FILENAME = "capture.gz";
 	private static final Object FILE_EXTENSION_CFLOW = ".gz";
 	private static final Object FILE_EXTENSION_PCAP = ".pcap";
@@ -105,6 +105,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case HAPdroidService.EMPTY_FLOWTABLE:
+				mProgressDialog.dismiss();
+				mEmptyFlowTableDialog.show();
+				break;
 			case HAPdroidService.SEND_NETWORK_FLOW:
 				break;
 			case HAPdroidService.GENERATE_GRAPHLET:
@@ -155,6 +159,7 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 	private Button mBtnImport;
 	private ProgressDialog mProgressDialog;
 	private AlertDialog mWrongFileDialog;
+	private AlertDialog mEmptyFlowTableDialog;
 	private TextView mTxtStart;
 	private TextView mTxtEnd;
 	private Toast mToast;
@@ -183,11 +188,13 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mWrongIPToast = Toast.makeText(this.getApplicationContext(), R.string.input_ip_wrong, Toast.LENGTH_SHORT);
 		mIPEditText = new EditText(this.getApplicationContext());
 		mProgressDialog = DialogHelper.createProgressDialog(this);
-		mWrongFileDialog = DialogHelper.createWrongFileDialog(this);
-		mIPInputDialog = DialogHelper.createIPInputDialog(this,
+		mWrongFileDialog = DialogHelper.createAlertDialog(this, R.string.wrong_file_message);
+		mEmptyFlowTableDialog = DialogHelper.createAlertDialog(this, R.string.empty_flowtable_message);
+		mIPInputDialog = DialogHelper.createIPInputDialog(this, mIPEditText,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				if (IP_ADDRESS.matcher(mIPEditText.getText()).matches()) {
+				Log.d(LOG_TAG, "IP address: " + mIPEditText.getText());
+				if (IP_REGEX.matcher(mIPEditText.getText()).matches()) {
 					mProgressDialog.show();
 					mService.importPcapFile(mFilePath, mIPEditText.getText().toString());
 				} else {
@@ -220,11 +227,10 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				if (mService.hasPacketsCaptured()) {
 					mProgressDialog.show();
 					stopService(mServiceIntent);
-					mService.stopNetworkCapture();
 				} else {
-					mService.stopForeground(true);
 					mToast.show();
 				}
+				mService.stopNetworkCapture();
 				switchStartStopButton();
 			}
 		};

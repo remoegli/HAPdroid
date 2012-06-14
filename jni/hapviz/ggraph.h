@@ -196,7 +196,7 @@ class CGraphlet {
 		void add_single_flow(const cflow_t & pflow, int role_num, int flow_idx);
 		void add_generic_role(CRole::role_t & role, const CRole::role_t & parent_role, IPv6_addr lastIP, Subflowlist flow_list);
 		void finalize_graphlet(int graphlet_nr);
-		void write_transactions(std::ostream & outs);
+		void write_transactions();
 		CSummaryNodeInfos* nodeInfos;
 	private:
 		static uint8_t flowtype2colorcode(const uint8_t flowtype);

@@ -87,7 +87,7 @@ public class Transaction {
 			t.setDstIp(n);
 		} catch (UnknownHostException e) {
 			try {
-				IPNode n = new IPNode(Inet4Address.getByName("255.255.255." +tokens[0]), t);
+				IPNode n = new IPNode(Inet4Address.getByName("255.255.255." +tokens[1]), t);
 				setSummarized(tokens[0], n);
 				t.setDstIp(n);
 			} catch (UnknownHostException e1) {

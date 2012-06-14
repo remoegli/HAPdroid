@@ -53,9 +53,9 @@ import com.stericson.RootTools.RootTools.Result;
  */
 public class HAPdroidService extends Service {
 
-	private static final String EXECUTABLE = "flowdump";
-	private static final String CAPTURE_WLAN_CMD = "flowdump -i wlan0";
-	private static final String CAPTURE_MOBILE_CMD = "flowdump -i vsnet0";
+	private static final String EXECUTABLE = "netdump";
+	private static final String CAPTURE_WLAN_CMD = "netdump -i wlan0";
+	private static final String CAPTURE_MOBILE_CMD = "netdump -i rmnet0";
 
 	/**
 	 * Communication interface for any client with the Service.
@@ -84,6 +84,9 @@ public class HAPdroidService extends Service {
 			Transaction t;
 			switch (msg.what) {
 			case RECIEVE_PACKET_FINISH:
+				if (mCaptureRunning)
+					return;
+				
 				getTransactions();
 				break;
 			case RECIEVE_TRANSACTION:
@@ -137,6 +140,13 @@ public class HAPdroidService extends Service {
 	 * used once all the transactions are received.
 	 */
 	public static final int GENERATE_GRAPHLET = 5;
+	/**
+	 * Message identifier for trying to process an empty flow table.
+	 * 
+	 * This might happen if the specified IP is not contained in the
+	 * file that was processed.
+	 */
+	public static final int EMPTY_FLOWTABLE = 6;
 
 	private static final String LOG_TAG = "HAPdroidService";
 	private static final String SERVER_TRANSACTIONS = "LocalServTrans";
@@ -147,11 +157,7 @@ public class HAPdroidService extends Service {
 			return;
 
 		mFlowTable.add(p);
-		Message msg = new Message();
-		msg.what = SEND_NETWORK_FLOW;
-		msg.obj = p;
-		if (mCallbackHandler != null)
-			mCallbackHandler.sendMessage(msg);
+		sendCallbackMessage(SEND_NETWORK_FLOW, p);
 	}
 
 	private void handleTransaction(Transaction t) {
@@ -258,6 +264,14 @@ public class HAPdroidService extends Service {
 		mCallbackHandler = aHandler;
 	}
 
+	private void sendCallbackMessage(int what, Object object) {
+		Message msg = new Message();
+		msg.what = what;
+		msg.obj = object;
+		if (mCallbackHandler != null)
+			mCallbackHandler.sendMessage(msg);
+	}
+
 	/**
 	 * Simple getter for the HAPGraphlet.
 	 * 
@@ -268,15 +282,16 @@ public class HAPdroidService extends Service {
 	}
 
 	private void getTransactions() {
+		if (mFlowTable.isEmpty()){
+			sendCallbackMessage(EMPTY_FLOWTABLE, null);
+		}
 		startTransactionServer();
 		HAPvizLibrary.getTransactions(mFlowTable.toByteArray(),
 				SERVER_TRANSACTIONS);
 	}
 
 	private void finishGettingTransactions() {
-		if (mCallbackHandler != null)
-			mCallbackHandler
-					.sendEmptyMessage(GENERATE_GRAPHLET);
+		sendCallbackMessage(GENERATE_GRAPHLET, null);
 		Log.d(LOG_TAG, mHAPGraphlet.toString());
 		Log.d(LOG_TAG, mHAPGraphlet.showTransactions());
 	}
@@ -290,26 +305,6 @@ public class HAPdroidService extends Service {
 		mTransactionCapture = new LocalServerTransactionHandlerTask(SERVER_TRANSACTIONS,
 				mHandler, RECIEVE_TRANSACTION, RECIEVE_TRANSACTION_FINISH);
 		mTransactionCapture.execute();
-	}
-
-	/**
-	 * Starts the network capture.
-	 * 
-	 * This method will start the network capture in the background. The
-	 * capture will run until a call to {@link #stopNetworkCapture()} is 
-	 * issued.
-	 * 
-	 * @throws UnsupportedOperationException if no root access is available
-	 */
-	public void startNetworkCapture() throws UnsupportedOperationException {
-		if (!mHasRoot) {
-			throw new UnsupportedOperationException();
-		}
-		startWlanCapture();
-		// startMobileCapture();
-
-		startForeground(NOTIFICATION_ID, mNotification);
-		mCaptureRunning = true;
 	}
 
 	/**
@@ -346,6 +341,29 @@ public class HAPdroidService extends Service {
 				}
 			}
 		}).start();
+	}
+
+	/**
+	 * Starts the network capture.
+	 * 
+	 * This method will start the network capture in the background. The
+	 * capture will run until a call to {@link #stopNetworkCapture()} is 
+	 * issued.
+	 * 
+	 * @throws UnsupportedOperationException if no root access is available
+	 */
+	public void startNetworkCapture() throws UnsupportedOperationException {
+		if (!mHasRoot) {
+			throw new UnsupportedOperationException();
+		}
+		mFlowTable.clear();
+		mFlowTable.resetSourceIp();
+		mFlowTable.startRecieving();
+		startWlanCapture();
+		startMobileCapture();
+	
+		startForeground(NOTIFICATION_ID, mNotification);
+		mCaptureRunning = true;
 	}
 
 	private void startMobileCapture() {
@@ -389,23 +407,18 @@ public class HAPdroidService extends Service {
 	public void stopNetworkCapture() {
 		if (!mCaptureRunning)
 			return;
-		
-		stopWlanCapture();
-		// stopMobileCapture();
-		synchronized (this) {
-			try {
-				wait(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		getTransactions();
 
-		stopForeground(true);
 		mCaptureRunning = false;
+		stopForeground(true);
+		
+		mFlowTable.stopRecieving();
+		stopWlanCapture();
+		stopMobileCapture();
+		
+		if (hasPacketsCaptured())
+			getTransactions();
 	}
-
+	
 	private void stopWlanCapture() {
 		if (RootTools.isProcessRunning(CAPTURE_WLAN_CMD)) {
 			RootTools.killProcess(CAPTURE_WLAN_CMD);

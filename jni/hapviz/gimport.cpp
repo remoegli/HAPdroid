@@ -165,6 +165,7 @@ void CImport::prepare_reverse_index() {
  *
  */
 void CImport::prepare_flowlist() {
+	LOGD("preparing flowlist");
 	// (3) Fill final flowlist
 	// ***********************
 	// The final all_flowlist has to be sorted in ascending order of localIPs.
@@ -380,6 +381,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 		CRoleMembership & roleMembership) {
 	// (I) Initialize
 	// **************
+	LOGD("initializing graphlet");
 
 	// Role identifiers needed for summarization:
 	CClientRole clientRole(active_flowlist, prefs);
@@ -410,6 +412,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 	// Client & server candidate role identification
 	// =============================================
 	// Go through flow list to check for candidate client and server roles.
+	LOGD("identifying roles");
 	for (unsigned int i = 0; i < getActiveFlowlistSize(); i++) {
 		if (filter.filter_flow(i))
 			continue;
@@ -469,6 +472,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 	// - Identification of p2p candidate flows
 	// - P2P candidate flows purging/ P2p candidate role identification
 	// - P2P role purging
+	LOGD("p2p role summarization");
 	vector<uint32_t>& flow_client_role = clientRole.get_flow_role();
 	if (prefs.summarize_p2p_roles) {
 
@@ -490,6 +494,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 
 	// Finalize roles
 	// **************
+	LOGD("finalizing roles");
 	vector<uint32_t>& flow_p2p_role = p2pRole.get_flow_role();
 	vector<uint32_t> single_flow_rolenum(getActiveFlowlistSize());
 
@@ -536,6 +541,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 	//
 	// a) Firstly, go through all flows not being member of a client role and store edge information.
 	// b) Secondly, add client/server/p2p role summaries as needed to edge information.
+	LOGD("processing flows to graphlet data");
 
 	// Remember new localIP for change testing
 	IPv6_addr lastIP = active_flowlist[0].localIP; // Get 1. localIP
@@ -716,6 +722,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 	// (IIIb) Summarize pending roles
 	// ==============================
 	//
+	LOGD("summarizing client roles");
 	if (prefs.summarize_clt_roles) { // Add client summary nodes to graphlet
 		// Add client roles
 		int c = 0;
@@ -734,6 +741,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 		}
 	}
 
+	LOGD("summarizing multi-client roles");
 	if (prefs.summarize_multclt_roles) { // Add multi-client summary nodes to graphlet
 		// Add multi-client roles
 		int c = 0;
@@ -752,6 +760,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 		}
 	}
 
+	LOGD("summarizing server roles");
 	if (prefs.summarize_srv_roles) { // Add server summary nodes to graphlet
 		// Add server roles
 		int c = 0;
@@ -761,6 +770,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 				if (debug2) {
 					cout << "Server role " << c++ << endl;
 				}
+				LOGD("add summarized server role");
 				graphlet->add_generic_role(
 						*(role->getUsedSubRole(desummarizedRolesSet,
 								desummarizedMultiNodeRolesSet)), *role, lastIP,
@@ -770,6 +780,7 @@ void CImport::prepare_graphlet(CGraphlet * graphlet,
 		}
 	}
 
+	LOGD("summarizing p2p roles");
 	if (prefs.summarize_p2p_roles) { // Add p2p summary nodes to graphlet
 		// Add p2p roles
 		int c = 0;

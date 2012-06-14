@@ -1066,7 +1066,7 @@ inline uint64_t CGraphlet::getRolnumClients(const uint32_t role_nr,
 			+ (client_count & CLIENT_COUNT_BIT_MASK);
 }
 
-void CGraphlet::write_transactions(std::ostream & outs) {
+void CGraphlet::write_transactions() {
 
 	// loop through all the hashmaps in order to print the transactions
 	LOGD("Looping through hashmaps");
