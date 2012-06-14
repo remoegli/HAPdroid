@@ -10,7 +10,7 @@ LOCAL_C_INCLUDES :=\
 	hapviz
 	
 LOCAL_SHARED_LIBRARIES := hapviz
-LOCAL_LDLIBS := -llog
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -lz
 
 include $(BUILD_SHARED_LIBRARY)
 include $(MY_PATH)/hapviz/Android.mk

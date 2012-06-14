@@ -9,6 +9,6 @@ LOCAL_SRC_FILES:=\
 
 LOCAL_C_INCLUDES := $(MY_PATH)/external/boost
 LOCAL_MODULE := boost_iostreams
-LOCAL_LDLIBS := -lz
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -lz
 
 include $(BUILD_SHARED_LIBRARY)

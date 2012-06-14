@@ -20,10 +20,10 @@ LOCAL_SRC_FILES :=\
 LOCAL_MODULE := hapviz
 
 LOCAL_C_INCLUDES := $(MY_PATH)/external/boost
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -lz
 LOCAL_SHARED_LIBRARIES :=\
 	boost_regex\
 	boost_iostreams\
-LOCAL_LDLIBS := -lz -llog
 
 include $(BUILD_SHARED_LIBRARY)
 include $(MY_PATH)/external/boost-iostreams.mk
