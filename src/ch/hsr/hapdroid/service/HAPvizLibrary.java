@@ -22,11 +22,11 @@ public class HAPvizLibrary {
 	 * Process transactions from the given file.
 	 * 
 	 * Passes all the parameters to the library. The library will:
-	 * <ul>
-	 * <li>Open the input file
-	 * <li>Process the transactions according to ip, netmask
-	 * <li>Provide the results over a local server socket to the server listening
-	 * to the local server name
+	 * 
+	 * - Open the input file
+	 * - Process the transactions according to ip, netmask
+	 * - Provide the results over a local server socket to the server listening
+	 *   to the local server name
 	 * 
 	 * @param in_filename absolute path to input file
 	 * @param localServName local server name used for inter process communication
@@ -43,11 +43,11 @@ public class HAPvizLibrary {
 	 * Process transactions from the cflow data.
 	 * 
 	 * Passes all the parameters to the library. The library will:
-	 * <ul>
-	 * <li>Process the cflow data
-	 * <li>Generate the transactions from the cflow data
-	 * <li>Provide the results over a local server socket to the server listening
-	 * to the local server name
+	 * 
+	 * - Process the cflow data
+	 * - Generate the transactions from the cflow data
+	 * - Provide the results over a local server socket to the server listening
+	 *   to the local server name
 	 * 
 	 * @param cflows byte array containing the uncompressed cflow data
 	 * @param localServName local server name used for inter process communication

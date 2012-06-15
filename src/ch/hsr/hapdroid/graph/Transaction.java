@@ -5,6 +5,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.stericson.RootTools.RootTools;
+
 import android.util.Log;
 import ch.hsr.hapdroid.graph.node.IPNode;
 import ch.hsr.hapdroid.graph.node.Node;
@@ -15,7 +17,7 @@ import ch.hsr.hapdroid.network.Flow;
 import ch.hsr.hapdroid.network.Proto;
 
 /**
- * A class representing a path of the HAP graphlet.
+ * A class representing a unique path of the HAP graphlet.
  * 
  * A transaction is defined as a distinct path of the HAP graphlet.
  * It differs from a flow in the sense that it can contain summarized
@@ -46,13 +48,22 @@ public class Transaction {
 	/**
 	 * Parses a transaction from its string representation.
 	 * 
-	 * The string representation is derived from the 
+	 * The string representation is derived from the FSG file format. 
+	 * Bolow is an example of how a transaction might look like.
 	 * 
+	 * t
+	 * SrcIp 10.10.10.10
+	 * Proto 6
+	 * sSrcPort 5
+	 * DstPort 80
+	 * DstIp 10.10.10.20
+	 * 
+	 * The order of lines is important. A unicase s indicates
+	 * summarized nodes.
 	 * 
 	 * @param trans String array with the transaction data
 	 * @return parsed Transaction
 	 */
-	//TODO
 	public static Transaction parse(String[] trans){
 		Transaction t = new Transaction();
 		
@@ -71,7 +82,7 @@ public class Transaction {
 		setDstPortData(trans[4], t);
 		setDstIpData(trans[5], t);
 
-		//ignore internal local server socket packages
+		//ignore invalid packages
 		if (t.getDstPort().getValue() == 0)
 			return null;
 		
@@ -86,15 +97,17 @@ public class Transaction {
 			setSummarized(tokens[0], n);
 			t.setDstIp(n);
 		} catch (UnknownHostException e) {
+			//if the node is summarized node, a UnknownHostException will be thrown
+			//we use the forth octed as container for the host count value
 			try {
 				IPNode n = new IPNode(Inet4Address.getByName("255.255.255." +tokens[1]), t);
 				setSummarized(tokens[0], n);
 				t.setDstIp(n);
 			} catch (UnknownHostException e1) {
-				// TODO Auto-generated catch block
+				// Should not happen
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
+			RootTools.log(LOG_TAG, "Summarized DstIp node: " + t.getDstIp().getValue());
 		}
 	}
 
@@ -162,9 +175,21 @@ public class Transaction {
 	public boolean equals(Object o) {
 		if (o instanceof Transaction){
 			Transaction other = (Transaction) o;
-			return 	other.getDirection() == getDirection() &&
-					other.getPackets() == getPackets() &&
-					other.getBytes() == getBytes();
+			boolean equalsSummarized = 
+					other.getSrcIp().isSummarized() == getSrcIp().isSummarized() &&
+					other.getProto().isSummarized() == getProto().isSummarized() &&
+					other.getSrcPort().isSummarized() == getSrcPort().isSummarized() &&
+					other.getDstPort().isSummarized() == getDstPort().isSummarized() &&
+					other.getDstIp().isSummarized() == getDstIp().isSummarized();
+			
+			if (!equalsSummarized)
+				return false;
+			
+			return 	other.getSrcIp().equals(getSrcIp()) &&
+					other.getProto().equals(getProto()) &&
+					other.getSrcPort().equals(getSrcPort()) &&
+					other.getDstPort().equals(getDstPort()) &&
+					other.getDstIp().equals(getDstIp());
 		} else
 			return super.equals(o);
 	}
@@ -297,14 +322,19 @@ public class Transaction {
 		long packets = 0;
 		long bytes = 0;
 		
+		// save since flowlist should not be empty
+		mDirection = flowlist.get(0).getDirection();
 		for (Flow f : flowlist){
+			if (mDirection < Flow.TYPE_BIFLOW && f.getDirection() == Flow.TYPE_BIFLOW)
+				mDirection = Flow.TYPE_UNIBIFLOW | mDirection;
+			else
+				mDirection = f.getDirection();
 			packets += f.getPacketCount();
 			bytes += f.getByteCount();
 		}
 		
 		mPackets = packets;
 		mBytes = bytes;
-		mDirection = flowlist.get(0).getDirection();
 		mFlows = flowlist;
 	}
 	
@@ -326,9 +356,6 @@ public class Transaction {
 	 * @return {@link CaptureSource} of the first attached flow
 	 */
 	public CaptureSource getCaptureSource() {
-		if (!mFlows.isEmpty())
-			return mFlows.get(0).getCaptureSource();
-		
-		return CaptureSource.UNKNOWN;
+		return mFlows.get(0).getCaptureSource();
 	}
 }

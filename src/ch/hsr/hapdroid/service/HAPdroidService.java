@@ -16,7 +16,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 import android.widget.Toast;
 import ch.hsr.hapdroid.R;
 import ch.hsr.hapdroid.SplashActivity;
@@ -94,7 +93,7 @@ public class HAPdroidService extends Service {
 				handleTransaction(t);
 				break;
 			case RECIEVE_TRANSACTION_FINISH:
-				Log.d(LOG_TAG, "finish getting transactions");
+				RootTools.log(LOG_TAG, "finish getting transactions");
 				finishGettingTransactions();
 				break;
 			}
@@ -163,7 +162,7 @@ public class HAPdroidService extends Service {
 	private void handleTransaction(Transaction t) {
 		List<Flow> flowlist = mFlowTable.getFlowsForTransaction(t);
 		t.setFlows(flowlist);
-		Log.d(LOG_TAG, "Parsed transaction: " + t.toString());
+		RootTools.log(LOG_TAG, "Parsed transaction: " + t.toString());
 		mHAPGraphlet.add(t);
 	}
 
@@ -292,8 +291,8 @@ public class HAPdroidService extends Service {
 
 	private void finishGettingTransactions() {
 		sendCallbackMessage(GENERATE_GRAPHLET, null);
-		Log.d(LOG_TAG, mHAPGraphlet.toString());
-		Log.d(LOG_TAG, mHAPGraphlet.showTransactions());
+		RootTools.log(LOG_TAG, mHAPGraphlet.toString());
+		RootTools.log(LOG_TAG, mHAPGraphlet.showTransactions());
 	}
 
 	private void startTransactionServer() {
@@ -334,9 +333,9 @@ public class HAPdroidService extends Service {
 				try {
 					RootTools.sendShell(mFileDir + EXECUTABLE + " " + params,
 							mExecutableResult, -1);
-					Log.d(LOG_TAG, "executable started with params: " + params);
+					RootTools.log(LOG_TAG, "executable started with params: " + params);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					// TODO handle response to failure
 					e.printStackTrace();
 				}
 			}
@@ -373,9 +372,9 @@ public class HAPdroidService extends Service {
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_MOBILE_CMD,
 							mMobileResult, -1);
-					Log.d(LOG_TAG, "Mobile capture started");
+					RootTools.log(LOG_TAG, "Mobile capture started");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					// TODO handle response to failure
 					e.printStackTrace();
 				}
 			}
@@ -390,9 +389,9 @@ public class HAPdroidService extends Service {
 				try {
 					RootTools.sendShell(mFileDir + CAPTURE_WLAN_CMD,
 							mWlanResult, -1);
-					Log.d(LOG_TAG, "WLAN capture started");
+					RootTools.log(LOG_TAG, "WLAN capture started");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					// TODO handle response to failure
 					e.printStackTrace();
 				}
 			}
@@ -499,7 +498,7 @@ public class HAPdroidService extends Service {
 			fis.close();
 			getTransactions();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO handle response if creation of one of the streams failed
 			e.printStackTrace();
 		}
 	}
@@ -513,7 +512,7 @@ public class HAPdroidService extends Service {
 				output.write(buffer, 0, n);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO what to do if the file stream failed
 			e.printStackTrace();
 		}
 		return output.toByteArray();
@@ -571,8 +570,7 @@ public class HAPdroidService extends Service {
 		 */
 		@Override
 		public void processError(String line) throws Exception {
-			// TODO Auto-generated method stub
-
+			// do nothing
 		}
 
 		/**
@@ -590,8 +588,7 @@ public class HAPdroidService extends Service {
 		 */
 		@Override
 		public void onFailure(Exception ex) {
-			// TODO Auto-generated method stub
-
+			// TODO should restart executable if necessary
 		}
 
 		/**

@@ -12,7 +12,7 @@ import java.util.List;
 
 import ch.hsr.hapdroid.graph.Transaction;
 
-import android.util.Log;
+import com.stericson.RootTools.RootTools;
 
 /**
  * Flow table consisting of a number of flows.
@@ -174,7 +174,7 @@ public class FlowTable {
 			f.reverse();
 		} else{
 			//ignore packets not from or to the souce ip
-			Log.d(LOG_TAG, "packet ignored. Not a local IP");
+			RootTools.log(LOG_TAG, "Not a local IP. Ignoring packet: " + packet.toString());
 			return null;
 		}
 		mFlowList.add(f);
@@ -206,7 +206,7 @@ public class FlowTable {
 			f = it.next();
 			System.arraycopy(f.toByteArray(), 0, result, Flow.SIZE_BYTE*i, Flow.SIZE_BYTE);
 		}
-		Log.d(LOG_TAG, mFlowList.toString());
+		RootTools.log(LOG_TAG, mFlowList.toString());
 		return result;
 	}
 	

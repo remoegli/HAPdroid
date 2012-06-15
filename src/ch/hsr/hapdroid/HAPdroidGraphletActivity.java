@@ -59,6 +59,7 @@ import ch.hsr.hapdroid.service.HAPdroidService;
 import ch.hsr.hapdroid.service.HAPdroidService.HAPdroidBinder;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.stericson.RootTools.RootTools;
 
 /**
  * 
@@ -197,11 +198,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 		mIPInputDialog = DialogHelper.createIPInputDialog(this, mIPEditText,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				Log.d(LOG_TAG, "IP address: " + mIPEditText.getText());
+				RootTools.log(LOG_TAG, "IP address: " + mIPEditText.getText());
+				mProgressDialog.show();
 				if (IP_REGEX.matcher(mIPEditText.getText()).matches()) {
-					mProgressDialog.show();
 					mService.importPcapFile(mFilePath, mIPEditText.getText().toString());
 				} else {
+					mProgressDialog.dismiss();
 					mIPEditText.setText("");
 					mWrongIPToast.show();
 				}
@@ -342,12 +344,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 
 	private String getFileExtension(String filePath) {
 		String ext = FileUtils.getExtension(filePath);
-		Log.d(LOG_TAG, "File extension: " + ext);
+		RootTools.log(LOG_TAG, "File extension: " + ext);
 		return ext;
 	}
 
 	private void generateGraphlet() {
-		Log.d(LOG_TAG, "generating graphlet");
+		RootTools.log(LOG_TAG, "generating graphlet");
 		mGraphlet.update(mService.getGraphlet());
 		mTxtStart.setText(mService.getStartTime().toString());
 		mTxtEnd.setText(mService.getEndTime().toString());
@@ -408,14 +410,12 @@ public class HAPdroidGraphletActivity extends LayoutGameActivity implements
 				myEngine.setTouchController(new MultiTouchController());
 			} else {
 				Toast.makeText(
-						this,
-						"Sorry your device does NOT support MultiTouch!\n\n(No PinchZoom is possible!)",
+						this, R.string.no_multitouch,
 						Toast.LENGTH_LONG).show();
 			}
 		} catch (final MultiTouchException e) {
 			Toast.makeText(
-					this,
-					"Sorry your Android Version does NOT support MultiTouch!\n\n(No PinchZoom is possible!)",
+					this, R.string.no_multitouch,
 					Toast.LENGTH_LONG).show();
 		}
 

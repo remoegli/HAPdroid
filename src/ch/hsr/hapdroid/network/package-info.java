@@ -1,6 +1,7 @@
 /**\package ch.hsr.hapdroid.network
- * \brief short description
+ * \brief Contains all data classes used fot the network capture.
  * 
- * detailed description
+ * All classes that represent some sort of direct network data are 
+ * contained in this package.
  */
 package ch.hsr.hapdroid.network;

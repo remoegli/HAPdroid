@@ -1,6 +1,8 @@
 /**\package ch.hsr.hapdroid.graph;
- * \brief short description
+ * \brief Contains the java graph representation as well as the transactions.
  * 
- * detailed description
+ * The java graph data structure is contained in this package.
+ * since the transaction is strongly related to the graph itself
+ * it is contained in this package as well.
  */
 package ch.hsr.hapdroid.graph;

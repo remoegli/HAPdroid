@@ -14,7 +14,7 @@ import android.widget.EditText;
  * {@link HAPdroidGraphletActivity} used to inform the user or get user
  * input. 
  * 
- * As the name indicates, this class is a helper in order to not bloat\
+ * As the name indicates, this class is a helper in order not to bloat
  * the activity.
  * 
  * @author "Dominik Spengler, Remo Egli"

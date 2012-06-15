@@ -16,13 +16,14 @@ import ch.hsr.hapdroid.network.Proto;
  * Graph representation of the HAPGraphlet.
  * 
  * This class provides a Java Graph representation of the HAPGraphlet
- * based on the jGrapht library, more specifically on a Pseudograph from
- * jGrapht. We use a Pseudograph since it allows for multiple edges and
- * loops.
+ * based on the jGrapht library, more specifically on a SimpleGraph from
+ * jGrapht. We use a SimpleGraph since it allows for multiple edges.
  * 
  * The HAPGraphlet class contains a set of transactions and a {@link NodeList}
- * for each of the different sections (local ip, protocol, local port, 
+ * for each of the different partition (local ip, protocol, local port, 
  * destination port, destination ip).
+ * 
+ * Transactions inside the HAPGraph are only added once.
  * 
  * @author "Dominik Spengler"
  * @see NodeList
@@ -48,6 +49,9 @@ public class HAPGraph extends SimpleGraph<Node<?>, DefaultEdge>{
 		mProto = new UniqueNodeList<Proto>();
 		mSrcPort = new NodeList<Integer>();
 		mDstPort = new NodeList<Integer>();
+		//we use a unique node for destination ip so 
+		//that the edges to the destination ips dont
+		//get too mixed up
 		mDstIp = new UniqueNodeList<InetAddress>();
 	}
 	

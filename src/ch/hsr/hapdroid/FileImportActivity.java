@@ -10,7 +10,7 @@ import com.ipaulpro.afilechooser.FileChooserActivity;
 
 /**
  * Custom file import class, which can be used to import from 
- * the SD card directory.
+ * the SD card directory or any program that support file picking.
  * 
  * This class uses FileChooserActivity from the aFileChooser 
  * library project. The only thing it does is start a file 

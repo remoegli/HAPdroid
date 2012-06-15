@@ -1,6 +1,7 @@
 /**\package ch.hsr.hapdroid.service
- * \brief no description available
+ * \brief Contains the HAPdroidService and its helper classes.
  * 
- * \internal This file is required to ensure the packet navigation in the doxygen html
+ * All classes that the HAPdroidService needs to perform its magic 
+ * are located here.
  */
 package ch.hsr.hapdroid.service;

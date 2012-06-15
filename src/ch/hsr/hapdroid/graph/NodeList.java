@@ -25,7 +25,7 @@ public class NodeList<T> implements Iterable<Node<T>>{
 	/**
 	 * Adds the node to the list.
 	 * 
-	 * If a {@link Node} describing node already exists inside the list,
+	 * If a {@link Node} which describes node already exists inside the list,
 	 * that {@link Node} will be returned. Describes in this Context means
 	 * that it is a summarized node with the same type and value.
 	 * 

@@ -34,4 +34,5 @@
     <string name="endtime">Endtime</string>
     <string name="wrong_file_message">File extension not supported for import</string>
     <string name="empty_flowtable_message">The flow table is empty. Did you specify the correct IP address for pcap file import?</string>
+    <string name="no_multitouch">Sorry your device does NOT support MultiTouch!\n\n(No PinchZoom is possible!)</string>
 </resources>

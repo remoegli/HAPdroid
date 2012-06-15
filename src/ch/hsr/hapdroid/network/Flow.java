@@ -80,7 +80,7 @@ public class Flow implements Comparable<Flow>{
 			src_addr = InetAddress.getByAddress(getNetworkByteOrder(flowdata, 0));
 			dst_addr = InetAddress.getByAddress(getNetworkByteOrder(flowdata, 4));
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			// TODO there should be some response to wrong data
 			e.printStackTrace();
 		}
 		

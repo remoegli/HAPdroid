@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.stericson.RootTools.RootTools;
+
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.os.AsyncTask;
@@ -66,7 +68,7 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		Log.d(LOG_TAG, mServerName + ": Server started");
+		RootTools.log(LOG_TAG, mServerName + ": Server started");
 	}
 
 	/**
@@ -84,7 +86,7 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 		}
 
 		String line;
-		Log.d(LOG_TAG, mServerName + ": Start reading lines");
+		RootTools.log(LOG_TAG, mServerName + ": Start reading lines");
 		try {
 			LocalSocket sk = mServerSocket.accept();
 			mInputStream = sk.getInputStream();
@@ -93,10 +95,10 @@ public class LocalServerTransactionHandlerTask extends AsyncTask<Void, String, V
 				handleTransaction(line);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO handle failure of socket/input stream createion
 			e.printStackTrace();
 		}
-		Log.d(LOG_TAG, mServerName + ": Finished reading lines");
+		RootTools.log(LOG_TAG, mServerName + ": Finished reading lines");
 		return null;
 	}
 

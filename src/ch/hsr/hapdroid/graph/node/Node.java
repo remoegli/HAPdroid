@@ -58,19 +58,19 @@ public class Node<V>{
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return value.toString();
-	}
-	
-	/**
 	 * Getter for the transaction the node belongs to.
 	 * 
 	 * @return {@link Transaction} the node belongs to
 	 */
 	public Transaction getTransaction() {
 		return mTransaction;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return value.toString();
 	}
 }
